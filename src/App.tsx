@@ -250,30 +250,32 @@ function App() {
 
       {/* Marquee Band (Chains) */}
       <div className="marquee-band">
-        <div className="marquee-label">Agents we cover, listed across</div>
-        <div className="marquee">
-          <div className="marquee-track" id="chainTrack">
-            {extendedChains.map(([name, color, symbol, logoPath], idx) => {
-              const isOnlyLogo = !name || name.trim() === '';
-              return (
-                <a key={`chain-${idx}`} className="chip" href="#">
-                  <span
-                    className="glyph"
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      padding: '0px',
-                      width: isOnlyLogo ? 'auto' : '50px',
-                      height: '50px'
-                    }}
-                  >
-                    <img src={logoPath} alt={name} style={{ height: '48px', width: 'auto', objectFit: 'contain' }} />
-                  </span>
-                  {!isOnlyLogo && <span className="name" style={{ color: color }}>{name}</span>}
-                </a>
-              );
-            })}
+        <div className="wrap">
+          <div className="marquee-label">Agents we cover, listed across</div>
+          <div className="marquee">
+            <div className="marquee-track" id="chainTrack">
+              {extendedChains.map(([name, color, symbol, logoPath], idx) => {
+                const isOnlyLogo = !name || name.trim() === '';
+                return (
+                  <a key={`chain-${idx}`} className="chip" href="#">
+                    <span
+                      className="glyph"
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        padding: '0px',
+                        width: isOnlyLogo ? 'auto' : '50px',
+                        height: '50px'
+                      }}
+                    >
+                      <img src={logoPath} alt={name} style={{ height: '48px', width: 'auto', objectFit: 'contain' }} />
+                    </span>
+                    {!isOnlyLogo && <span className="name" style={{ color: color }}>{name}</span>}
+                  </a>
+                );
+              })}
+            </div>
           </div>
         </div>
       </div>
@@ -327,20 +329,22 @@ function App() {
 
       {/* Marquee Band (Agents) */}
       <div className="marquee-band tight">
-        <div className="marquee-label">Recently profiled</div>
-        <div className="marquee rev">
-          <div className="marquee-track" id="agentTrack">
-            {extendedAgents.map(([name, sub, color], idx) => (
-              <a key={`agent-${idx}`} className="chip agent" href="#">
-                <span className="glyph" style={{ color: color }}>
-                  <AgentLogo name={name} color={color} />
-                </span>
-                <span style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.15 }}>
-                  <span className="name">{name}</span>
-                  <span className="sub">{sub}</span>
-                </span>
-              </a>
-            ))}
+        <div className="wrap">
+          <div className="marquee-label">Recently profiled</div>
+          <div className="marquee rev">
+            <div className="marquee-track" id="agentTrack">
+              {extendedAgents.map(([name, sub, color], idx) => (
+                <a key={`agent-${idx}`} className="chip agent" href="#">
+                  <span className="glyph" style={{ color: color }}>
+                    <AgentLogo name={name} color={color} />
+                  </span>
+                  <span style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.15 }}>
+                    <span className="name">{name}</span>
+                    <span className="sub">{sub}</span>
+                  </span>
+                </a>
+              ))}
+            </div>
           </div>
         </div>
       </div>
