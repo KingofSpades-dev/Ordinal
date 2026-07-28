@@ -194,49 +194,65 @@ function App() {
       <nav>
         <div className="wrap nav-inner">
           <div className="brand">
-            <svg className="brand-mark" viewBox="0 0 40 40" fill="none">
-              <circle cx="20" cy="20" r="18.5" stroke="#16161A" strokeWidth="1.4" />
-              <path d="M20 2v36M2 20h36" stroke="#16161A" strokeWidth="1" />
-              <path d="M20 8 L22.2 17.8 L32 20 L22.2 22.2 L20 32 L17.8 22.2 L8 20 L17.8 17.8 Z" fill="#B08321" />
+            <svg className="brand-mark" viewBox="0 0 100 100" fill="currentColor">
+              <g transform="translate(50, 38)">
+                {Array.from({ length: 12 }).map((_, i) => (
+                  <rect
+                    key={i}
+                    x="-3"
+                    y="-24"
+                    width="6"
+                    height="12"
+                    rx="3"
+                    transform={`rotate(${i * 30})`}
+                  />
+                ))}
+                <circle cx="0" cy="0" r="9" />
+                <circle cx="0" cy="0" r="3.5" fill="var(--paper, #F5F0E8)" />
+              </g>
+              <rect x="47" y="38" width="6" height="42" rx="1.5" />
+              <path d="M 53 62 h 12 v 6 h -6 v 4 h 6 v 6 h -12 Z" />
             </svg>
-            <span className="brand-name">M<b>eridian</b></span>
+            <span className="brand-name">O<b>rdo</b></span>
           </div>
-          <div className="nav-links">
-            <a href="#rankings">Rankings</a>
-            <a href="#categories">Categories</a>
-            <a href="#stack">How it works</a>
-            <a href="#editorial">Editorial</a>
-            <a href="#holders">Holders</a>
+          <div className="nav-right">
+            <div className="nav-links">
+              <a href="#">Home</a>
+              <a href="#">About</a>
+              <a href="#rankings">Ratings</a>
+              <a href="#method">Methodology</a>
+              <a href="#">Docs</a>
+              <a href="#">API</a>
+            </div>
+            <a href="#" className="nav-cta">Launch App ↗</a>
           </div>
-          <a href="#" className="nav-cta">Browse the Guide</a>
         </div>
       </nav>
 
       {/* Hero */}
-      <header>
+      <header className="hero-section">
+        <div className="wrap hero-container">
+          <div className="hero-bg-wrapper">
+            <img src="/hero_transparent.png" alt="Ordo Illustration" className="hero-bg-img" />
+          </div>
+          <div className="hero-left">
+            <Reveal delay={100}>
+              <h1 className="hero">The Standard for Web3 AI Agents</h1>
+            </Reveal>
+            <Reveal delay={200}>
+              <p className="hero-sub">
+                We evaluate AI agents with objective, on-chain data and transparent methodology.
+              </p>
+            </Reveal>
+            <Reveal delay={300}>
+              <div className="hero-actions">
+                <a href="#rankings" className="btn-primary">Explore Ratings</a>
+                <a href="#method" className="btn-secondary">Read Methodology</a>
+              </div>
+            </Reveal>
+          </div>
+        </div>
         <div className="wrap">
-          <Reveal>
-            <span className="hero-badge">
-              <span className="pill">The Guide</span>
-              Like Michelin for restaurants, or QS for universities — for Web3 AI agents
-            </span>
-          </Reveal>
-          <Reveal delay={100}>
-            <h1 className="hero">The definitive rankings for <em>Web3 AI agents.</em></h1>
-          </Reveal>
-          <Reveal delay={200}>
-            <p className="hero-sub">
-              Hundreds of agents launch every month. Most directories list them; influencers promote whoever pays.
-              Meridian is the editorial authority that separates the <b>genuinely useful</b> from the marketing —
-              through rigorous review, transparent scoring, and verdicts no project can purchase.
-            </p>
-          </Reveal>
-          <Reveal delay={300}>
-            <div className="hero-actions">
-              <a href="#rankings" className="btn-primary">Explore the rankings</a>
-              <a href="#stack" className="btn-ghost">How every Dossier is built <span>→</span></a>
-            </div>
-          </Reveal>
           <Reveal delay={400}>
             <div className="hero-meta">
               <div className="stat"><div className="n mono">4</div><div className="l">Curated categories</div></div>
@@ -356,7 +372,7 @@ function App() {
             <div className="sec-head">
               <span className="eyebrow">The Dossier · The rating</span>
               <h2>One to three stars. Earned, never sold.</h2>
-              <p>Every agent gets a <b style={{ color: 'var(--ink)', fontWeight: 600 }}>Meridian Dossier</b> — a full profile, scored review, and generated visual record. Our editorial verdict sits apart from community sentiment: always side by side, never blended.</p>
+              <p>Every agent gets a <b style={{ color: 'var(--ink)', fontWeight: 600 }}>Ordo Dossier</b> — a full profile, scored review, and generated visual record. Our editorial verdict sits apart from community sentiment: always side by side, never blended.</p>
             </div>
           </Reveal>
           <div className="rating-wrap">
@@ -364,22 +380,22 @@ function App() {
               <div className="stars-legend">
                 <div className="star-row">
                   <div className="star-marks">
-                    <svg viewBox="0 0 24 24" fill="#B08321"><path d="M12 2l2.6 7.1L22 9.3l-5.5 4.5L18.6 22 12 17.6 5.4 22l2.1-8.2L2 9.3l7.4-.2z" /></svg>
+                    <svg viewBox="0 0 24 24" fill="var(--brass)"><path d="M12 2l2.6 7.1L22 9.3l-5.5 4.5L18.6 22 12 17.6 5.4 22l2.1-8.2L2 9.3l7.4-.2z" /></svg>
                   </div>
                   <div className="txt"><h4>One Star — Notable</h4><p>A capable agent worth knowing in its category. Solid execution, real utility.</p></div>
                 </div>
                 <div className="star-row">
                   <div className="star-marks">
-                    <svg viewBox="0 0 24 24" fill="#B08321"><path d="M12 2l2.6 7.1L22 9.3l-5.5 4.5L18.6 22 12 17.6 5.4 22l2.1-8.2L2 9.3l7.4-.2z" /></svg>
-                    <svg viewBox="0 0 24 24" fill="#B08321"><path d="M12 2l2.6 7.1L22 9.3l-5.5 4.5L18.6 22 12 17.6 5.4 22l2.1-8.2L2 9.3l7.4-.2z" /></svg>
+                    <svg viewBox="0 0 24 24" fill="var(--brass)"><path d="M12 2l2.6 7.1L22 9.3l-5.5 4.5L18.6 22 12 17.6 5.4 22l2.1-8.2L2 9.3l7.4-.2z" /></svg>
+                    <svg viewBox="0 0 24 24" fill="var(--brass)"><path d="M12 2l2.6 7.1L22 9.3l-5.5 4.5L18.6 22 12 17.6 5.4 22l2.1-8.2L2 9.3l7.4-.2z" /></svg>
                   </div>
                   <div className="txt"><h4>Two Stars — Excellent</h4><p>Among the best in its category. Worth going out of your way to use.</p></div>
                 </div>
                 <div className="star-row">
                   <div className="star-marks">
-                    <svg viewBox="0 0 24 24" fill="#B08321"><path d="M12 2l2.6 7.1L22 9.3l-5.5 4.5L18.6 22 12 17.6 5.4 22l2.1-8.2L2 9.3l7.4-.2z" /></svg>
-                    <svg viewBox="0 0 24 24" fill="#B08321"><path d="M12 2l2.6 7.1L22 9.3l-5.5 4.5L18.6 22 12 17.6 5.4 22l2.1-8.2L2 9.3l7.4-.2z" /></svg>
-                    <svg viewBox="0 0 24 24" fill="#B08321"><path d="M12 2l2.6 7.1L22 9.3l-5.5 4.5L18.6 22 12 17.6 5.4 22l2.1-8.2L2 9.3l7.4-.2z" /></svg>
+                    <svg viewBox="0 0 24 24" fill="var(--brass)"><path d="M12 2l2.6 7.1L22 9.3l-5.5 4.5L18.6 22 12 17.6 5.4 22l2.1-8.2L2 9.3l7.4-.2z" /></svg>
+                    <svg viewBox="0 0 24 24" fill="var(--brass)"><path d="M12 2l2.6 7.1L22 9.3l-5.5 4.5L18.6 22 12 17.6 5.4 22l2.1-8.2L2 9.3l7.4-.2z" /></svg>
+                    <svg viewBox="0 0 24 24" fill="var(--brass)"><path d="M12 2l2.6 7.1L22 9.3l-5.5 4.5L18.6 22 12 17.6 5.4 22l2.1-8.2L2 9.3l7.4-.2z" /></svg>
                   </div>
                   <div className="txt"><h4>Three Stars — Exceptional</h4><p>A category-defining agent. The standard others are measured against.</p></div>
                 </div>
@@ -397,7 +413,7 @@ function App() {
                   <div className="vc-score"><div className="big mono">92</div><div className="of">/ 100</div></div>
                 </div>
                 <div className="vc-dossier">
-                  <span className="dref">MERIDIAN DOSSIER №038</span>
+                  <span className="dref">ORDO DOSSIER №038</span>
                   <span className="dai"><span className="dot-live"></span>AI-assisted · editor-verified</span>
                 </div>
                 <div className="vc-body">
@@ -410,11 +426,11 @@ function App() {
                   <div className="community-stars">
                     <span className="tag">Community</span>
                     <span className="cs">
-                      <svg viewBox="0 0 24 24" fill="#B08321"><path d="M12 2l2.6 7.1L22 9.3l-5.5 4.5L18.6 22 12 17.6 5.4 22l2.1-8.2L2 9.3l7.4-.2z" /></svg>
-                      <svg viewBox="0 0 24 24" fill="#B08321"><path d="M12 2l2.6 7.1L22 9.3l-5.5 4.5L18.6 22 12 17.6 5.4 22l2.1-8.2L2 9.3l7.4-.2z" /></svg>
-                      <svg viewBox="0 0 24 24" fill="#B08321"><path d="M12 2l2.6 7.1L22 9.3l-5.5 4.5L18.6 22 12 17.6 5.4 22l2.1-8.2L2 9.3l7.4-.2z" /></svg>
-                      <svg viewBox="0 0 24 24" fill="#B08321"><path d="M12 2l2.6 7.1L22 9.3l-5.5 4.5L18.6 22 12 17.6 5.4 22l2.1-8.2L2 9.3l7.4-.2z" /></svg>
-                      <svg viewBox="0 0 24 24" fill="#D7D9DF"><path d="M12 2l2.6 7.1L22 9.3l-5.5 4.5L18.6 22 12 17.6 5.4 22l2.1-8.2L2 9.3l7.4-.2z" /></svg>
+                      <svg viewBox="0 0 24 24" fill="var(--brass)"><path d="M12 2l2.6 7.1L22 9.3l-5.5 4.5L18.6 22 12 17.6 5.4 22l2.1-8.2L2 9.3l7.4-.2z" /></svg>
+                      <svg viewBox="0 0 24 24" fill="var(--brass)"><path d="M12 2l2.6 7.1L22 9.3l-5.5 4.5L18.6 22 12 17.6 5.4 22l2.1-8.2L2 9.3l7.4-.2z" /></svg>
+                      <svg viewBox="0 0 24 24" fill="var(--brass)"><path d="M12 2l2.6 7.1L22 9.3l-5.5 4.5L18.6 22 12 17.6 5.4 22l2.1-8.2L2 9.3l7.4-.2z" /></svg>
+                      <svg viewBox="0 0 24 24" fill="var(--brass)"><path d="M12 2l2.6 7.1L22 9.3l-5.5 4.5L18.6 22 12 17.6 5.4 22l2.1-8.2L2 9.3l7.4-.2z" /></svg>
+                      <svg viewBox="0 0 24 24" fill="var(--line)"><path d="M12 2l2.6 7.1L22 9.3l-5.5 4.5L18.6 22 12 17.6 5.4 22l2.1-8.2L2 9.3l7.4-.2z" /></svg>
                     </span>
                     <span className="csv">4.2</span>
                   </div>
@@ -432,7 +448,7 @@ function App() {
             <div className="sec-head">
               <span className="eyebrow">How every Dossier is built</span>
               <h2>Multiple frontier models. One rigorous result.</h2>
-              <p>Each Meridian Dossier is assembled by a combined AI stack, then verified by a human editor before it earns a star. No single model does the whole job — we pair each to what it does best.</p>
+              <p>Each Ordo Dossier is assembled by a combined AI stack, then verified by a human editor before it earns a star. No single model does the whole job — we pair each to what it does best.</p>
             </div>
           </Reveal>
           <div className="stack-grid">
@@ -474,7 +490,7 @@ function App() {
             <div className="sec-head">
               <span className="eyebrow">Trust over popularity</span>
               <h2>Every score is reproducible, and public.</h2>
-              <p>The fastest way to earn authority in a low-trust industry is to be auditable. Here is how a Meridian rating is built.</p>
+              <p>The fastest way to earn authority in a low-trust industry is to be auditable. Here is how an Ordo rating is built.</p>
             </div>
           </Reveal>
           <div className="method-grid">
@@ -557,9 +573,9 @@ function App() {
             <div className="holder-list">
               <Reveal delay={50} className="hl-row">
                 <div className="ic">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="#16161A" strokeWidth="1.6">
-                    <path d="M4 7h16M4 12h16M4 17h10" />
-                  </svg>
+              <svg viewBox="0 0 24 24" fill="none" stroke="var(--ink)" strokeWidth="1.6">
+                <path d="M4 7h16M4 12h16M4 17h10" />
+              </svg>
                 </div>
                 <div>
                   <h4>Full Dossiers, first</h4>
@@ -568,10 +584,10 @@ function App() {
               </Reveal>
               <Reveal delay={120} className="hl-row">
                 <div className="ic">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="#16161A" strokeWidth="1.6">
-                    <path d="M3 3v18h18" />
-                    <path d="M7 14l3-4 3 3 5-7" />
-                  </svg>
+              <svg viewBox="0 0 24 24" fill="none" stroke="var(--ink)" strokeWidth="1.6">
+                <path d="M3 3v18h18" />
+                <path d="M7 14l3-4 3 3 5-7" />
+              </svg>
                 </div>
                 <div>
                   <h4>Advanced analytics &amp; on-chain data</h4>
@@ -580,9 +596,9 @@ function App() {
               </Reveal>
               <Reveal delay={190} className="hl-row">
                 <div className="ic">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="#16161A" strokeWidth="1.6">
-                    <path d="M8 3H5a2 2 0 00-2 2v3m0 8v3a2 2 0 002 2h3m8 0h3a2 2 0 002-2v-3m0-8V5a2 2 0 00-2-2h-3" />
-                  </svg>
+              <svg viewBox="0 0 24 24" fill="none" stroke="var(--ink)" strokeWidth="1.6">
+                <path d="M8 3H5a2 2 0 00-2 2v3m0 8v3a2 2 0 002 2h3m8 0h3a2 2 0 002-2v-3m0-8V5a2 2 0 00-2-2h-3" />
+              </svg>
                 </div>
                 <div>
                   <h4>API access</h4>
@@ -591,9 +607,9 @@ function App() {
               </Reveal>
               <Reveal delay={260} className="hl-row">
                 <div className="ic">
-                  <svg viewBox="0 0 24 24" fill="#B08321">
-                    <path d="M12 2l2.6 7.1L22 9.3l-5.5 4.5L18.6 22 12 17.6 5.4 22l2.1-8.2L2 9.3l7.4-.2z" />
-                  </svg>
+              <svg viewBox="0 0 24 24" fill="var(--brass)">
+                <path d="M12 2l2.6 7.1L22 9.3l-5.5 4.5L18.6 22 12 17.6 5.4 22l2.1-8.2L2 9.3l7.4-.2z" />
+              </svg>
                 </div>
                 <div>
                   <h4>Community Stars &amp; holder badge</h4>
@@ -632,12 +648,26 @@ function App() {
           <div className="foot-top">
             <div className="foot-brand">
               <div className="brand">
-                <svg className="brand-mark" viewBox="0 0 40 40" fill="none">
-                  <circle cx="20" cy="20" r="18.5" stroke="#16161A" strokeWidth="1.4" />
-                  <path d="M20 2v36M2 20h36" stroke="#16161A" strokeWidth="1" />
-                  <path d="M20 8 L22.2 17.8 L32 20 L22.2 22.2 L20 32 L17.8 22.2 L8 20 L17.8 17.8 Z" fill="#B08321" />
+                <svg className="brand-mark" viewBox="0 0 100 100" fill="currentColor">
+                  <g transform="translate(50, 38)">
+                    {Array.from({ length: 12 }).map((_, i) => (
+                      <rect
+                        key={i}
+                        x="-3"
+                        y="-24"
+                        width="6"
+                        height="12"
+                        rx="3"
+                        transform={`rotate(${i * 30})`}
+                      />
+                    ))}
+                    <circle cx="0" cy="0" r="9" />
+                    <circle cx="0" cy="0" r="3.5" fill="var(--paper, #F5F0E8)" />
+                  </g>
+                  <rect x="47" y="38" width="6" height="42" rx="1.5" />
+                  <path d="M 53 62 h 12 v 6 h -6 v 4 h 6 v 6 h -12 Z" />
                 </svg>
-                <span className="brand-name">M<b>eridian</b></span>
+                <span className="brand-name">O<b>rdo</b></span>
               </div>
               <p>The independent editorial authority for Web3 AI agents. Rankings you can trust, methodology you can read.</p>
             </div>
@@ -657,7 +687,7 @@ function App() {
             </div>
           </div>
           <div className="foot-bottom">
-            <p>© 2026 Meridian</p>
+            <p>© 2026 Ordo</p>
             <p>Independent · Unbuyable · Dated</p>
           </div>
         </div>
