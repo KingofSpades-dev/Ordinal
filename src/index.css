@@ -315,10 +315,6 @@ h1.hero em {
   animation-duration: 52s
 }
 
-.marquee:hover .marquee-track {
-  animation-play-state: paused
-}
-
 .chip {
   display: inline-flex;
   align-items: center;
@@ -328,12 +324,12 @@ h1.hero em {
   border: none;
   background: transparent;
   color: var(--ink-soft);
-  transition: color .2s, transform .2s
+  cursor: default;
+  transition: color .2s
 }
 
 .chip:hover {
   color: var(--ink);
-  transform: translateY(-2px)
 }
 
 .chip .glyph {

@@ -257,7 +257,7 @@ function App() {
               {extendedChains.map(([name, color, symbol, logoPath], idx) => {
                 const isOnlyLogo = !name || name.trim() === '';
                 return (
-                  <a key={`chain-${idx}`} className="chip" href="#">
+                  <div key={`chain-${idx}`} className="chip">
                     <span
                       className="glyph"
                       style={{
@@ -272,7 +272,7 @@ function App() {
                       <img src={logoPath} alt={name} style={{ height: '48px', width: 'auto', objectFit: 'contain' }} />
                     </span>
                     {!isOnlyLogo && <span className="name" style={{ color: color }}>{name}</span>}
-                  </a>
+                  </div>
                 );
               })}
             </div>
@@ -334,7 +334,7 @@ function App() {
           <div className="marquee rev">
             <div className="marquee-track" id="agentTrack">
               {extendedAgents.map(([name, sub, color], idx) => (
-                <a key={`agent-${idx}`} className="chip agent" href="#">
+                <div key={`agent-${idx}`} className="chip agent">
                   <span className="glyph" style={{ color: color }}>
                     <AgentLogo name={name} color={color} />
                   </span>
@@ -342,7 +342,7 @@ function App() {
                     <span className="name">{name}</span>
                     <span className="sub">{sub}</span>
                   </span>
-                </a>
+                </div>
               ))}
             </div>
           </div>
