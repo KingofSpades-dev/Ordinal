@@ -136,13 +136,13 @@ function AgentLogo({ name, color }: { name: string; color: string }) {
 
 function App() {
   const chains = [
-    ['', '#627EEA', 'Ξ', '/chains/ethereum.svg'],
     ['', '#14F195', '◎', '/chains/solana.svg'],
-    ['', '#0052FF', 'B', '/chains/base.svg'],
-    ['', '#28A0F0', 'A', '/chains/arbitrum.svg'],
     ['Polygon', '#8247E5', 'P', '/chains/polygon.svg'],
+    ['', '#0052FF', 'B', '/chains/base.svg'],
     ['Optimism', '#FF0420', 'O', '/chains/optimism.svg'],
+    ['', '#28A0F0', 'A', '/chains/arbitrum.svg'],
     ['BNB Chain', '#F0B90B', 'B', '/chains/bnb.svg'],
+    ['', '#627EEA', 'Ξ', '/chains/ethereum.svg'],
     ['Avalanche', '#E84142', 'A', '/chains/avalanche.svg'],
     ['', '#4DA2FF', 'S', '/chains/sui.svg'],
     ['', '#06F7C7', 'A', '/chains/aptos.svg'],
