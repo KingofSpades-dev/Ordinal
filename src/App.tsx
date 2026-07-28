@@ -39,7 +39,7 @@ function Reveal({ children, className = '', delay = 0 }: RevealProps) {
   );
 }
 
-function AgentLogo({ name, color }: { name: string; color: string }) {
+function AgentLogo({ name }: { name: string }) {
   switch (name) {
     case 'Sentinel AI':
       return (
@@ -254,7 +254,7 @@ function App() {
           <div className="marquee-label">Agents we cover, listed across</div>
           <div className="marquee">
             <div className="marquee-track" id="chainTrack">
-              {extendedChains.map(([name, color, symbol, logoPath], idx) => {
+              {extendedChains.map(([name, color, _symbol, logoPath], idx) => {
                 const isOnlyLogo = !name || name.trim() === '';
                 return (
                   <div key={`chain-${idx}`} className="chip">
@@ -336,7 +336,7 @@ function App() {
               {extendedAgents.map(([name, sub, color], idx) => (
                 <div key={`agent-${idx}`} className="chip agent">
                   <span className="glyph" style={{ color: color }}>
-                    <AgentLogo name={name} color={color} />
+                    <AgentLogo name={name} />
                   </span>
                   <span style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.15 }}>
                     <span className="name">{name}</span>
