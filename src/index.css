@@ -598,7 +598,8 @@ section {
 .star-row .txt h4 {
   font-family: 'Fraunces', serif;
   font-weight: 500;
-  font-size: 19px
+  font-size: 19px;
+  color: var(--accent);
 }
 
 .star-row .txt p {

@@ -379,24 +379,15 @@ function App() {
             <Reveal delay={100}>
               <div className="stars-legend">
                 <div className="star-row">
-                  <div className="star-marks">
-                    <svg viewBox="0 0 24 24" fill="var(--brass)"><path d="M12 2l2.6 7.1L22 9.3l-5.5 4.5L18.6 22 12 17.6 5.4 22l2.1-8.2L2 9.3l7.4-.2z" /></svg>
-                  </div>
+
                   <div className="txt"><h4>One Star — Notable</h4><p>A capable agent worth knowing in its category. Solid execution, real utility.</p></div>
                 </div>
                 <div className="star-row">
-                  <div className="star-marks">
-                    <svg viewBox="0 0 24 24" fill="var(--brass)"><path d="M12 2l2.6 7.1L22 9.3l-5.5 4.5L18.6 22 12 17.6 5.4 22l2.1-8.2L2 9.3l7.4-.2z" /></svg>
-                    <svg viewBox="0 0 24 24" fill="var(--brass)"><path d="M12 2l2.6 7.1L22 9.3l-5.5 4.5L18.6 22 12 17.6 5.4 22l2.1-8.2L2 9.3l7.4-.2z" /></svg>
-                  </div>
+
                   <div className="txt"><h4>Two Stars — Excellent</h4><p>Among the best in its category. Worth going out of your way to use.</p></div>
                 </div>
                 <div className="star-row">
-                  <div className="star-marks">
-                    <svg viewBox="0 0 24 24" fill="var(--brass)"><path d="M12 2l2.6 7.1L22 9.3l-5.5 4.5L18.6 22 12 17.6 5.4 22l2.1-8.2L2 9.3l7.4-.2z" /></svg>
-                    <svg viewBox="0 0 24 24" fill="var(--brass)"><path d="M12 2l2.6 7.1L22 9.3l-5.5 4.5L18.6 22 12 17.6 5.4 22l2.1-8.2L2 9.3l7.4-.2z" /></svg>
-                    <svg viewBox="0 0 24 24" fill="var(--brass)"><path d="M12 2l2.6 7.1L22 9.3l-5.5 4.5L18.6 22 12 17.6 5.4 22l2.1-8.2L2 9.3l7.4-.2z" /></svg>
-                  </div>
+
                   <div className="txt"><h4>Three Stars — Exceptional</h4><p>A category-defining agent. The standard others are measured against.</p></div>
                 </div>
               </div>
@@ -573,9 +564,9 @@ function App() {
             <div className="holder-list">
               <Reveal delay={50} className="hl-row">
                 <div className="ic">
-              <svg viewBox="0 0 24 24" fill="none" stroke="var(--ink)" strokeWidth="1.6">
-                <path d="M4 7h16M4 12h16M4 17h10" />
-              </svg>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="var(--ink)" strokeWidth="1.6">
+                    <path d="M4 7h16M4 12h16M4 17h10" />
+                  </svg>
                 </div>
                 <div>
                   <h4>Full Dossiers, first</h4>
@@ -584,10 +575,10 @@ function App() {
               </Reveal>
               <Reveal delay={120} className="hl-row">
                 <div className="ic">
-              <svg viewBox="0 0 24 24" fill="none" stroke="var(--ink)" strokeWidth="1.6">
-                <path d="M3 3v18h18" />
-                <path d="M7 14l3-4 3 3 5-7" />
-              </svg>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="var(--ink)" strokeWidth="1.6">
+                    <path d="M3 3v18h18" />
+                    <path d="M7 14l3-4 3 3 5-7" />
+                  </svg>
                 </div>
                 <div>
                   <h4>Advanced analytics &amp; on-chain data</h4>
@@ -596,9 +587,9 @@ function App() {
               </Reveal>
               <Reveal delay={190} className="hl-row">
                 <div className="ic">
-              <svg viewBox="0 0 24 24" fill="none" stroke="var(--ink)" strokeWidth="1.6">
-                <path d="M8 3H5a2 2 0 00-2 2v3m0 8v3a2 2 0 002 2h3m8 0h3a2 2 0 002-2v-3m0-8V5a2 2 0 00-2-2h-3" />
-              </svg>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="var(--ink)" strokeWidth="1.6">
+                    <path d="M8 3H5a2 2 0 00-2 2v3m0 8v3a2 2 0 002 2h3m8 0h3a2 2 0 002-2v-3m0-8V5a2 2 0 00-2-2h-3" />
+                  </svg>
                 </div>
                 <div>
                   <h4>API access</h4>
@@ -607,9 +598,9 @@ function App() {
               </Reveal>
               <Reveal delay={260} className="hl-row">
                 <div className="ic">
-              <svg viewBox="0 0 24 24" fill="var(--brass)">
-                <path d="M12 2l2.6 7.1L22 9.3l-5.5 4.5L18.6 22 12 17.6 5.4 22l2.1-8.2L2 9.3l7.4-.2z" />
-              </svg>
+                  <svg viewBox="0 0 24 24" fill="var(--brass)">
+                    <path d="M12 2l2.6 7.1L22 9.3l-5.5 4.5L18.6 22 12 17.6 5.4 22l2.1-8.2L2 9.3l7.4-.2z" />
+                  </svg>
                 </div>
                 <div>
                   <h4>Community Stars &amp; holder badge</h4>
