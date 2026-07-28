@@ -39,20 +39,115 @@ function Reveal({ children, className = '', delay = 0 }: RevealProps) {
   );
 }
 
+function AgentLogo({ name, color }: { name: string; color: string }) {
+  switch (name) {
+    case 'Sentinel AI':
+      return (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="agent-svg">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+          <circle cx="12" cy="11" r="3" />
+        </svg>
+      );
+    case 'Nexus':
+      return (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="agent-svg">
+          <circle cx="12" cy="12" r="3" />
+          <circle cx="19" cy="5" r="2" />
+          <circle cx="5" cy="19" r="2" />
+          <circle cx="19" cy="19" r="2" />
+          <circle cx="5" cy="5" r="2" />
+          <path d="M12 12L19 5M12 12L5 19M12 12L19 19M12 12L5 5" />
+        </svg>
+      );
+    case 'Oracle Prime':
+      return (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="agent-svg">
+          <path d="M12 2L2 22h20L12 2z" />
+          <circle cx="12" cy="13" r="2" fill="currentColor" />
+        </svg>
+      );
+    case 'Vault Guard':
+      return (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="agent-svg">
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+          <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+        </svg>
+      );
+    case 'DevForge':
+      return (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="agent-svg">
+          <path d="M16 18l6-6-6-6M8 6l-6 6 6 6M12 2v20" />
+        </svg>
+      );
+    case 'AlphaScope':
+      return (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="agent-svg">
+          <circle cx="12" cy="12" r="10" />
+          <path d="M12 2v20M2 12h20" />
+          <circle cx="12" cy="12" r="4" />
+        </svg>
+      );
+    case 'Helm':
+      return (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="agent-svg">
+          <circle cx="12" cy="12" r="8" />
+          <path d="M12 2v20M2 12h20M5 5l14 14M5 19L19 5" />
+        </svg>
+      );
+    case 'Beacon':
+      return (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="agent-svg">
+          <path d="M12 2L9 22h6L12 2z" />
+          <circle cx="12" cy="9" r="2" />
+          <path d="M3 10a9 9 0 0 1 18 0" />
+        </svg>
+      );
+    case 'Cortex':
+      return (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="agent-svg">
+          <path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96-.44M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96-.44" />
+        </svg>
+      );
+    case 'Ledger Eye':
+      return (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="agent-svg">
+          <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z" />
+          <circle cx="12" cy="12" r="3" />
+        </svg>
+      );
+    case 'Momentum':
+      return (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="agent-svg">
+          <path d="M13 5l7 7-7 7M4 5l7 7-7 7" />
+        </svg>
+      );
+    case 'Warden':
+      return (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="agent-svg">
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+          <circle cx="12" cy="16" r="2" />
+          <path d="M8 11V7a4 4 0 0 1 8 0v4" />
+        </svg>
+      );
+    default:
+      return <span style={{ fontSize: '12px', fontWeight: 600 }}>{name[0]}</span>;
+  }
+}
+
 function App() {
   const chains = [
-    ['Ethereum', '#627EEA', 'Ξ'],
-    ['Solana', '#14F195', '◎'],
-    ['Base', '#0052FF', 'B'],
-    ['Arbitrum', '#28A0F0', 'A'],
-    ['Polygon', '#8247E5', 'P'],
-    ['Optimism', '#FF0420', 'O'],
-    ['BNB Chain', '#F0B90B', 'B'],
-    ['Avalanche', '#E84142', 'A'],
-    ['Sui', '#4DA2FF', 'S'],
-    ['Aptos', '#06F7C7', 'A'],
-    ['TON', '#0098EA', 'T'],
-    ['Berachain', '#845A2B', 'B']
+    ['', '#627EEA', 'Ξ', '/chains/ethereum.svg'],
+    ['', '#14F195', '◎', '/chains/solana.svg'],
+    ['', '#0052FF', 'B', '/chains/base.svg'],
+    ['', '#28A0F0', 'A', '/chains/arbitrum.svg'],
+    ['Polygon', '#8247E5', 'P', '/chains/polygon.svg'],
+    ['Optimism', '#FF0420', 'O', '/chains/optimism.svg'],
+    ['BNB Chain', '#F0B90B', 'B', '/chains/bnb.svg'],
+    ['Avalanche', '#E84142', 'A', '/chains/avalanche.svg'],
+    ['', '#4DA2FF', 'S', '/chains/sui.svg'],
+    ['', '#06F7C7', 'A', '/chains/aptos.svg'],
+    ['TON', '#0098EA', 'T', '/chains/ton.svg'],
+    ['', '#845A2B', 'B', '/chains/berachain.svg']
   ];
 
   const agents = [
@@ -85,7 +180,7 @@ function App() {
           <span className="dot">✦</span><span>Every Dossier disclosed &amp; dated</span>
           <span className="dot">✦</span><span>Coverage across 12 chains</span>
           <span className="dot">✦</span><span>New security investigation — read now</span>
-          
+
           <span className="dot">✦</span><span>Independent editorial rankings</span>
           <span className="dot">✦</span><span>Methodology published in full</span>
           <span className="dot">✦</span><span>Verdicts you cannot buy</span>
@@ -158,23 +253,27 @@ function App() {
         <div className="marquee-label">Agents we cover, listed across</div>
         <div className="marquee">
           <div className="marquee-track" id="chainTrack">
-            {extendedChains.map(([name, color, symbol], idx) => (
-              <a key={`chain-${idx}`} className="chip" href="#">
-                <span 
-                  className="glyph" 
-                  style={{ 
-                    background: `${color}1A`, 
-                    color: color, 
-                    fontFamily: "'IBM Plex Mono', monospace", 
-                    fontWeight: 600, 
-                    fontSize: '13px' 
-                  }}
-                >
-                  {symbol}
-                </span>
-                <span className="name">{name}</span>
-              </a>
-            ))}
+            {extendedChains.map(([name, color, symbol, logoPath], idx) => {
+              const isOnlyLogo = !name || name.trim() === '';
+              return (
+                <a key={`chain-${idx}`} className="chip" href="#">
+                  <span
+                    className="glyph"
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      padding: '0px',
+                      width: isOnlyLogo ? 'auto' : '50px',
+                      height: '50px'
+                    }}
+                  >
+                    <img src={logoPath} alt={name} style={{ height: '48px', width: 'auto', objectFit: 'contain' }} />
+                  </span>
+                  {!isOnlyLogo && <span className="name" style={{ color: color }}>{name}</span>}
+                </a>
+              );
+            })}
           </div>
         </div>
       </div>
@@ -233,7 +332,9 @@ function App() {
           <div className="marquee-track" id="agentTrack">
             {extendedAgents.map(([name, sub, color], idx) => (
               <a key={`agent-${idx}`} className="chip agent" href="#">
-                <span className="glyph" style={{ background: color }}>{name[0]}</span>
+                <span className="glyph" style={{ color: color }}>
+                  <AgentLogo name={name} color={color} />
+                </span>
                 <span style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.15 }}>
                   <span className="name">{name}</span>
                   <span className="sub">{sub}</span>
@@ -259,22 +360,22 @@ function App() {
               <div className="stars-legend">
                 <div className="star-row">
                   <div className="star-marks">
-                    <svg viewBox="0 0 24 24" fill="#B08321"><path d="M12 2l2.6 7.1L22 9.3l-5.5 4.5L18.6 22 12 17.6 5.4 22l2.1-8.2L2 9.3l7.4-.2z"/></svg>
+                    <svg viewBox="0 0 24 24" fill="#B08321"><path d="M12 2l2.6 7.1L22 9.3l-5.5 4.5L18.6 22 12 17.6 5.4 22l2.1-8.2L2 9.3l7.4-.2z" /></svg>
                   </div>
                   <div className="txt"><h4>One Star — Notable</h4><p>A capable agent worth knowing in its category. Solid execution, real utility.</p></div>
                 </div>
                 <div className="star-row">
                   <div className="star-marks">
-                    <svg viewBox="0 0 24 24" fill="#B08321"><path d="M12 2l2.6 7.1L22 9.3l-5.5 4.5L18.6 22 12 17.6 5.4 22l2.1-8.2L2 9.3l7.4-.2z"/></svg>
-                    <svg viewBox="0 0 24 24" fill="#B08321"><path d="M12 2l2.6 7.1L22 9.3l-5.5 4.5L18.6 22 12 17.6 5.4 22l2.1-8.2L2 9.3l7.4-.2z"/></svg>
+                    <svg viewBox="0 0 24 24" fill="#B08321"><path d="M12 2l2.6 7.1L22 9.3l-5.5 4.5L18.6 22 12 17.6 5.4 22l2.1-8.2L2 9.3l7.4-.2z" /></svg>
+                    <svg viewBox="0 0 24 24" fill="#B08321"><path d="M12 2l2.6 7.1L22 9.3l-5.5 4.5L18.6 22 12 17.6 5.4 22l2.1-8.2L2 9.3l7.4-.2z" /></svg>
                   </div>
                   <div className="txt"><h4>Two Stars — Excellent</h4><p>Among the best in its category. Worth going out of your way to use.</p></div>
                 </div>
                 <div className="star-row">
                   <div className="star-marks">
-                    <svg viewBox="0 0 24 24" fill="#B08321"><path d="M12 2l2.6 7.1L22 9.3l-5.5 4.5L18.6 22 12 17.6 5.4 22l2.1-8.2L2 9.3l7.4-.2z"/></svg>
-                    <svg viewBox="0 0 24 24" fill="#B08321"><path d="M12 2l2.6 7.1L22 9.3l-5.5 4.5L18.6 22 12 17.6 5.4 22l2.1-8.2L2 9.3l7.4-.2z"/></svg>
-                    <svg viewBox="0 0 24 24" fill="#B08321"><path d="M12 2l2.6 7.1L22 9.3l-5.5 4.5L18.6 22 12 17.6 5.4 22l2.1-8.2L2 9.3l7.4-.2z"/></svg>
+                    <svg viewBox="0 0 24 24" fill="#B08321"><path d="M12 2l2.6 7.1L22 9.3l-5.5 4.5L18.6 22 12 17.6 5.4 22l2.1-8.2L2 9.3l7.4-.2z" /></svg>
+                    <svg viewBox="0 0 24 24" fill="#B08321"><path d="M12 2l2.6 7.1L22 9.3l-5.5 4.5L18.6 22 12 17.6 5.4 22l2.1-8.2L2 9.3l7.4-.2z" /></svg>
+                    <svg viewBox="0 0 24 24" fill="#B08321"><path d="M12 2l2.6 7.1L22 9.3l-5.5 4.5L18.6 22 12 17.6 5.4 22l2.1-8.2L2 9.3l7.4-.2z" /></svg>
                   </div>
                   <div className="txt"><h4>Three Stars — Exceptional</h4><p>A category-defining agent. The standard others are measured against.</p></div>
                 </div>
@@ -305,11 +406,11 @@ function App() {
                   <div className="community-stars">
                     <span className="tag">Community</span>
                     <span className="cs">
-                      <svg viewBox="0 0 24 24" fill="#B08321"><path d="M12 2l2.6 7.1L22 9.3l-5.5 4.5L18.6 22 12 17.6 5.4 22l2.1-8.2L2 9.3l7.4-.2z"/></svg>
-                      <svg viewBox="0 0 24 24" fill="#B08321"><path d="M12 2l2.6 7.1L22 9.3l-5.5 4.5L18.6 22 12 17.6 5.4 22l2.1-8.2L2 9.3l7.4-.2z"/></svg>
-                      <svg viewBox="0 0 24 24" fill="#B08321"><path d="M12 2l2.6 7.1L22 9.3l-5.5 4.5L18.6 22 12 17.6 5.4 22l2.1-8.2L2 9.3l7.4-.2z"/></svg>
-                      <svg viewBox="0 0 24 24" fill="#B08321"><path d="M12 2l2.6 7.1L22 9.3l-5.5 4.5L18.6 22 12 17.6 5.4 22l2.1-8.2L2 9.3l7.4-.2z"/></svg>
-                      <svg viewBox="0 0 24 24" fill="#D7D9DF"><path d="M12 2l2.6 7.1L22 9.3l-5.5 4.5L18.6 22 12 17.6 5.4 22l2.1-8.2L2 9.3l7.4-.2z"/></svg>
+                      <svg viewBox="0 0 24 24" fill="#B08321"><path d="M12 2l2.6 7.1L22 9.3l-5.5 4.5L18.6 22 12 17.6 5.4 22l2.1-8.2L2 9.3l7.4-.2z" /></svg>
+                      <svg viewBox="0 0 24 24" fill="#B08321"><path d="M12 2l2.6 7.1L22 9.3l-5.5 4.5L18.6 22 12 17.6 5.4 22l2.1-8.2L2 9.3l7.4-.2z" /></svg>
+                      <svg viewBox="0 0 24 24" fill="#B08321"><path d="M12 2l2.6 7.1L22 9.3l-5.5 4.5L18.6 22 12 17.6 5.4 22l2.1-8.2L2 9.3l7.4-.2z" /></svg>
+                      <svg viewBox="0 0 24 24" fill="#B08321"><path d="M12 2l2.6 7.1L22 9.3l-5.5 4.5L18.6 22 12 17.6 5.4 22l2.1-8.2L2 9.3l7.4-.2z" /></svg>
+                      <svg viewBox="0 0 24 24" fill="#D7D9DF"><path d="M12 2l2.6 7.1L22 9.3l-5.5 4.5L18.6 22 12 17.6 5.4 22l2.1-8.2L2 9.3l7.4-.2z" /></svg>
                     </span>
                     <span className="csv">4.2</span>
                   </div>
@@ -453,7 +554,7 @@ function App() {
               <Reveal delay={50} className="hl-row">
                 <div className="ic">
                   <svg viewBox="0 0 24 24" fill="none" stroke="#16161A" strokeWidth="1.6">
-                    <path d="M4 7h16M4 12h16M4 17h10"/>
+                    <path d="M4 7h16M4 12h16M4 17h10" />
                   </svg>
                 </div>
                 <div>
@@ -464,8 +565,8 @@ function App() {
               <Reveal delay={120} className="hl-row">
                 <div className="ic">
                   <svg viewBox="0 0 24 24" fill="none" stroke="#16161A" strokeWidth="1.6">
-                    <path d="M3 3v18h18"/>
-                    <path d="M7 14l3-4 3 3 5-7"/>
+                    <path d="M3 3v18h18" />
+                    <path d="M7 14l3-4 3 3 5-7" />
                   </svg>
                 </div>
                 <div>
@@ -476,7 +577,7 @@ function App() {
               <Reveal delay={190} className="hl-row">
                 <div className="ic">
                   <svg viewBox="0 0 24 24" fill="none" stroke="#16161A" strokeWidth="1.6">
-                    <path d="M8 3H5a2 2 0 00-2 2v3m0 8v3a2 2 0 002 2h3m8 0h3a2 2 0 002-2v-3m0-8V5a2 2 0 00-2-2h-3"/>
+                    <path d="M8 3H5a2 2 0 00-2 2v3m0 8v3a2 2 0 002 2h3m8 0h3a2 2 0 002-2v-3m0-8V5a2 2 0 00-2-2h-3" />
                   </svg>
                 </div>
                 <div>
@@ -487,7 +588,7 @@ function App() {
               <Reveal delay={260} className="hl-row">
                 <div className="ic">
                   <svg viewBox="0 0 24 24" fill="#B08321">
-                    <path d="M12 2l2.6 7.1L22 9.3l-5.5 4.5L18.6 22 12 17.6 5.4 22l2.1-8.2L2 9.3l7.4-.2z"/>
+                    <path d="M12 2l2.6 7.1L22 9.3l-5.5 4.5L18.6 22 12 17.6 5.4 22l2.1-8.2L2 9.3l7.4-.2z" />
                   </svg>
                 </div>
                 <div>
