@@ -11,7 +11,8 @@
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/src/main",
     "prisma:generate": "prisma generate",
-    "prisma:migrate": "prisma migrate dev"
+    "prisma:migrate": "prisma migrate dev",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@nestjs/bullmq": "^11.0.2",
