@@ -928,9 +928,9 @@ export default function RatingAgents() {
 
                 const hasGithub = !!selectedAgent.githubUrl && selectedAgent.githubUrl !== 'N/A' && selectedAgent.githubUrl !== '';
 
-                const starsCount = totalScore >= 90 ? 3 : totalScore >= 70 ? 2 : totalScore >= 40 ? 1 : 0;
-                const starLabel = starsCount === 3 ? "Three Stars — Exceptional" : starsCount === 2 ? "Two Stars — Excellent" : starsCount === 1 ? "One Star — Notable" : "Unrated";
-                const starDesc = starsCount === 3 ? "A category-defining agent. The standard others are measured against." : starsCount === 2 ? "Among the best in its category. Worth going out of your way to use." : starsCount === 1 ? "A capable agent worth knowing in its category. Solid execution, real utility." : "Below Ordo rating threshold.";
+                const starsCount = scoreObj && typeof scoreObj.starsCount === 'number' ? scoreObj.starsCount : 0;
+                const starLabel = scoreObj && scoreObj.starLabel ? scoreObj.starLabel : "Unrated";
+                const starDesc = scoreObj && scoreObj.starDesc ? scoreObj.starDesc : "Below Ordo rating threshold.";
 
                 return (
                   <>
