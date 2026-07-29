@@ -1,0 +1,11 @@
+# compiled output
+/dist
+/node_modules
+
+# local env files
+.env
+.env.local
+
+# database
+/prisma/dev.db
+/prisma/dev.db-journal
