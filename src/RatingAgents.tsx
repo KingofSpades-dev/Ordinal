@@ -928,6 +928,10 @@ export default function RatingAgents() {
 
                 const hasGithub = !!selectedAgent.githubUrl && selectedAgent.githubUrl !== 'N/A' && selectedAgent.githubUrl !== '';
 
+                const starsCount = totalScore >= 90 ? 3 : totalScore >= 70 ? 2 : totalScore >= 40 ? 1 : 0;
+                const starLabel = starsCount === 3 ? "Three Stars — Exceptional" : starsCount === 2 ? "Two Stars — Excellent" : starsCount === 1 ? "One Star — Notable" : "Unrated";
+                const starDesc = starsCount === 3 ? "A category-defining agent. The standard others are measured against." : starsCount === 2 ? "Among the best in its category. Worth going out of your way to use." : starsCount === 1 ? "A capable agent worth knowing in its category. Solid execution, real utility." : "Below Ordo rating threshold.";
+
                 return (
                   <>
                     {/* Main Overview Card */}
@@ -947,6 +951,19 @@ export default function RatingAgents() {
                               <span className="verified-badge">{selectedAgent.status.toUpperCase()}</span>
                             </h3>
                             <div className="mc-address">{displayAddr}</div>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '3px', marginTop: '6px' }}>
+                              <div style={{ display: 'flex', gap: '2px', fontSize: '15px', color: 'var(--brass)' }}>
+                                {Array.from({ length: 3 }).map((_, i) => (
+                                  <span key={i}>{i < starsCount ? '★' : '☆'}</span>
+                                ))}
+                              </div>
+                              <div style={{ fontSize: '11px', fontWeight: 700, color: 'var(--brass)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                                {starLabel}
+                              </div>
+                              <div style={{ fontSize: '11px', color: 'var(--ink-soft)', maxWidth: '280px', lineHeight: 1.35 }}>
+                                {starDesc}
+                              </div>
+                            </div>
                           </div>
                         </div>
                         <p className="mc-bio">
@@ -1110,120 +1127,6 @@ export default function RatingAgents() {
                         >
                           View on Chain ↗
                         </a>
-                      </div>
-                    </div>
-
-                    {/* The Dossier Rating & Verdict Section */}
-                    <div className="form-panel" style={{ marginTop: '30px', padding: '30px' }}>
-                      <div className="sec-head" style={{ marginBottom: '24px' }}>
-                        <span className="eyebrow">The Dossier · The rating</span>
-                        <h3 style={{ fontFamily: "'Fraunces', serif", fontSize: '28px', color: 'var(--ink)', margin: '8px 0 0 0' }}>One to three stars. Earned, never sold.</h3>
-                        <p style={{ fontSize: '13.5px', color: 'var(--ink-soft)', marginTop: '8px', lineHeight: 1.5 }}>
-                          Every agent gets a <b style={{ color: 'var(--ink)', fontWeight: 600 }}>Ordo Dossier</b> — a full profile, scored review, and generated visual record. Our editorial verdict sits apart from community sentiment: always side by side, never blended.
-                        </p>
-                      </div>
-
-                      <div className="rating-wrap" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '30px', marginTop: '20px' }}>
-                        {/* Left stars legend */}
-                        <div className="stars-legend" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                          <div className="star-row">
-                            <div className="txt">
-                              <h4 style={{ margin: 0, fontSize: '15px', color: 'var(--ink)' }}>One Star — Notable</h4>
-                              <p style={{ margin: '4px 0 0 0', fontSize: '13px', color: 'var(--ink-soft)', lineHeight: 1.4 }}>A capable agent worth knowing in its category. Solid execution, real utility.</p>
-                            </div>
-                          </div>
-                          <div className="star-row">
-                            <div className="txt">
-                              <h4 style={{ margin: 0, fontSize: '15px', color: 'var(--ink)' }}>Two Stars — Excellent</h4>
-                              <p style={{ margin: '4px 0 0 0', fontSize: '13px', color: 'var(--ink-soft)', lineHeight: 1.4 }}>Among the best in its category. Worth going out of your way to use.</p>
-                            </div>
-                          </div>
-                          <div className="star-row">
-                            <div className="txt">
-                              <h4 style={{ margin: 0, fontSize: '15px', color: 'var(--ink)' }}>Three Stars — Exceptional</h4>
-                              <p style={{ margin: '4px 0 0 0', fontSize: '13px', color: 'var(--ink-soft)', lineHeight: 1.4 }}>A category-defining agent. The standard others are measured against.</p>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Right Verdict Card (Dynamic for selected agent) */}
-                        <div className="verdict-card" style={{ background: 'var(--paper)', border: '1.5px solid var(--line-2)', borderRadius: '12px', padding: '24px', position: 'relative' }}>
-                          <div className="vc-top" style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '16px' }}>
-                            <div className="vc-logo" style={{ width: '40px', height: '40px', background: 'var(--brass)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '50%', fontWeight: 700, fontSize: '18px' }}>
-                              {selectedAgent.name[0]}
-                            </div>
-                            <div className="meta" style={{ flexGrow: 1 }}>
-                              <div className="nm" style={{ fontWeight: 700, color: 'var(--ink)', fontSize: '16px' }}>{selectedAgent.name}</div>
-                              <div className="cat-l" style={{ fontSize: '12px', color: 'var(--ink-soft)', textTransform: 'capitalize' }}>{selectedAgent.category}</div>
-                            </div>
-                            <div className="vc-score" style={{ display: 'flex', alignItems: 'baseline', gap: '2px' }}>
-                              <span className="big mono" style={{ fontSize: '24px', fontWeight: 800, color: 'var(--ink)' }}>{totalScore}</span>
-                              <span className="of" style={{ fontSize: '12px', color: 'var(--ink-soft)' }}>/100</span>
-                            </div>
-                          </div>
-
-                          <div className="vc-dossier" style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid var(--line-2)', borderBottom: '1px solid var(--line-2)', padding: '10px 0', marginBottom: '16px', fontSize: '11px', fontWeight: 600, color: 'var(--ink-faint)' }}>
-                            <span className="dref">ORDO DOSSIER №0{selectedAgent.id.slice(0, 2).replace(/[^0-9]/g, '3') || '38'}</span>
-                            <span className="dai" style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                              <span className="dot-live" style={{ width: '6px', height: '6px', background: '#137333', borderRadius: '50%' }}></span>
-                              AI-assisted · editor-verified
-                            </span>
-                          </div>
-
-                          <div className="vc-body" style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '16px' }}>
-                            <div className="vc-line" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '13px' }}>
-                              <span className="k" style={{ color: 'var(--ink-soft)', fontWeight: 500 }}>Detection accuracy</span>
-                              <span className="v" style={{ width: '120px' }}>
-                                <div className="vc-bar" style={{ width: '100%', height: '6px', background: 'var(--line-2)', borderRadius: '3px', overflow: 'hidden' }}>
-                                  <i style={{ display: 'block', height: '100%', background: 'var(--brass)', width: `${performance || 40}%` }}></i>
-                                </div>
-                              </span>
-                            </div>
-                            <div className="vc-line" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '13px' }}>
-                              <span className="k" style={{ color: 'var(--ink-soft)', fontWeight: 500 }}>False positives</span>
-                              <span className="v" style={{ width: '120px' }}>
-                                <div className="vc-bar" style={{ width: '100%', height: '6px', background: 'var(--line-2)', borderRadius: '3px', overflow: 'hidden' }}>
-                                  <i style={{ display: 'block', height: '100%', background: 'var(--brass)', width: `${security || 50}%` }}></i>
-                                </div>
-                              </span>
-                            </div>
-                            <div className="vc-line" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '13px' }}>
-                              <span className="k" style={{ color: 'var(--ink-soft)', fontWeight: 500 }}>Audit &amp; response</span>
-                              <span className="v" style={{ width: '120px' }}>
-                                <div className="vc-bar" style={{ width: '100%', height: '6px', background: 'var(--line-2)', borderRadius: '3px', overflow: 'hidden' }}>
-                                  <i style={{ display: 'block', height: '100%', background: 'var(--brass)', width: `${tokenomics || 60}%` }}></i>
-                                </div>
-                              </span>
-                            </div>
-                          </div>
-
-                          <div className="vc-split" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid var(--line-2)', paddingTop: '12px', fontSize: '12px' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                              <span className="tag" style={{ fontWeight: 700, color: 'var(--ink)' }}>Editorial verdict</span>
-                              <span style={{ display: 'flex', gap: '2px', marginLeft: '4px' }}>
-                                {(() => {
-                                  const starCount = totalScore >= 85 ? 3 : totalScore >= 70 ? 2 : totalScore >= 50 ? 1 : 0;
-                                  return Array.from({ length: 3 }).map((_, idx) => (
-                                    <svg key={idx} viewBox="0 0 24 24" style={{ width: '13px', height: '13px' }} fill={idx < starCount ? 'var(--brass)' : 'var(--line-2)'}>
-                                      <path d="M12 2l2.6 7.1L22 9.3l-5.5 4.5L18.6 22 12 17.6 5.4 22l2.1-8.2L2 9.3l7.4-.2z" />
-                                    </svg>
-                                  ));
-                                })()}
-                              </span>
-                            </div>
-                            <div className="community-stars" style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                              <span className="tag" style={{ color: 'var(--ink-soft)', marginRight: '4px' }}>Community</span>
-                              <span className="cs" style={{ display: 'flex', gap: '1px' }}>
-                                {Array.from({ length: 5 }).map((_, i) => (
-                                  <svg key={i} viewBox="0 0 24 24" style={{ width: '13px', height: '13px' }} fill={i < 4 ? 'var(--brass)' : 'var(--line-2)'}>
-                                    <path d="M12 2l2.6 7.1L22 9.3l-5.5 4.5L18.6 22 12 17.6 5.4 22l2.1-8.2L2 9.3l7.4-.2z" />
-                                  </svg>
-                                ))}
-                              </span>
-                              <span className="csv" style={{ fontWeight: 700, color: 'var(--ink)', marginLeft: '4px' }}>4.2</span>
-                            </div>
-                          </div>
-                        </div>
                       </div>
                     </div>
                   </>
