@@ -806,15 +806,15 @@ export default function RatingAgents() {
                   </div>
                   <div className="field-group">
                     <label>Website URL *</label>
-                    <input type="url" value={website} onChange={(e) => setWebsite(e.target.value)} required placeholder="https://..." />
+                    <input type="text" value={website} onChange={(e) => setWebsite(e.target.value)} required placeholder="https://..." />
                   </div>
                   <div className="field-group">
                     <label>Documentation URL *</label>
-                    <input type="url" value={docsUrl} onChange={(e) => setDocsUrl(e.target.value)} required placeholder="https://docs..." />
+                    <input type="text" value={docsUrl} onChange={(e) => setDocsUrl(e.target.value)} required placeholder="https://docs..." />
                   </div>
                   <div className="field-group">
                     <label>GitHub Repository URL</label>
-                    <input type="url" value={githubUrl} onChange={(e) => setGithubUrl(e.target.value)} placeholder="https://github.com/..." />
+                    <input type="text" value={githubUrl} onChange={(e) => setGithubUrl(e.target.value)} placeholder="https://github.com/..." />
                   </div>
                   <div className="field-group">
                     <label>X (Twitter) Handle</label>
