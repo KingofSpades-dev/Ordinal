@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, IsArray, IsUrl, IsOptional, IsDateString } from 'class-validator';
+import { IsString, IsNotEmpty, IsArray, IsUrl, IsOptional, IsDateString, ValidateIf } from 'class-validator';
 
 export class SubmitAgentDto {
   @IsString()
@@ -17,10 +17,12 @@ export class SubmitAgentDto {
   @IsString({ each: true })
   chains: string[];
 
+  @ValidateIf(o => o.website && o.website.toUpperCase() !== 'N/A' && o.website.toUpperCase() !== 'NONE')
   @IsUrl()
   @IsNotEmpty()
   website: string;
 
+  @ValidateIf(o => o.docsUrl && o.docsUrl.toUpperCase() !== 'N/A' && o.docsUrl.toUpperCase() !== 'NONE')
   @IsUrl()
   @IsNotEmpty()
   docsUrl: string;
@@ -29,6 +31,7 @@ export class SubmitAgentDto {
   @IsOptional()
   xHandle?: string;
 
+  @ValidateIf(o => o.githubUrl && o.githubUrl.toUpperCase() !== 'N/A' && o.githubUrl.toUpperCase() !== 'NONE')
   @IsUrl()
   @IsOptional()
   githubUrl?: string;

@@ -31,18 +31,22 @@ export class VerifyProcessor extends WorkerHost {
 
     // 1. Verify Website & Docs resolve (HTTP Check)
     console.log(`[SCAN PIPELINE - STEP 1] Running Website & Docs URL check...`);
-    try {
-      const webRes = await fetch(agent.website);
-      if (!webRes.ok) errors.push(`Website returned status ${webRes.status}`);
-    } catch (e) {
-      errors.push(`Website failed to resolve: ${e.message}`);
+    if (agent.website && agent.website.toUpperCase() !== 'N/A' && agent.website.toUpperCase() !== 'NONE') {
+      try {
+        const webRes = await fetch(agent.website);
+        if (!webRes.ok) errors.push(`Website returned status ${webRes.status}`);
+      } catch (e) {
+        errors.push(`Website failed to resolve: ${e.message}`);
+      }
     }
 
-    try {
-      const docsRes = await fetch(agent.docsUrl);
-      if (!docsRes.ok) errors.push(`Docs URL returned status ${docsRes.status}`);
-    } catch (e) {
-      errors.push(`Docs URL failed to resolve: ${e.message}`);
+    if (agent.docsUrl && agent.docsUrl.toUpperCase() !== 'N/A' && agent.docsUrl.toUpperCase() !== 'NONE') {
+      try {
+        const docsRes = await fetch(agent.docsUrl);
+        if (!docsRes.ok) errors.push(`Docs URL returned status ${docsRes.status}`);
+      } catch (e) {
+        errors.push(`Docs URL failed to resolve: ${e.message}`);
+      }
     }
 
     // 2. Verify Contract Addresses are deployed contracts (not EOAs) on mainnet
