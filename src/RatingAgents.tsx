@@ -18,6 +18,8 @@ interface Agent {
   snapshots?: any[];
 }
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+
 export default function RatingAgents() {
   const [agentsList, setAgentsList] = useState<Agent[]>([]);
   const [loading, setLoading] = useState(true);
@@ -69,7 +71,7 @@ export default function RatingAgents() {
 
   const fetchAgents = async () => {
     try {
-      const res = await fetch('http://localhost:3001/api/v1/agents');
+      const res = await fetch(`${API_URL}/api/v1/agents`);
       if (res.ok) {
         const data = await res.json();
         setAgentsList(data);
@@ -94,7 +96,7 @@ export default function RatingAgents() {
 
     const interval = setInterval(async () => {
       try {
-        const res = await fetch('http://localhost:3001/api/v1/agents');
+        const res = await fetch(`${API_URL}/api/v1/agents`);
         if (res.ok) {
           const list: Agent[] = await res.json();
           setAgentsList(list);
@@ -151,7 +153,7 @@ export default function RatingAgents() {
         signature = '0x' + Array.from({ length: 64 }, () => Math.floor(Math.random() * 16).toString(16)).join('');
       }
 
-      const res = await fetch('http://localhost:3001/api/v1/agents/submit', {
+      const res = await fetch(`${API_URL}/api/v1/agents/submit`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -184,7 +186,7 @@ export default function RatingAgents() {
 
         // Fetch list and select the newly registered agent immediately
         try {
-          const fetchRes = await fetch('http://localhost:3001/api/v1/agents');
+          const fetchRes = await fetch(`${API_URL}/api/v1/agents`);
           if (fetchRes.ok) {
             const list: Agent[] = await fetchRes.json();
             setAgentsList(list);
