@@ -14,6 +14,14 @@ export class VerifyProcessor extends WorkerHost {
     const agent = await this.prisma.agent.findUnique({ where: { id: agentId } });
     if (!agent) return;
 
+    console.log(`\n==================================================`);
+    console.log(`[SCAN PIPELINE - STEP 1] Initializing verification for Agent: "${agent.name}"`);
+    console.log(`- Contract: ${agent.contractAddresses}`);
+    console.log(`- Chain: ${agent.chains}`);
+    console.log(`- Website: ${agent.website}`);
+    console.log(`- Docs: ${agent.docsUrl}`);
+    console.log(`==================================================`);
+
     await this.prisma.agent.update({
       where: { id: agentId },
       data: { status: 'ingesting' },
@@ -22,6 +30,7 @@ export class VerifyProcessor extends WorkerHost {
     const errors: string[] = [];
 
     // 1. Verify Website & Docs resolve (HTTP Check)
+    console.log(`[SCAN PIPELINE - STEP 1] Running Website & Docs URL check...`);
     try {
       const webRes = await fetch(agent.website);
       if (!webRes.ok) errors.push(`Website returned status ${webRes.status}`);
@@ -37,6 +46,7 @@ export class VerifyProcessor extends WorkerHost {
     }
 
     // 2. Verify Contract Addresses are deployed contracts (not EOAs) on mainnet
+    console.log(`[SCAN PIPELINE - STEP 1] Running Contract address deployment verification...`);
     const provider = new ethers.JsonRpcProvider('https://cloudflare-eth.com');
 
     const addresses = agent.contractAddresses.split(',').map(a => a.trim());

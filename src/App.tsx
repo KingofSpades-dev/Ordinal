@@ -224,7 +224,17 @@ function App() {
               <a href="#">Docs</a>
               <a href="#">API</a>
             </div>
-            <a href="#" className="nav-cta">Launch App ↗</a>
+            <a 
+              href="/ratingagents" 
+              onClick={(e) => {
+                e.preventDefault();
+                window.history.pushState({}, '', '/ratingagents');
+                window.dispatchEvent(new PopStateEvent('popstate'));
+              }}
+              className="nav-cta"
+            >
+              Launch App ↗
+            </a>
           </div>
         </div>
       </nav>

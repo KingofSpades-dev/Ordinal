@@ -11,6 +11,11 @@ export class ScoringService {
       throw new NotFoundException('Agent not found');
     }
 
+    console.log(`\n==================================================`);
+    console.log(`[SCAN PIPELINE - STEP 3] Starting Score Calculation for Agent: "${agent.name}"`);
+    console.log(`- Category: ${agent.category}`);
+    console.log(`==================================================`);
+
     // 1. Fetch latest telemetry signals
     const snapshots = await this.prisma.signalSnapshot.findMany({
       where: { agentId },
@@ -42,7 +47,12 @@ export class ScoringService {
     // Transactions: full score (100) at 1500 txs
     const onchainScore = Math.min((txVal / 1500) * 100, 100);
 
+    console.log(`[SCAN PIPELINE - STEP 3] Evaluating weights:`);
+    console.log(`- GitHub Weight: ${githubWeight}, Normalized GitHub Score: ${githubScore}`);
+    console.log(`- On-chain Weight: ${onchainWeight}, Normalized On-chain Score: ${onchainScore}`);
+    
     const finalScore = (githubScore * githubWeight) + (onchainScore * onchainWeight);
+    console.log(`- Calculated Final Weighted Score: ${finalScore} / 100`);
 
     // 4. Save to Score table
     const hardSignalScores = {

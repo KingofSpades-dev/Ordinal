@@ -24,14 +24,16 @@ export class DossierAiService {
     // Otherwise fallback to structured analytical report.
     if (process.env.OPENAI_API_KEY) {
       try {
-        const response = await fetch('https://api.openai.com/v1/chat/completions', {
+        const baseUrl = process.env.OPENAI_BASE_URL || 'https://api.openai.com/v1';
+        const model = process.env.OPENAI_MODEL || 'gpt-4o';
+        const response = await fetch(`${baseUrl}/chat/completions`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
           },
           body: JSON.stringify({
-            model: 'gpt-4o',
+            model: model,
             messages: [
               {
                 role: 'system',

@@ -20,13 +20,15 @@
     "@nestjs/platform-express": "^11.0.5",
     "@nestjs/throttler": "^6.4.0",
     "@prisma/client": "^6.3.0",
+    "bs58": "^6.0.0",
     "bullmq": "^5.41.3",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",
     "dotenv": "^16.4.7",
     "ethers": "^6.17.0",
     "reflect-metadata": "^0.2.2",
-    "rxjs": "^7.8.1"
+    "rxjs": "^7.8.1",
+    "tweetnacl": "^1.0.3"
   },
   "devDependencies": {
     "@nestjs/cli": "^11.0.2",
