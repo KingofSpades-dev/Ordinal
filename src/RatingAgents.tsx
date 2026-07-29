@@ -42,15 +42,27 @@ export default function RatingAgents() {
     }
   }, [notification]);
 
-  // Form states
-  const [name, setName] = useState('');
-  const [category, setCategory] = useState('security');
-  const [contractAddress, setContractAddress] = useState('');
-  const [chainInput, setChainInput] = useState('ethereum');
-  const [website, setWebsite] = useState('');
-  const [docsUrl, setDocsUrl] = useState('');
-  const [githubUrl, setGithubUrl] = useState('');
-  const [xHandle, setXHandle] = useState('');
+  // Form states cached in localStorage
+  const [name, setName] = useState(() => localStorage.getItem('ordo_form_name') || '');
+  const [category, setCategory] = useState(() => localStorage.getItem('ordo_form_category') || 'security');
+  const [contractAddress, setContractAddress] = useState(() => localStorage.getItem('ordo_form_contractAddress') || '');
+  const [chainInput, setChainInput] = useState(() => localStorage.getItem('ordo_form_chainInput') || 'ethereum');
+  const [website, setWebsite] = useState(() => localStorage.getItem('ordo_form_website') || '');
+  const [docsUrl, setDocsUrl] = useState(() => localStorage.getItem('ordo_form_docsUrl') || '');
+  const [githubUrl, setGithubUrl] = useState(() => localStorage.getItem('ordo_form_githubUrl') || '');
+  const [xHandle, setXHandle] = useState(() => localStorage.getItem('ordo_form_xHandle') || '');
+
+  // Synchronize form states to localStorage
+  useEffect(() => {
+    localStorage.setItem('ordo_form_name', name);
+    localStorage.setItem('ordo_form_category', category);
+    localStorage.setItem('ordo_form_contractAddress', contractAddress);
+    localStorage.setItem('ordo_form_chainInput', chainInput);
+    localStorage.setItem('ordo_form_website', website);
+    localStorage.setItem('ordo_form_docsUrl', docsUrl);
+    localStorage.setItem('ordo_form_githubUrl', githubUrl);
+    localStorage.setItem('ordo_form_xHandle', xHandle);
+  }, [name, category, contractAddress, chainInput, website, docsUrl, githubUrl, xHandle]);
 
   const connectWallet = async () => {
     const anyWindow = window as any;
