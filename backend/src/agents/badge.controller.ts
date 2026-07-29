@@ -32,12 +32,8 @@ export class BadgeController {
 
     if (activeAward) {
       const keys = '★ '.repeat(activeAward.keyCount).trim();
-      svg = `<svg xmlns="http://www.w3.org/2000/svg" width="350" height="100" viewBox="0 0 350 100">
+      svg = `<svg xmlns="http://www.w3.org/2000/svg" width="380" height="110" viewBox="0 0 380 110">
         <defs>
-          <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stop-color="#14171A" />
-            <stop offset="100%" stop-color="#0B0D0F" />
-          </linearGradient>
           <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
             <stop offset="0%" stop-color="#E2C17C" />
             <stop offset="50%" stop-color="#C5A880" />
@@ -45,53 +41,74 @@ export class BadgeController {
           </linearGradient>
         </defs>
 
-        <rect width="350" height="100" rx="12" fill="url(#bgGrad)" stroke="#7C1522" stroke-width="2"/>
-        <rect x="6" y="6" width="338" height="88" rx="8" fill="none" stroke="url(#goldGrad)" stroke-width="0.75" stroke-opacity="0.5"/>
+        <!-- Card Body (Ordo Web Parchment Palette) -->
+        <rect width="380" height="110" rx="14" fill="#FAF6F0" stroke="#7C1522" stroke-width="2.5"/>
+        <rect x="6" y="6" width="368" height="98" rx="10" fill="none" stroke="url(#goldGrad)" stroke-width="1.2"/>
 
-        <g transform="translate(20, 26)">
-          <circle cx="24" cy="24" r="22" fill="#7C1522" fill-opacity="0.15" stroke="url(#goldGrad)" stroke-width="1.5"/>
-          <circle cx="24" cy="24" r="14" fill="none" stroke="url(#goldGrad)" stroke-width="1" stroke-dasharray="2 2"/>
-          <svg x="12" y="12" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="url(#goldGrad)" stroke-width="2">
+        <!-- Left Logo Circle (Shield Feel) -->
+        <g transform="translate(18, 31)">
+          <circle cx="24" cy="24" r="22" fill="#7C1522" stroke="url(#goldGrad)" stroke-width="1.5"/>
+          <svg x="12" y="12" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FAF6F0" stroke-width="2">
             <circle cx="12" cy="12" r="10" />
             <circle cx="12" cy="12" r="4" />
             <path d="M12 2v20M2 12h20" />
           </svg>
         </g>
 
-        <text x="80" y="32" font-family="'Inter', -apple-system, sans-serif" font-size="9" font-weight="800" fill="url(#goldGrad)" letter-spacing="1.5">ORDO PROTOCOL ASSESSMENT</text>
-        <text x="80" y="54" font-family="'Inter', -apple-system, sans-serif" font-size="14" font-weight="700" fill="#FFFFFF">${name}</text>
-        <text x="80" y="78" font-family="'Inter', -apple-system, sans-serif" font-size="18" fill="url(#goldGrad)">${keys}</text>
-        <text x="326" y="78" font-family="'Inter', -apple-system, sans-serif" font-size="9" font-weight="700" fill="#E2C17C" text-anchor="end" letter-spacing="0.5">VERIFIED</text>
+        <!-- Info Details -->
+        <text x="78" y="36" font-family="'Inter', -apple-system, sans-serif" font-size="9.5" font-weight="900" fill="#7C1522" letter-spacing="1.5">ORDO PROTOCOL ASSESSMENT</text>
+        <text x="78" y="58" font-family="'Inter', -apple-system, sans-serif" font-size="16" font-weight="800" fill="#1C1F24">${name}</text>
+        
+        <!-- Stars count in the text line -->
+        <text x="78" y="82" font-family="'Inter', -apple-system, sans-serif" font-size="13" font-weight="600" fill="#9E7A44" letter-spacing="0.5">Rating: ${activeAward.keyCount} Star${activeAward.keyCount > 1 ? 's' : ''}</text>
+
+        <!-- Right Side: Certificate Gold Stamp -->
+        <g transform="translate(324, 55)">
+          <circle cx="0" cy="0" r="34" fill="#7C1522" fill-opacity="0.03" stroke="url(#goldGrad)" stroke-width="2" stroke-dasharray="4 2"/>
+          <circle cx="0" cy="0" r="30" fill="#FAF6F0" stroke="url(#goldGrad)" stroke-width="1"/>
+          
+          <text x="0" y="-12" font-family="'Inter', -apple-system, sans-serif" font-size="8" font-weight="900" fill="#9E7A44" text-anchor="middle" letter-spacing="0.5">ORDO</text>
+          <text x="0" y="6" font-family="'Inter', -apple-system, sans-serif" font-size="14" fill="#7C1522" text-anchor="middle">${keys}</text>
+          <text x="0" y="18" font-family="'Inter', -apple-system, sans-serif" font-size="7" font-weight="900" fill="#9E7A44" text-anchor="middle" letter-spacing="0.5">VERIFIED</text>
+        </g>
       </svg>`;
     } else {
-      svg = `<svg xmlns="http://www.w3.org/2000/svg" width="350" height="100" viewBox="0 0 350 100">
+      svg = `<svg xmlns="http://www.w3.org/2000/svg" width="380" height="110" viewBox="0 0 380 110">
         <defs>
-          <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stop-color="#14171A" />
-            <stop offset="100%" stop-color="#0B0D0F" />
-          </linearGradient>
           <linearGradient id="silverGrad" x1="0%" y1="0%" x2="100%" y2="100%">
             <stop offset="0%" stop-color="#94A3B8" />
             <stop offset="100%" stop-color="#475569" />
           </linearGradient>
         </defs>
 
-        <rect width="350" height="100" rx="12" fill="url(#bgGrad)" stroke="#475569" stroke-width="2"/>
-        <rect x="6" y="6" width="338" height="88" rx="8" fill="none" stroke="url(#silverGrad)" stroke-width="0.75" stroke-opacity="0.3"/>
+        <!-- Card Body (Ordo Web Parchment Palette) -->
+        <rect width="380" height="110" rx="14" fill="#FAF6F0" stroke="#475569" stroke-width="2.5"/>
+        <rect x="6" y="6" width="368" height="98" rx="10" fill="none" stroke="url(#silverGrad)" stroke-width="1.2"/>
 
-        <g transform="translate(20, 26)">
-          <circle cx="24" cy="24" r="22" fill="#475569" fill-opacity="0.1" stroke="url(#silverGrad)" stroke-width="1.5"/>
-          <svg x="12" y="12" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="url(#silverGrad)" stroke-width="2">
+        <!-- Left Logo Circle (Grey Shield Feel) -->
+        <g transform="translate(18, 31)">
+          <circle cx="24" cy="24" r="22" fill="#475569" stroke="url(#silverGrad)" stroke-width="1.5"/>
+          <svg x="12" y="12" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FAF6F0" stroke-width="2">
             <circle cx="12" cy="12" r="10" />
             <circle cx="12" cy="12" r="4" />
             <path d="M12 2v20M2 12h20" />
           </svg>
         </g>
 
-        <text x="80" y="32" font-family="'Inter', -apple-system, sans-serif" font-size="9" font-weight="800" fill="url(#silverGrad)" letter-spacing="1.5">ORDO PROTOCOL ASSESSMENT</text>
-        <text x="80" y="54" font-family="'Inter', -apple-system, sans-serif" font-size="14" font-weight="700" fill="#94A3B8">${name}</text>
-        <text x="80" y="78" font-family="'Inter', -apple-system, sans-serif" font-size="11" font-style="italic" fill="#E11D48">Unrated or Revoked</text>
-        <text x="326" y="78" font-family="'Inter', -apple-system, sans-serif" font-size="9" font-weight="700" fill="#94A3B8" text-anchor="end" letter-spacing="0.5">UNVERIFIED</text>
+        <!-- Info Details -->
+        <text x="78" y="36" font-family="'Inter', -apple-system, sans-serif" font-size="9.5" font-weight="900" fill="#475569" letter-spacing="1.5">ORDO PROTOCOL ASSESSMENT</text>
+        <text x="78" y="58" font-family="'Inter', -apple-system, sans-serif" font-size="16" font-weight="800" fill="#475569">${name}</text>
+        <text x="78" y="82" font-family="'Inter', -apple-system, sans-serif" font-size="12" font-style="italic" fill="#E11D48" font-weight="600">Keys: None or Revoked</text>
+
+        <!-- Right Side: Certificate Grey Stamp -->
+        <g transform="translate(324, 55)">
+          <circle cx="0" cy="0" r="34" fill="#475569" fill-opacity="0.03" stroke="url(#silverGrad)" stroke-width="2" stroke-dasharray="4 2"/>
+          <circle cx="0" cy="0" r="30" fill="#FAF6F0" stroke="url(#silverGrad)" stroke-width="1"/>
+          
+          <text x="0" y="-12" font-family="'Inter', -apple-system, sans-serif" font-size="8" font-weight="900" fill="#475569" text-anchor="middle" letter-spacing="0.5">ORDO</text>
+          <text x="0" y="6" font-family="'Inter', -apple-system, sans-serif" font-size="14" fill="#E11D48" text-anchor="middle">☆☆☆</text>
+          <text x="0" y="18" font-family="'Inter', -apple-system, sans-serif" font-size="7" font-weight="900" fill="#475569" text-anchor="middle" letter-spacing="0.5">REVOKED</text>
+        </g>
       </svg>`;
     }
 
