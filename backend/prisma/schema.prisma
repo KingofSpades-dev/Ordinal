@@ -1,0 +1,117 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id           String        @id @default(uuid())
+  email        String        @unique
+  passwordHash String
+  role         String        @default("analyst") // analyst | editor | admin
+  name         String
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  Dossier      Dossier[]
+  KeyAward     KeyAward[]
+}
+
+model Agent {
+  id                String             @id @default(uuid())
+  name              String
+  slug              String             @unique
+  category          String
+  status            String             @default("submitted") // submitted | queued | ingesting | analyzing | draft | in_review | published
+  contractAddresses String
+  chains            String
+  website           String
+  docsUrl           String
+  xHandle           String?
+  githubUrl         String?
+  launchDate        DateTime
+  tokenInfo         String?            // JSON string
+  integrations      String?            // JSON string
+  aiModelsUsed      String?            // JSON string
+  logoUrl           String?
+  ownershipVerified Boolean            @default(false)
+  submittedBy       String
+  submittedAt       DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  snapshots         SignalSnapshot[]
+  scores            Score[]
+  dossiers          Dossier[]
+  keyAwards         KeyAward[]
+  ratings           CommunityRating[]
+}
+
+model SignalSnapshot {
+  id            String   @id @default(uuid())
+  agentId       String
+  agent         Agent    @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  signalKey     String
+  value         Float
+  source        String
+  collectedAt   DateTime @default(now())
+  methodVersion String
+  rawPayload    String   // JSON string
+}
+
+model Score {
+  id                 String   @id @default(uuid())
+  agentId            String
+  agent              Agent    @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  methodologyVersion String
+  hardSignalScores   String   // JSON string
+  editorialScore     Float    @default(0.0)
+  confidence         Float    @default(1.0)
+  computedAt         DateTime @default(now())
+}
+
+model Dossier {
+  id                 String    @id @default(uuid())
+  agentId            String
+  agent              Agent     @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  dossierNumber      Int       @unique
+  title              String
+  body               String
+  verdict            String
+  aiDrafted          Boolean   @default(true)
+  editorVerified     Boolean   @default(false)
+  editorId           String?
+  editor             User?     @relation(fields: [editorId], references: [id])
+  publishedAt        DateTime?
+  methodologyVersion String
+  supersedesId       String?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+}
+
+model KeyAward {
+  id                 String    @id @default(uuid())
+  agentId            String
+  agent              Agent     @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  keyCount           Int
+  awardedAt          DateTime  @default(now())
+  expiresAt          DateTime
+  revokedAt          DateTime?
+  revocationReason   String?
+  methodologyVersion String
+  editorId           String
+  editor             User      @relation(fields: [editorId], references: [id])
+  rationale          String
+}
+
+model CommunityRating {
+  id            String   @id @default(uuid())
+  agentId       String
+  agent         Agent    @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  walletAddress String
+  stars         Int
+  usageProofTx  String
+  createdAt     DateTime @default(now())
+
+  @@unique([agentId, walletAddress])
+}
