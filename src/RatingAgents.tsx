@@ -983,9 +983,35 @@ export default function RatingAgents() {
                         <p className="mc-bio">
                           Autonomous agent registered under the {selectedAgent.category} category. Monitored on-chain on {selectedAgent.chains.toUpperCase()}.
                         </p>
-                        <div className="mc-tags">
-                          <span className="mc-tag">{selectedAgent.category}</span>
-                          <span className="mc-tag">{selectedAgent.chains.toUpperCase()}</span>
+                        <div className="mc-tags" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', flexWrap: 'wrap', gap: '12px' }}>
+                          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                            <span className="mc-tag">{selectedAgent.category}</span>
+                            <span className="mc-tag">{selectedAgent.chains.toUpperCase()}</span>
+                          </div>
+                          <a
+                            href={`${API_URL}/api/v1/badge/${selectedAgent.id}.svg`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="mc-tag"
+                            style={{
+                              background: 'var(--brass)',
+                              color: '#fff',
+                              textDecoration: 'none',
+                              fontWeight: 700,
+                              cursor: 'pointer',
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '4px',
+                              border: 'none',
+                              padding: '6px 12px',
+                              borderRadius: '6px',
+                              transition: 'opacity 0.2s',
+                            }}
+                            onMouseOver={(e) => (e.currentTarget.style.opacity = '0.85')}
+                            onMouseOut={(e) => (e.currentTarget.style.opacity = '1')}
+                          >
+                            View Live Badge ↗
+                          </a>
                         </div>
                       </div>
 
