@@ -1198,9 +1198,19 @@ export default function RatingAgents() {
                           </div>
 
                           <div className="vc-split" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid var(--line-2)', paddingTop: '12px', fontSize: '12px' }}>
-                            <span className="tag" style={{ fontWeight: 700, color: 'var(--ink)' }}>
-                              Editorial verdict · {totalScore >= 85 ? '★★★' : totalScore >= 70 ? '★★' : totalScore >= 50 ? '★' : 'No Rating'}
-                            </span>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                              <span className="tag" style={{ fontWeight: 700, color: 'var(--ink)' }}>Editorial verdict</span>
+                              <span style={{ display: 'flex', gap: '2px', marginLeft: '4px' }}>
+                                {(() => {
+                                  const starCount = totalScore >= 85 ? 3 : totalScore >= 70 ? 2 : totalScore >= 50 ? 1 : 0;
+                                  return Array.from({ length: 3 }).map((_, idx) => (
+                                    <svg key={idx} viewBox="0 0 24 24" style={{ width: '13px', height: '13px' }} fill={idx < starCount ? 'var(--brass)' : 'var(--line-2)'}>
+                                      <path d="M12 2l2.6 7.1L22 9.3l-5.5 4.5L18.6 22 12 17.6 5.4 22l2.1-8.2L2 9.3l7.4-.2z" />
+                                    </svg>
+                                  ));
+                                })()}
+                              </span>
+                            </div>
                             <div className="community-stars" style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                               <span className="tag" style={{ color: 'var(--ink-soft)', marginRight: '4px' }}>Community</span>
                               <span className="cs" style={{ display: 'flex', gap: '1px' }}>
