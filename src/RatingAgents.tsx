@@ -102,6 +102,20 @@ export default function RatingAgents() {
     fetchAgents();
   }, []);
 
+  // Sync selectedAgent with filtered list on wallet connection/changes
+  useEffect(() => {
+    const filtered = agentsList.filter(a => userWallet && a.submittedBy.toLowerCase() === userWallet.toLowerCase());
+    if (userWallet && filtered.length > 0) {
+      if (!selectedAgent || !filtered.some(a => a.id === selectedAgent.id)) {
+        setSelectedAgent(filtered[0]);
+      }
+    } else if (!userWallet && agentsList.length > 0) {
+      if (!selectedAgent || !agentsList.some(a => a.id === selectedAgent.id)) {
+        setSelectedAgent(agentsList[0]);
+      }
+    }
+  }, [userWallet, agentsList]);
+
   // Poll state changes when scanning a new agent
   useEffect(() => {
     if (!scanningAgentId) return;
