@@ -40,6 +40,8 @@ model Agent {
   submittedBy       String
   submittedAt       DateTime           @default(now())
   updatedAt         DateTime           @updatedAt
+  processAfter      DateTime?
+  scanIndex         Int                @default(0)
   snapshots         SignalSnapshot[]
   scores            Score[]
   dossiers          Dossier[]

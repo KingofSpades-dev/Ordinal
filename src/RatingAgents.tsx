@@ -16,7 +16,84 @@ interface Agent {
   submittedAt: string;
   scores?: any[];
   snapshots?: any[];
+  processAfter?: string | null;
+  scanIndex?: number;
 }
+
+const CountdownScreen = ({ processAfter, onComplete }: { processAfter: string; onComplete: () => void }) => {
+  const [timeLeft, setTimeLeft] = useState('');
+
+  useEffect(() => {
+    const calculateTimeLeft = () => {
+      const difference = +new Date(processAfter) - +new Date();
+      if (difference <= 0) {
+        onComplete();
+        return '00:00';
+      }
+
+      const hours = Math.floor(difference / (1000 * 60 * 60));
+      const minutes = Math.floor((difference / 1000 / 60) % 60);
+      const seconds = Math.floor((difference / 1000) % 60);
+
+      const parts = [];
+      if (hours > 0) parts.push(String(hours).padStart(2, '0'));
+      parts.push(String(minutes).padStart(2, '0'));
+      parts.push(String(seconds).padStart(2, '0'));
+
+      return parts.join(':');
+    };
+
+    setTimeLeft(calculateTimeLeft());
+    const interval = setInterval(() => {
+      setTimeLeft(calculateTimeLeft());
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [processAfter, onComplete]);
+
+  return (
+    <div className="main-card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '450px', textAlign: 'center', gap: '24px', padding: '40px' }}>
+      <div className="spinner" style={{ borderTopColor: 'var(--accent)', width: '60px', height: '60px' }}></div>
+      <h3 style={{ fontFamily: "'Fraunces', serif", fontSize: '28px', color: 'var(--ink)', margin: 0 }}>Reputation Verification in Progress</h3>
+
+      <div style={{ background: 'var(--paper)', border: '1px solid var(--ink-faint)', borderRadius: '12px', padding: '24px 48px', margin: '12px 0' }}>
+        <p style={{ color: 'var(--ink-soft)', textTransform: 'uppercase', fontSize: '11px', fontWeight: 900, letterSpacing: '1.5px', margin: '0 0 8px 0' }}>Estimated Completion Time</p>
+        <span style={{ fontFamily: 'monospace', fontSize: '48px', fontWeight: 700, color: 'var(--accent)' }}>{timeLeft}</span>
+      </div>
+
+      <p style={{ color: 'var(--ink-soft)', maxWidth: '520px', fontSize: '15px', lineHeight: 1.6, margin: 0 }}>
+        Ordo nodes are compiling off-chain reputation snapshots and validating smart contract telemetry. Your final rating and secure badge will be unlocked when the verification cooldown expires.
+      </p>
+
+      <div style={{ background: 'rgba(226, 193, 124, 0.1)', border: '1px dashed var(--brass)', borderRadius: '8px', padding: '16px 24px', maxWidth: '500px', marginTop: '12px' }}>
+        <h4 style={{ color: 'var(--brass)', fontSize: '14px', fontWeight: 900, margin: '0 0 6px 0', textTransform: 'uppercase', letterSpacing: '0.5px' }}>🚀 Speed Up Rating Queue</h4>
+        <p style={{ color: 'var(--ink-soft)', fontSize: '13px', lineHeight: 1.5, margin: '0 0 12px 0' }}>
+          Want to skip the queue? Hold at least <b>50,000 $ORDO</b> in your wallet for <b>instant rating</b>!
+        </p>
+        <a
+          href="https://pump.fun"
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{
+            display: 'inline-block',
+            padding: '8px 18px',
+            fontSize: '12px',
+            textDecoration: 'none',
+            backgroundColor: 'var(--brass)',
+            color: '#fff',
+            borderRadius: '6px',
+            fontWeight: 800,
+            transition: 'opacity 0.2s'
+          }}
+          onMouseOver={(e) => e.currentTarget.style.opacity = '0.9'}
+          onMouseOut={(e) => e.currentTarget.style.opacity = '1'}
+        >
+          Buy $ORDO ↗
+        </a>
+      </div>
+    </div>
+  );
+};
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
@@ -900,6 +977,18 @@ export default function RatingAgents() {
                   </p>
                 </div>
               ) : selectedAgent ? (() => {
+                const processAfterDate = selectedAgent.processAfter ? new Date(selectedAgent.processAfter) : null;
+                const isDelayActive = processAfterDate && new Date() < processAfterDate;
+
+                if (isDelayActive) {
+                  return (
+                    <CountdownScreen
+                      processAfter={selectedAgent.processAfter!}
+                      onComplete={() => fetchAgents()}
+                    />
+                  );
+                }
+
                 if (selectedAgent.status !== 'published' && selectedAgent.status !== 'rejected_invalid') {
                   return (
                     <div className="main-card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '450px', textAlign: 'center', gap: '24px', padding: '40px' }}>

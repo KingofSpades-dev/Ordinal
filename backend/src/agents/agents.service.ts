@@ -71,6 +71,21 @@ export class AgentsService {
       }
     });
 
+    // Calculate scan count and delays
+    const scanCount = await this.prisma.agent.count({
+      where: { submittedBy: dto.submitterWallet },
+    });
+
+    let delayMs = 2 * 60 * 1000; // 1st scan: 2 minutes
+    if (scanCount === 1) {
+      delayMs = 30 * 60 * 1000; // 2nd scan: 30 minutes
+    } else if (scanCount >= 2) {
+      delayMs = 2 * 60 * 60 * 1000; // 3rd+ scan: 2 hours
+    }
+
+    const hasBalance = await this.checkOrdoBalance(dto.submitterWallet);
+    const processAfter = hasBalance ? null : new Date(Date.now() + delayMs);
+
     if (existingAgent) {
       console.log(`[SUBMIT] Existing agent "${existingAgent.name}" found for same wallet. Updating data and resetting scan status...`);
       const updatedAgent = await this.prisma.agent.update({
@@ -87,6 +102,8 @@ export class AgentsService {
           githubUrl: dto.githubUrl,
           launchDate: new Date(dto.launchDate),
           updatedAt: new Date(),
+          processAfter,
+          scanIndex: scanCount,
         }
       });
       
@@ -132,6 +149,8 @@ export class AgentsService {
         githubUrl: dto.githubUrl,
         launchDate: new Date(dto.launchDate),
         submittedBy: dto.submitterWallet,
+        processAfter,
+        scanIndex: scanCount,
       },
     });
 
@@ -279,5 +298,50 @@ export class AgentsService {
       ratingId: rating.id,
       message: 'Vote submitted successfully.',
     };
+  }
+
+  async checkOrdoBalance(wallet: string): Promise<boolean> {
+    try {
+      if (wallet.startsWith('0x')) return false;
+
+      const rpcUrl = process.env.HELIUS_API_KEY || 'https://api.mainnet-beta.solana.com';
+      const ORDO_MINT = 'OrdoTokenMintAddressPlaceholder111111111111';
+
+      const payload = {
+        jsonrpc: '2.0',
+        id: 'ordo-check',
+        method: 'getTokenAccountsByOwner',
+        params: [
+          wallet,
+          {
+            mint: ORDO_MINT
+          },
+          {
+            encoding: 'jsonParsed'
+          }
+        ]
+      };
+
+      const res = await fetch(rpcUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      if (!res.ok) {
+        return false;
+      }
+
+      const data = await res.json();
+      if (data.result && data.result.value && data.result.value.length > 0) {
+        const tokenAccount = data.result.value[0];
+        const balance = tokenAccount.account.data.parsed.info.tokenAmount.uiAmount || 0;
+        return balance >= 50000;
+      }
+      return false;
+    } catch (e) {
+      console.error('Failed to check ORDO balance:', e);
+      return false;
+    }
   }
 }

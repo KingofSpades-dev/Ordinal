@@ -53,11 +53,14 @@ export class BadgeController {
 
     let svg = '';
 
-    const starsCount = scoreNum >= 90 ? 3 : scoreNum >= 70 ? 2 : scoreNum >= 40 ? 1 : 0;
+    const isQueueHeld = agent && agent.processAfter && new Date() < new Date(agent.processAfter);
+
+    const starsCount = isQueueHeld ? 0 : (scoreNum >= 90 ? 3 : scoreNum >= 70 ? 2 : scoreNum >= 40 ? 1 : 0);
     const starLabel = starsCount === 3 ? "THREE STARS — EXCEPTIONAL" : starsCount === 2 ? "TWO STARS — EXCELLENT" : starsCount === 1 ? "ONE STAR — NOTABLE" : "UNRATED";
     const filledStars = '★ '.repeat(starsCount);
     const emptyStars = '☆ '.repeat(3 - starsCount);
     const keys = (filledStars + emptyStars).trim();
+    const finalScore = isQueueHeld ? 0 : scoreNum;
 
     if (starsCount >= 1 && agent) {
 
@@ -174,7 +177,7 @@ export class BadgeController {
 
         <!-- Score Details -->
         <text x="310" y="452" font-family="Arial, sans-serif" font-size="8.5" font-weight="900" fill="#9E7A44" text-anchor="middle" letter-spacing="1">ORDO SCORE</text>
-        <text x="310" y="488" font-family="Georgia, serif" font-size="34" font-weight="700" fill="#A61D2D" text-anchor="middle">${scoreNum}</text>
+        <text x="310" y="488" font-family="Georgia, serif" font-size="34" font-weight="700" fill="#A61D2D" text-anchor="middle">${finalScore}</text>
         <text x="310" y="508" font-family="Arial, sans-serif" font-size="11" font-weight="700" fill="#4A4F57" text-anchor="middle">/ 100</text>
 
         <!-- Rating Details -->
@@ -380,7 +383,7 @@ export class BadgeController {
 
         <!-- Score Details -->
         <text x="310" y="452" font-family="Arial, sans-serif" font-size="8.5" font-weight="900" fill="#64748B" text-anchor="middle" letter-spacing="1">ORDO SCORE</text>
-        <text x="310" y="488" font-family="Georgia, serif" font-size="34" font-weight="700" fill="#475569" text-anchor="middle">${scoreNum}</text>
+        <text x="310" y="488" font-family="Georgia, serif" font-size="34" font-weight="700" fill="#475569" text-anchor="middle">${finalScore}</text>
         <text x="310" y="508" font-family="Arial, sans-serif" font-size="11" font-weight="700" fill="#64748B" text-anchor="middle">/ 100</text>
 
         <!-- Rating Details -->
