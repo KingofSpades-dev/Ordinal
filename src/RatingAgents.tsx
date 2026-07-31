@@ -1292,10 +1292,53 @@ export default function RatingAgents() {
       </section>
 
       {/* Footer */}
-      <footer style={{ marginTop: '80px', backgroundColor: '#fff', borderTop: '1px solid #EAEAEA', padding: '24px 0' }}>
-        <div className="wrap" style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', color: '#94A3B8' }}>
-          <p>© 2026 Ordo</p>
-          <p>Independent · Unbuyable · Dated</p>
+      <footer>
+        <div className="wrap">
+          <div className="foot-top">
+            <div className="foot-brand">
+              <div className="brand">
+                <svg className="brand-mark" viewBox="0 0 100 100" fill="currentColor">
+                  <g transform="translate(50, 38)">
+                    {Array.from({ length: 12 }).map((_, i) => (
+                      <rect
+                        key={i}
+                        x="-3"
+                        y="-24"
+                        width="6"
+                        height="12"
+                        rx="3"
+                        transform={`rotate(${i * 30})`}
+                      />
+                    ))}
+                    <circle cx="0" cy="0" r="9" />
+                    <circle cx="0" cy="0" r="3.5" fill="var(--paper, #F5F0E8)" />
+                  </g>
+                  <rect x="47" y="38" width="6" height="42" rx="1.5" />
+                  <path d="M 53 62 h 12 v 6 h -6 v 4 h 6 v 6 h -12 Z" />
+                </svg>
+                <span className="brand-name">O<b>rdo</b></span>
+              </div>
+              <p>The independent editorial authority for Web3 AI agents. Rankings you can trust, methodology you can read.</p>
+            </div>
+            <div className="foot-cols">
+              <div className="foot-col">
+                <h5>Rankings</h5>
+                <a href="#">Security</a><a href="#">Infrastructure</a><a href="#">Research</a><a href="#">Trading</a>
+              </div>
+              <div className="foot-col">
+                <h5>Publication</h5>
+                <a href="#">Dossiers</a><a href="#">Investigations</a><a href="#">Weekly report</a><a href="#">Interviews</a>
+              </div>
+              <div className="foot-col">
+                <h5>The Guide</h5>
+                <a href="#">Methodology</a><a href="#">Editorial standards</a><a href="#">Holder benefits</a><a href="#">Submit an agent</a>
+              </div>
+            </div>
+          </div>
+          <div className="foot-bottom">
+            <p>© 2026 Ordo</p>
+            <p>Independent · Unbuyable · Dated</p>
+          </div>
         </div>
       </footer>
     </>

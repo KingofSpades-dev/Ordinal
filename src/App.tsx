@@ -221,8 +221,7 @@ function App() {
               <a href="#">About</a>
               <a href="#rankings">Ratings</a>
               <a href="#method">Methodology</a>
-              <a href="#">Docs</a>
-              <a href="#">API</a>
+              <a href="https://github.com/KingofSpades-dev/Ordo" target="_blank" rel="noopener noreferrer">GitHub</a>
             </div>
             <a 
               href="/ratingagents" 
