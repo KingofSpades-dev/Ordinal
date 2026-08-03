@@ -56,7 +56,7 @@ export class BadgeController {
     const isQueueHeld = agent && agent.processAfter && new Date() < new Date(agent.processAfter);
 
     const starsCount = isQueueHeld ? 0 : (scoreNum >= 90 ? 3 : scoreNum >= 70 ? 2 : scoreNum >= 40 ? 1 : 0);
-    const starLabel = starsCount === 3 ? "THREE STARS — EXCEPTIONAL" : starsCount === 2 ? "TWO STARS — EXCELLENT" : starsCount === 1 ? "ONE STAR — NOTABLE" : "UNRATED";
+    const starLabel = starsCount === 3 ? "THREE STARS : EXCEPTIONAL" : starsCount === 2 ? "TWO STARS : EXCELLENT" : starsCount === 1 ? "ONE STAR : NOTABLE" : "UNRATED";
     const filledStars = '★ '.repeat(starsCount);
     const emptyStars = '☆ '.repeat(3 - starsCount);
     const keys = (filledStars + emptyStars).trim();

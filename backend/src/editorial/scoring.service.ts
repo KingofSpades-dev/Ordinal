@@ -55,7 +55,7 @@ export class ScoringService {
     console.log(`- Calculated Final Weighted Score: ${finalScore} / 100`);
 
     const starsCount = finalScore >= 90 ? 3 : finalScore >= 70 ? 2 : finalScore >= 40 ? 1 : 0;
-    const starLabel = starsCount === 3 ? "Three Stars — Exceptional" : starsCount === 2 ? "Two Stars — Excellent" : starsCount === 1 ? "One Star — Notable" : "Unrated";
+    const starLabel = starsCount === 3 ? "Three Stars: Exceptional" : starsCount === 2 ? "Two Stars: Excellent" : starsCount === 1 ? "One Star: Notable" : "Unrated";
     const starDesc = starsCount === 3 ? "A category-defining agent. The standard others are measured against." : starsCount === 2 ? "Among the best in its category. Worth going out of your way to use." : starsCount === 1 ? "A capable agent worth knowing in its category. Solid execution, real utility." : "Below Ordo rating threshold.";
 
     // 4. Save to Score table

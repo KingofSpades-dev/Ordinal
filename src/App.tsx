@@ -179,14 +179,14 @@ function App() {
           <span className="dot">✦</span><span>Verdicts you cannot buy</span>
           <span className="dot">✦</span><span>Every Dossier disclosed &amp; dated</span>
           <span className="dot">✦</span><span>Coverage across 12 chains</span>
-          <span className="dot">✦</span><span>New security investigation — read now</span>
+          <span className="dot">✦</span><span>New security investigation: read now</span>
 
           <span className="dot">✦</span><span>Independent editorial rankings</span>
           <span className="dot">✦</span><span>Methodology published in full</span>
           <span className="dot">✦</span><span>Verdicts you cannot buy</span>
           <span className="dot">✦</span><span>Every Dossier disclosed &amp; dated</span>
           <span className="dot">✦</span><span>Coverage across 12 chains</span>
-          <span className="dot">✦</span><span>New security investigation — read now</span>
+          <span className="dot">✦</span><span>New security investigation: read now</span>
         </div>
       </div>
 
@@ -312,13 +312,13 @@ function App() {
             <div className="sec-head">
               <span className="eyebrow">The scope · Version I</span>
               <h2>We start narrow, and go deep.</h2>
-              <p>Authority is earned by being undeniably right about a small thing first. Four categories, each rated against evidence — not hype, not follower counts.</p>
+              <p>Authority is earned by being undeniably right about a small thing first. Four categories, each rated against evidence, not hype or follower counts.</p>
             </div>
           </Reveal>
           <div className="cats">
             <Reveal delay={50}>
               <div className="cat">
-                <div className="num">01 — Flagship</div>
+                <div className="num">01 / Flagship</div>
                 <h3>Security &amp; Wallet Intelligence</h3>
                 <p>Agents that catch exploits, flag malicious contracts, and protect funds. Rated on detection accuracy, false-positive rates, and audited response record.</p>
                 <div className="foot"><span className="cnt">38 <span>Dossiers</span></span><span className="tag">Testable</span></div>
@@ -328,7 +328,7 @@ function App() {
               <div className="cat">
                 <div className="num">02</div>
                 <h3>Infrastructure &amp; Developer</h3>
-                <p>Tooling, frameworks, and agent rails. Judged on real integration adoption, commit history, documentation quality, and uptime — signals that are hard to fake.</p>
+                <p>Tooling, frameworks, and agent rails. Judged on real integration adoption, commit history, documentation quality, and uptime. These signals are hard to fake.</p>
                 <div className="foot"><span className="cnt">51 <span>Dossiers</span></span><span className="tag">Verifiable</span></div>
               </div>
             </Reveal>
@@ -344,7 +344,7 @@ function App() {
               <div className="cat">
                 <div className="num">04</div>
                 <h3>Trading Agents</h3>
-                <p>Rated strictly on independently measured, multi-period, risk-adjusted performance — never self-reported returns. Framed as risk assessment, not advice.</p>
+                <p>Rated strictly on independently measured, multi-period, risk-adjusted performance, rather than self-reported returns. Framed as risk assessment, not advice.</p>
                 <div className="foot"><span className="cnt">44 <span>Dossiers</span></span><span className="tag">On-chain verified</span></div>
               </div>
             </Reveal>
@@ -381,7 +381,7 @@ function App() {
             <div className="sec-head">
               <span className="eyebrow">The Dossier · The rating</span>
               <h2>One to three stars. Earned, never sold.</h2>
-              <p>Every agent gets a <b style={{ color: 'var(--ink)', fontWeight: 600 }}>Ordo Dossier</b> — a full profile, scored review, and generated visual record. Our editorial verdict sits apart from community sentiment: always side by side, never blended.</p>
+              <p>Every agent gets a <b style={{ color: 'var(--ink)', fontWeight: 600 }}>Ordo Dossier</b>, which includes a full profile, scored review, and generated visual record. Our editorial verdict sits apart from community sentiment: always side by side, never blended.</p>
             </div>
           </Reveal>
           <div className="rating-wrap">
@@ -389,15 +389,15 @@ function App() {
               <div className="stars-legend">
                 <div className="star-row">
 
-                  <div className="txt"><h4>One Star — Notable</h4><p>A capable agent worth knowing in its category. Solid execution, real utility.</p></div>
+                  <div className="txt"><h4>One Star: Notable</h4><p>A capable agent worth knowing in its category. Solid execution, real utility.</p></div>
                 </div>
                 <div className="star-row">
 
-                  <div className="txt"><h4>Two Stars — Excellent</h4><p>Among the best in its category. Worth going out of your way to use.</p></div>
+                  <div className="txt"><h4>Two Stars: Excellent</h4><p>Among the best in its category. Worth going out of your way to use.</p></div>
                 </div>
                 <div className="star-row">
 
-                  <div className="txt"><h4>Three Stars — Exceptional</h4><p>A category-defining agent. The standard others are measured against.</p></div>
+                  <div className="txt"><h4>Three Stars: Exceptional</h4><p>A category-defining agent. The standard others are measured against.</p></div>
                 </div>
               </div>
             </Reveal>
@@ -448,7 +448,7 @@ function App() {
             <div className="sec-head">
               <span className="eyebrow">How every Dossier is built</span>
               <h2>Multiple frontier models. One rigorous result.</h2>
-              <p>Each Ordo Dossier is assembled by a combined AI stack, then verified by a human editor before it earns a star. No single model does the whole job — we pair each to what it does best.</p>
+              <p>Each Ordo Dossier is assembled by a combined AI stack, then verified by a human editor before it earns a star. No single model does the whole job. Instead, we pair each to what it does best.</p>
             </div>
           </Reveal>
           <div className="stack-grid">
@@ -465,7 +465,7 @@ function App() {
                 <span className="badge">Visual record</span>
                 <h4>Nano Banana</h4>
                 <div className="role">// generated imagery</div>
-                <p>Produces every agent's visual profile — cover imagery, product stills, and diagram plates — for a consistent, editorial-grade Dossier.</p>
+                <p>Produces every agent's visual profile, including cover imagery, product stills, and diagram plates, for a consistent, editorial-grade Dossier.</p>
               </div>
             </Reveal>
             <Reveal delay={250}>
@@ -498,7 +498,7 @@ function App() {
               <div className="method-cell">
                 <div className="idx">01</div>
                 <h4>A hard signal spine</h4>
-                <p>Audits, on-chain activity, uptime, integration counts, commit history — reproducible facts anyone can verify. No opinion enters here.</p>
+                <p>Audits, on-chain activity, uptime, integration counts, commit history: reproducible facts anyone can verify. No opinion enters here.</p>
               </div>
             </Reveal>
             <Reveal delay={150}>
@@ -532,7 +532,7 @@ function App() {
           <div className="ed-grid">
             <Reveal delay={50} className="ed lead">
               <span className="kind">Investigation</span>
-              <h3>The agent that claimed 300% returns — and the wallets that tell a different story.</h3>
+              <h3>The agent that claimed 300% returns, and the wallets that tell a different story.</h3>
               <span className="date">Jul 18, 2026 · 14 min read</span>
             </Reveal>
             <Reveal delay={120} className="ed">
@@ -552,7 +552,7 @@ function App() {
             </Reveal>
             <Reveal delay={330} className="ed">
               <span className="kind">Founder interview</span>
-              <h3>Building an audited agent in public — a conversation.</h3>
+              <h3>Building an audited agent in public: a conversation.</h3>
               <span className="date">Jul 04, 2026</span>
             </Reveal>
           </div>
@@ -566,7 +566,7 @@ function App() {
             <div className="sec-head">
               <span className="eyebrow">For $MRD holders</span>
               <h2>Real benefits. No influence over the verdict.</h2>
-              <p>Holding the token unlocks access and status — the things worth paying for. It does not, and cannot, move an editorial ranking.</p>
+              <p>Holding the token unlocks access and status, which are the things worth paying for. It does not, and cannot, move an editorial ranking.</p>
             </div>
           </Reveal>
           <div className="holder">
@@ -613,16 +613,16 @@ function App() {
                 </div>
                 <div>
                   <h4>Community Stars &amp; holder badge</h4>
-                  <p>Rate agents you can prove you've used on-chain — one holder, one vote. Shown separately from the editorial verdict.</p>
+                  <p>Rate agents you can prove you've used on-chain under a one holder, one vote system. Shown separately from the editorial verdict.</p>
                 </div>
               </Reveal>
             </div>
             <Reveal delay={300} className="holder-note">
               <div className="eyebrow">Why the wall exists</div>
-              <h3>Community sentiment and editorial verdict live side by side — never merged.</h3>
-              <p>Holders give stars to agents they've genuinely used. That signal is shown as <b>Community Stars</b>, next to — never inside — our independent rating. When the two diverge, that's our most interesting story.</p>
+              <h3>Community sentiment and editorial verdict live side by side, and are never merged.</h3>
+              <p>Holders give stars to agents they've genuinely used. That signal is shown as <b>Community Stars</b>, next to, and never inside, our independent rating. When the two diverge, that's our most interesting story.</p>
               <div className="fine">
-                ONE HOLDER · ONE VOTE — NOT ONE TOKEN · ONE VOTE<br />
+                ONE HOLDER · ONE VOTE / NOT ONE TOKEN · ONE VOTE<br />
                 STARS REQUIRE PROOF OF ON-CHAIN USE<br />
                 THE TOKEN GRANTS ACCESS, NEVER RANKING POWER
               </div>
@@ -636,7 +636,7 @@ function App() {
         <div className="cta-band">
           <div className="wrap">
             <h2>The guide the industry <em>trusts.</em></h2>
-            <p>Find the agents worth your funds — and skip the ones that aren't.</p>
+            <p>Find the agents worth your funds, and skip the ones that aren't.</p>
             <a href="#rankings" className="btn-primary">Browse the rankings</a>
           </div>
         </div>
