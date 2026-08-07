@@ -25,7 +25,7 @@ export class BadgeController {
       return;
     }
 
-    if (agent.submittedBy !== 'seed') {
+    if (agent.submittedBy !== 'system') {
       const cleanWallet = walletAddress?.toLowerCase().trim();
       const cleanSubmitter = agent.submittedBy?.toLowerCase().trim();
       if (!cleanWallet || cleanWallet !== cleanSubmitter) {

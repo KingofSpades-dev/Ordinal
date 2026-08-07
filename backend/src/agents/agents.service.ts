@@ -25,11 +25,11 @@ export class AgentsService {
     const whereCondition = cleanWallet 
       ? {
           OR: [
-            { submittedBy: 'seed' },
+            { submittedBy: 'system' },
             { submittedBy: { equals: walletAddress, mode: 'insensitive' as any } }
           ]
         }
-      : { submittedBy: 'seed' };
+      : { submittedBy: 'system' };
 
     return this.prisma.agent.findMany({
       where: whereCondition,
