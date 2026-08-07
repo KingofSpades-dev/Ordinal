@@ -105,6 +105,7 @@ export default function RatingAgents() {
   const [userWallet, setUserWallet] = useState<string>('');
   const [selectedAgent, setSelectedAgent] = useState<Agent | null>(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [showOnlyMyScans, setShowOnlyMyScans] = useState(false);
   const [scanningAgentId, setScanningAgentId] = useState<string | null>(null);
   const [notification, setNotification] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
 
@@ -328,7 +329,9 @@ export default function RatingAgents() {
 
 
 
-  const filteredAgents = agentsList;
+  const filteredAgents = showOnlyMyScans && userWallet
+    ? agentsList.filter(a => a.submittedBy.toLowerCase() === userWallet.toLowerCase())
+    : agentsList;
 
   return (
     <>
@@ -923,7 +926,23 @@ export default function RatingAgents() {
                     No scans available.
                   </p>
                 ) : (
-                  <div style={{ position: 'relative', width: '100%' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                    {userWallet && (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', userSelect: 'none' }} onClick={() => setShowOnlyMyScans(!showOnlyMyScans)}>
+                        <input
+                          type="checkbox"
+                          id="onlyMyScans"
+                          checked={showOnlyMyScans}
+                          onChange={(e) => setShowOnlyMyScans(e.target.checked)}
+                          style={{ cursor: 'pointer', accentColor: 'var(--brass)' }}
+                          onClick={(e) => e.stopPropagation()}
+                        />
+                        <label htmlFor="onlyMyScans" style={{ fontSize: '13px', color: 'var(--ink-soft)', cursor: 'pointer' }}>
+                          Show only my scans
+                        </label>
+                      </div>
+                    )}
+                    <div style={{ position: 'relative', width: '100%' }}>
                     {/* Trigger Button */}
                     <div
                       onClick={() => setDropdownOpen(!dropdownOpen)}
@@ -1011,6 +1030,7 @@ export default function RatingAgents() {
                         ))}
                       </div>
                     )}
+                  </div>
                   </div>
                 )}
               </div>
