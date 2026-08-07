@@ -49,7 +49,6 @@ function App() {
   const [stats, setStats] = useState<any>(null);
   const [agentsList, setAgentsList] = useState<any[]>([]);
   const [selectedAgent, setSelectedAgent] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function loadData() {
@@ -66,8 +65,6 @@ function App() {
         }
       } catch (err) {
         console.error('Failed to load home page data:', err);
-      } finally {
-        setLoading(false);
       }
     }
     loadData();

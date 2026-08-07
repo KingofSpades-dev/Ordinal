@@ -54,9 +54,15 @@ export class BadgeController {
     if (agent && agent.scores && agent.scores.length > 0) {
       try {
         const parsed = JSON.parse(agent.scores[0].hardSignalScores);
-        const ghWeight = typeof parsed.githubWeight === 'number' ? parsed.githubWeight : 0.5;
-        const ocWeight = typeof parsed.onchainWeight === 'number' ? parsed.onchainWeight : 0.5;
-        scoreNum = Math.round((parsed.githubScore * ghWeight) + (parsed.onchainScore * ocWeight));
+        if (typeof parsed.finalScore === 'number') {
+          scoreNum = Math.round(agent.scores[0].editorialScore + parsed.finalScore);
+        } else {
+          const ghWeight = typeof parsed.githubWeight === 'number' ? parsed.githubWeight : 0.5;
+          const ocWeight = typeof parsed.onchainWeight === 'number' ? parsed.onchainWeight : 0.5;
+          const ghScore = typeof parsed.githubScore === 'number' ? parsed.githubScore : 0;
+          const ocScore = typeof parsed.onchainScore === 'number' ? parsed.onchainScore : 0;
+          scoreNum = Math.round(agent.scores[0].editorialScore + (ghScore * ghWeight) + (ocScore * ocWeight));
+        }
       } catch (e) {
         console.error('Failed to parse score JSON:', e);
       }
@@ -74,8 +80,25 @@ export class BadgeController {
 
     const isQueueHeld = agent && agent.processAfter && new Date() < new Date(agent.processAfter);
 
-    const starsCount = isQueueHeld ? 0 : (scoreNum >= 90 ? 3 : scoreNum >= 70 ? 2 : scoreNum >= 40 ? 1 : 0);
-    const starLabel = starsCount === 3 ? "THREE STARS : EXCEPTIONAL" : starsCount === 2 ? "TWO STARS : EXCELLENT" : starsCount === 1 ? "ONE STAR : NOTABLE" : "UNRATED";
+    let starsCount = 0;
+    let starLabel = 'UNRATED';
+
+    if (agent && agent.scores && agent.scores.length > 0) {
+      try {
+        const parsed = JSON.parse(agent.scores[0].hardSignalScores);
+        if (typeof parsed.starsCount === 'number') {
+          starsCount = parsed.starsCount;
+          starLabel = (parsed.starLabel || 'UNRATED').toUpperCase();
+        } else {
+          starsCount = isQueueHeld ? 0 : (scoreNum >= 93 ? 3 : scoreNum >= 75 ? 2 : scoreNum >= 50 ? 1 : 0);
+          starLabel = starsCount === 3 ? "THREE STARS : EXCEPTIONAL" : starsCount === 2 ? "TWO STARS : EXCELLENT" : starsCount === 1 ? "ONE STAR : NOTABLE" : "UNRATED";
+        }
+      } catch (e) {
+        starsCount = isQueueHeld ? 0 : (scoreNum >= 93 ? 3 : scoreNum >= 75 ? 2 : scoreNum >= 50 ? 1 : 0);
+        starLabel = starsCount === 3 ? "THREE STARS : EXCEPTIONAL" : starsCount === 2 ? "TWO STARS : EXCELLENT" : starsCount === 1 ? "ONE STAR : NOTABLE" : "UNRATED";
+      }
+    }
+
     const filledStars = '★ '.repeat(starsCount);
     const emptyStars = '☆ '.repeat(3 - starsCount);
     const keys = (filledStars + emptyStars).trim();

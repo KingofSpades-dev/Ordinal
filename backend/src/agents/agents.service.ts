@@ -22,17 +22,14 @@ export class AgentsService {
 
   async findAll(walletAddress?: string) {
     const cleanWallet = walletAddress?.toLowerCase().trim();
-    const whereCondition = cleanWallet 
-      ? {
-          OR: [
-            { submittedBy: 'system' },
-            { submittedBy: { equals: walletAddress, mode: 'insensitive' as any } }
-          ]
-        }
-      : { submittedBy: 'system' };
+    if (!cleanWallet) {
+      return [];
+    }
 
     return this.prisma.agent.findMany({
-      where: whereCondition,
+      where: {
+        submittedBy: { equals: walletAddress, mode: 'insensitive' as any }
+      },
       orderBy: { submittedAt: 'desc' },
       include: {
         scores: true,

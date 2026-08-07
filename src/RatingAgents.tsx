@@ -105,7 +105,6 @@ export default function RatingAgents() {
   const [userWallet, setUserWallet] = useState<string>('');
   const [selectedAgent, setSelectedAgent] = useState<Agent | null>(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [showOnlyMyScans, setShowOnlyMyScans] = useState(false);
   const [scanningAgentId, setScanningAgentId] = useState<string | null>(null);
   const [notification, setNotification] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
 
@@ -329,9 +328,7 @@ export default function RatingAgents() {
 
 
 
-  const filteredAgents = showOnlyMyScans && userWallet
-    ? agentsList.filter(a => a.submittedBy.toLowerCase() === userWallet.toLowerCase())
-    : agentsList;
+  const filteredAgents = agentsList;
 
   return (
     <>
@@ -926,23 +923,7 @@ export default function RatingAgents() {
                     No scans available.
                   </p>
                 ) : (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                    {userWallet && (
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', userSelect: 'none' }} onClick={() => setShowOnlyMyScans(!showOnlyMyScans)}>
-                        <input
-                          type="checkbox"
-                          id="onlyMyScans"
-                          checked={showOnlyMyScans}
-                          onChange={(e) => setShowOnlyMyScans(e.target.checked)}
-                          style={{ cursor: 'pointer', accentColor: 'var(--brass)' }}
-                          onClick={(e) => e.stopPropagation()}
-                        />
-                        <label htmlFor="onlyMyScans" style={{ fontSize: '13px', color: 'var(--ink-soft)', cursor: 'pointer' }}>
-                          Show only my scans
-                        </label>
-                      </div>
-                    )}
-                    <div style={{ position: 'relative', width: '100%' }}>
+                  <div style={{ position: 'relative', width: '100%' }}>
                     {/* Trigger Button */}
                     <div
                       onClick={() => setDropdownOpen(!dropdownOpen)}
@@ -1030,7 +1011,6 @@ export default function RatingAgents() {
                         ))}
                       </div>
                     )}
-                  </div>
                   </div>
                 )}
               </div>
@@ -1157,9 +1137,6 @@ export default function RatingAgents() {
                     : Math.round(selectedAgent.scores[0].editorialScore + (scoreObj.verifiabilityScore + scoreObj.activityScore + scoreObj.maintenanceScore + scoreObj.securityScore - (scoreObj.adminPenalty || 0))))
                   : 0;
 
-                const tvlSnapshot = selectedAgent.snapshots?.find(s => s.signalKey === 'tvl');
-                const tvlVal = tvlSnapshot ? tvlSnapshot.value.toLocaleString() : '0';
-
                 // SVG Dash calculations
                 const radius = 60;
                 const circumference = 2 * Math.PI * radius;
@@ -1216,10 +1193,9 @@ export default function RatingAgents() {
                           <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                             <span className="mc-tag">{selectedAgent.category}</span>
                             <span className="mc-tag">{selectedAgent.chains.toUpperCase()}</span>
-                            <span className="mc-tag" style={{ border: '1.5px solid var(--brass-soft)', color: 'var(--brass)', fontWeight: 700 }}>Bal: {tvlVal} {selectedAgent.chains.toUpperCase() === 'SOLANA' ? 'SOL' : 'ETH'}</span>
                           </div>
                           <a
-                            href={`${API_URL}/api/v1/badge/${selectedAgent.id}.svg`}
+                            href={`${API_URL}/api/v1/badge/${selectedAgent.id}.svg?walletAddress=${encodeURIComponent(userWallet)}`}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="mc-tag"
