@@ -407,8 +407,16 @@ function App() {
                       </div>
                     </div>
                     <div className="vc-split" style={{ marginTop: '16px', borderTop: '1px solid var(--line)', paddingTop: '12px' }}>
-                      <span className="tag" style={{ color: 'var(--brass)', fontWeight: 700 }}>
-                        {isUnrated ? 'Registered, not rated' : `Verdict · ${'★'.repeat(starsCount)}${'☆'.repeat(3 - starsCount)}`}
+                      <span className="tag" style={{ color: 'var(--brass)', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                        {isUnrated ? (
+                          'Registered, not rated'
+                        ) : starsCount === 0 ? (
+                          'Verdict · Unverified'
+                        ) : (
+                          <>
+                             Verdict · <span style={{ fontSize: '26px', lineHeight: 1, verticalAlign: 'middle', marginTop: '-4px', letterSpacing: '-1px' }}>{'★'.repeat(starsCount)}{'☆'.repeat(3 - starsCount)}</span>
+                          </>
+                        )}
                       </span>
                       <span style={{ fontSize: '11px', textDecoration: 'underline', color: 'var(--brass)', fontWeight: 700 }}>View Dossier →</span>
                     </div>
