@@ -351,10 +351,11 @@ function App() {
                   ? JSON.parse(agent.scores[0].hardSignalScores)
                   : null;
                 const starsCount = scoreObj ? scoreObj.starsCount : 0;
+                const editorialScore = agent.scores?.[0]?.editorialScore ?? 0;
                 const finalScore = scoreObj 
                   ? (typeof scoreObj.finalScore === 'number' 
-                      ? Math.round(agent.scores[0].editorialScore + scoreObj.finalScore)
-                      : Math.round(agent.scores[0].editorialScore + (scoreObj.verifiabilityScore + scoreObj.activityScore + scoreObj.maintenanceScore + scoreObj.securityScore - (scoreObj.adminPenalty || 0))))
+                      ? Math.round(editorialScore + scoreObj.finalScore)
+                      : Math.round(editorialScore + (scoreObj.verifiabilityScore + scoreObj.activityScore + scoreObj.maintenanceScore + scoreObj.securityScore - (scoreObj.adminPenalty || 0))))
                   : 0;
                 const isUnrated = scoreObj?.insufficientEvidence;
 

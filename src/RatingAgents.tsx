@@ -1131,10 +1131,11 @@ export default function RatingAgents() {
                   : null;
 
                 const isUnrated = scoreObj?.insufficientEvidence;
+                const editorialScore = selectedAgent.scores?.[0]?.editorialScore ?? 0;
                 const totalScore = scoreObj
                   ? (typeof scoreObj.finalScore === 'number'
-                    ? Math.round(selectedAgent.scores[0].editorialScore + scoreObj.finalScore)
-                    : Math.round(selectedAgent.scores[0].editorialScore + (scoreObj.verifiabilityScore + scoreObj.activityScore + scoreObj.maintenanceScore + scoreObj.securityScore - (scoreObj.adminPenalty || 0))))
+                    ? Math.round(editorialScore + scoreObj.finalScore)
+                    : Math.round(editorialScore + (scoreObj.verifiabilityScore + scoreObj.activityScore + scoreObj.maintenanceScore + scoreObj.securityScore - (scoreObj.adminPenalty || 0))))
                   : 0;
 
                 // SVG Dash calculations
