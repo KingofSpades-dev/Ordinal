@@ -1,5 +1,7 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
 interface RevealProps {
   children: ReactNode;
@@ -40,101 +42,37 @@ function Reveal({ children, className = '', delay = 0 }: RevealProps) {
 }
 
 function AgentLogo({ name }: { name: string }) {
-  switch (name) {
-    case 'Sentinel AI':
-      return (
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="agent-svg">
-          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-          <circle cx="12" cy="11" r="3" />
-        </svg>
-      );
-    case 'Nexus':
-      return (
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="agent-svg">
-          <circle cx="12" cy="12" r="3" />
-          <circle cx="19" cy="5" r="2" />
-          <circle cx="5" cy="19" r="2" />
-          <circle cx="19" cy="19" r="2" />
-          <circle cx="5" cy="5" r="2" />
-          <path d="M12 12L19 5M12 12L5 19M12 12L19 19M12 12L5 5" />
-        </svg>
-      );
-    case 'Oracle Prime':
-      return (
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="agent-svg">
-          <path d="M12 2L2 22h20L12 2z" />
-          <circle cx="12" cy="13" r="2" fill="currentColor" />
-        </svg>
-      );
-    case 'Vault Guard':
-      return (
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="agent-svg">
-          <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-          <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-        </svg>
-      );
-    case 'DevForge':
-      return (
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="agent-svg">
-          <path d="M16 18l6-6-6-6M8 6l-6 6 6 6M12 2v20" />
-        </svg>
-      );
-    case 'AlphaScope':
-      return (
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="agent-svg">
-          <circle cx="12" cy="12" r="10" />
-          <path d="M12 2v20M2 12h20" />
-          <circle cx="12" cy="12" r="4" />
-        </svg>
-      );
-    case 'Helm':
-      return (
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="agent-svg">
-          <circle cx="12" cy="12" r="8" />
-          <path d="M12 2v20M2 12h20M5 5l14 14M5 19L19 5" />
-        </svg>
-      );
-    case 'Beacon':
-      return (
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="agent-svg">
-          <path d="M12 2L9 22h6L12 2z" />
-          <circle cx="12" cy="9" r="2" />
-          <path d="M3 10a9 9 0 0 1 18 0" />
-        </svg>
-      );
-    case 'Cortex':
-      return (
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="agent-svg">
-          <path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96-.44M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96-.44" />
-        </svg>
-      );
-    case 'Ledger Eye':
-      return (
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="agent-svg">
-          <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z" />
-          <circle cx="12" cy="12" r="3" />
-        </svg>
-      );
-    case 'Momentum':
-      return (
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="agent-svg">
-          <path d="M13 5l7 7-7 7M4 5l7 7-7 7" />
-        </svg>
-      );
-    case 'Warden':
-      return (
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="agent-svg">
-          <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-          <circle cx="12" cy="16" r="2" />
-          <path d="M8 11V7a4 4 0 0 1 8 0v4" />
-        </svg>
-      );
-    default:
-      return <span style={{ fontSize: '12px', fontWeight: 600 }}>{name[0]}</span>;
-  }
+  return <span style={{ fontSize: '12px', fontWeight: 600 }}>{name[0]}</span>;
 }
 
 function App() {
+  const [stats, setStats] = useState<any>(null);
+  const [agentsList, setAgentsList] = useState<any[]>([]);
+  const [selectedAgent, setSelectedAgent] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const statsRes = await fetch(`${API_URL}/api/v1/editorial/stats`);
+        if (statsRes.ok) {
+          const statsData = await statsRes.json();
+          setStats(statsData);
+        }
+        const agentsRes = await fetch(`${API_URL}/api/v1/agents/public-rankings`);
+        if (agentsRes.ok) {
+          const agentsData = await agentsRes.json();
+          setAgentsList(agentsData);
+        }
+      } catch (err) {
+        console.error('Failed to load home page data:', err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadData();
+  }, []);
+
   const chains = [
     ['', '#14F195', '◎', '/chains/solana.svg'],
     ['Polygon', '#8247E5', 'P', '/chains/polygon.svg'],
@@ -150,20 +88,23 @@ function App() {
     ['', '#845A2B', 'B', '/chains/berachain.svg']
   ];
 
-  const agents = [
-    ['Sentinel AI', 'SEC', '#1B2A4A'],
-    ['Nexus', 'INF', '#2B3A22'],
-    ['Oracle Prime', 'RES', '#3A2438'],
-    ['Vault Guard', 'SEC', '#14343A'],
-    ['DevForge', 'INF', '#3A2E14'],
-    ['AlphaScope', 'RES', '#233A3A'],
-    ['Helm', 'TRD', '#3A1E1E'],
-    ['Beacon', 'SEC', '#1E2A3A'],
-    ['Cortex', 'INF', '#2A1E3A'],
-    ['Ledger Eye', 'RES', '#3A331E'],
-    ['Momentum', 'TRD', '#1E3A2E'],
-    ['Warden', 'SEC', '#33223A']
-  ];
+  // Map real agents from database, fall back to placeholders if empty
+  const agents = agentsList.length > 0 
+    ? agentsList.map(a => [a.name, a.category.slice(0, 3).toUpperCase(), '#1B2A4A', a])
+    : [
+        ['Sentinel AI', 'SEC', '#1B2A4A'],
+        ['Nexus', 'INF', '#2B3A22'],
+        ['Oracle Prime', 'RES', '#3A2438'],
+        ['Vault Guard', 'SEC', '#14343A'],
+        ['DevForge', 'INF', '#3A2E14'],
+        ['AlphaScope', 'RES', '#233A3A'],
+        ['Helm', 'TRD', '#3A1E1E'],
+        ['Beacon', 'SEC', '#1E2A3A'],
+        ['Cortex', 'INF', '#2A1E3A'],
+        ['Ledger Eye', 'RES', '#3A331E'],
+        ['Momentum', 'TRD', '#1E3A2E'],
+        ['Warden', 'SEC', '#33223A']
+      ];
 
   // For infinite scroll, double the arrays
   const extendedChains = [...chains, ...chains];
@@ -264,10 +205,10 @@ function App() {
         <div className="wrap">
           <Reveal delay={400}>
             <div className="hero-meta">
-              <div className="stat"><div className="n mono">4</div><div className="l">Curated categories</div></div>
+              <div className="stat"><div className="n mono">{stats?.categories ? Object.keys(stats.categories).length : 4}</div><div className="l">Curated categories</div></div>
               <div className="stat"><div className="n mono">12</div><div className="l">Chains covered</div></div>
-              <div className="stat"><div className="n mono">162</div><div className="l">Dossiers published</div></div>
-              <div className="stat"><div className="n mono">0</div><div className="l">Paid placements</div></div>
+              <div className="stat"><div className="n mono">{stats?.totalDossiers !== undefined ? stats.totalDossiers : '162'}</div><div className="l">Dossiers published</div></div>
+              <div className="stat"><div className="n mono">{stats ? (stats.totalThreeKeyAwards + stats.totalTwoKeyAwards + stats.totalOneKeyAwards) : '2'}</div><div className="l">Key awards</div></div>
             </div>
           </Reveal>
         </div>
@@ -321,7 +262,7 @@ function App() {
                 <div className="num">01 / Flagship</div>
                 <h3>Security &amp; Wallet Intelligence</h3>
                 <p>Agents that catch exploits, flag malicious contracts, and protect funds. Rated on detection accuracy, false-positive rates, and audited response record.</p>
-                <div className="foot"><span className="cnt">38 <span>Dossiers</span></span><span className="tag">Testable</span></div>
+                <div className="foot"><span className="cnt">{stats?.categories?.security !== undefined ? stats.categories.security : '38'} <span>Dossiers</span></span><span className="tag">Testable</span></div>
               </div>
             </Reveal>
             <Reveal delay={150}>
@@ -329,7 +270,7 @@ function App() {
                 <div className="num">02</div>
                 <h3>Infrastructure &amp; Developer</h3>
                 <p>Tooling, frameworks, and agent rails. Judged on real integration adoption, commit history, documentation quality, and uptime. These signals are hard to fake.</p>
-                <div className="foot"><span className="cnt">51 <span>Dossiers</span></span><span className="tag">Verifiable</span></div>
+                <div className="foot"><span className="cnt">{stats?.categories?.developer !== undefined ? stats.categories.developer : '51'} <span>Dossiers</span></span><span className="tag">Verifiable</span></div>
               </div>
             </Reveal>
             <Reveal delay={250}>
@@ -337,7 +278,7 @@ function App() {
                 <div className="num">03</div>
                 <h3>Research &amp; Analysis</h3>
                 <p>Agents that surface signal from on-chain noise. Assessed on accuracy of calls, transparency of method, and consistency across market conditions.</p>
-                <div className="foot"><span className="cnt">29 <span>Dossiers</span></span><span className="tag">Reviewed</span></div>
+                <div className="foot"><span className="cnt">{stats?.categories?.research !== undefined ? stats.categories.research : '29'} <span>Dossiers</span></span><span className="tag">Reviewed</span></div>
               </div>
             </Reveal>
             <Reveal delay={350}>
@@ -345,7 +286,7 @@ function App() {
                 <div className="num">04</div>
                 <h3>Trading Agents</h3>
                 <p>Rated strictly on independently measured, multi-period, risk-adjusted performance, rather than self-reported returns. Framed as risk assessment, not advice.</p>
-                <div className="foot"><span className="cnt">44 <span>Dossiers</span></span><span className="tag">On-chain verified</span></div>
+                <div className="foot"><span className="cnt">{stats?.categories?.trading !== undefined ? stats.categories.trading : '44'} <span>Dossiers</span></span><span className="tag">On-chain verified</span></div>
               </div>
             </Reveal>
           </div>
@@ -384,59 +325,100 @@ function App() {
               <p>Every agent gets a <b style={{ color: 'var(--ink)', fontWeight: 600 }}>Ordo Dossier</b>, which includes a full profile, scored review, and generated visual record. Our editorial verdict sits apart from community sentiment: always side by side, never blended.</p>
             </div>
           </Reveal>
-          <div className="rating-wrap">
-            <Reveal delay={100}>
-              <div className="stars-legend">
+          
+          <div className="stars-legend" style={{ marginBottom: '24px' }}>
+            <Reveal delay={50}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px' }}>
                 <div className="star-row">
-
-                  <div className="txt"><h4>One Star: Notable</h4><p>A capable agent worth knowing in its category. Solid execution, real utility.</p></div>
+                  <div className="txt"><h4>★☆☆ Notable</h4><p style={{ fontSize: '12px' }}>A capable agent worth knowing in its category. Solid execution.</p></div>
                 </div>
                 <div className="star-row">
-
-                  <div className="txt"><h4>Two Stars: Excellent</h4><p>Among the best in its category. Worth going out of your way to use.</p></div>
+                  <div className="txt"><h4>★★☆ Excellent</h4><p style={{ fontSize: '12px' }}>Among the best in its category. Worth going out of your way to use.</p></div>
                 </div>
                 <div className="star-row">
-
-                  <div className="txt"><h4>Three Stars: Exceptional</h4><p>A category-defining agent. The standard others are measured against.</p></div>
+                  <div className="txt"><h4>★★★ Exceptional</h4><p style={{ fontSize: '12px' }}>A category-defining agent. The standard others are measured against.</p></div>
                 </div>
               </div>
             </Reveal>
+          </div>
 
-            <Reveal delay={250}>
-              <div className="verdict-card">
-                <div className="vc-top">
-                  <div className="vc-logo">S</div>
-                  <div className="meta">
-                    <div className="nm">Sentinel AI</div>
-                    <div className="cat-l">Security &amp; Wallet Intelligence</div>
+          {/* Dynamic Rankings Grid */}
+          <div style={{ marginTop: '30px' }}>
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+              gap: '24px'
+            }}>
+              {agentsList.map((agent) => {
+                const scoreObj = agent.scores && agent.scores.length > 0 
+                  ? JSON.parse(agent.scores[0].hardSignalScores)
+                  : null;
+                const starsCount = scoreObj ? scoreObj.starsCount : 0;
+                const finalScore = scoreObj 
+                  ? (typeof scoreObj.finalScore === 'number' 
+                      ? Math.round(agent.scores[0].editorialScore + scoreObj.finalScore)
+                      : Math.round(agent.scores[0].editorialScore + (scoreObj.verifiabilityScore + scoreObj.activityScore + scoreObj.maintenanceScore + scoreObj.securityScore - (scoreObj.adminPenalty || 0))))
+                  : 0;
+                const isUnrated = scoreObj?.insufficientEvidence;
+
+                return (
+                  <div 
+                    key={agent.id} 
+                    className="verdict-card" 
+                    style={{ cursor: 'pointer', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', transition: 'transform 0.2s, border-color 0.2s' }} 
+                    onClick={() => setSelectedAgent(agent)}
+                    onMouseOver={(e) => {
+                      e.currentTarget.style.transform = 'translateY(-4px)';
+                      e.currentTarget.style.borderColor = 'var(--brass)';
+                    }}
+                    onMouseOut={(e) => {
+                      e.currentTarget.style.transform = 'translateY(0)';
+                      e.currentTarget.style.borderColor = 'var(--line-2)';
+                    }}
+                  >
+                    <div>
+                      <div className="vc-top">
+                        <div className="vc-logo" style={{ textTransform: 'uppercase', fontWeight: 800 }}>{agent.name[0]}</div>
+                        <div className="meta">
+                          <div className="nm" style={{ fontSize: '18px', fontWeight: 700 }}>{agent.name}</div>
+                          <div className="cat-l" style={{ textTransform: 'capitalize' }}>{agent.category} · {agent.chains.toUpperCase()}</div>
+                        </div>
+                        <div className="vc-score">
+                          {isUnrated ? (
+                            <div className="of" style={{ fontSize: '9px', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: 700, color: 'var(--ink-soft)' }}>UNRATED</div>
+                          ) : (
+                            <>
+                              <div className="big mono">{finalScore}</div>
+                              <div className="of">/ 100</div>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                      <div style={{ 
+                        padding: '16px 26px 0 26px', 
+                        fontSize: '13.5px', 
+                        color: 'var(--ink-soft)', 
+                        lineHeight: 1.5,
+                        display: '-webkit-box',
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient: 'vertical',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        minHeight: '40px'
+                      }}>
+                        {agent.selectionRationale || 'Autonomous AI agent.'}
+                      </div>
+                    </div>
+                    <div className="vc-split" style={{ marginTop: '16px', borderTop: '1px solid var(--line)', paddingTop: '12px' }}>
+                      <span className="tag" style={{ color: 'var(--brass)', fontWeight: 700 }}>
+                        {isUnrated ? 'Registered, not rated' : `Verdict · ${'★'.repeat(starsCount)}${'☆'.repeat(3 - starsCount)}`}
+                      </span>
+                      <span style={{ fontSize: '11px', textDecoration: 'underline', color: 'var(--brass)', fontWeight: 700 }}>View Dossier →</span>
+                    </div>
                   </div>
-                  <div className="vc-score"><div className="big mono">92</div><div className="of">/ 100</div></div>
-                </div>
-                <div className="vc-dossier">
-                  <span className="dref">ORDO DOSSIER №038</span>
-                  <span className="dai"><span className="dot-live"></span>AI-assisted · editor-verified</span>
-                </div>
-                <div className="vc-body">
-                  <div className="vc-line"><span className="k">Detection accuracy</span><span className="v"><div className="vc-bar"><i style={{ width: '94%' }}></i></div></span></div>
-                  <div className="vc-line"><span className="k">False positives</span><span className="v"><div className="vc-bar"><i style={{ width: '88%' }}></i></div></span></div>
-                  <div className="vc-line"><span className="k">Audit &amp; response</span><span className="v"><div className="vc-bar"><i style={{ width: '90%' }}></i></div></span></div>
-                </div>
-                <div className="vc-split">
-                  <span className="tag">Editorial verdict · ★★★</span>
-                  <div className="community-stars">
-                    <span className="tag">Community</span>
-                    <span className="cs">
-                      <svg viewBox="0 0 24 24" fill="var(--brass)"><path d="M12 2l2.6 7.1L22 9.3l-5.5 4.5L18.6 22 12 17.6 5.4 22l2.1-8.2L2 9.3l7.4-.2z" /></svg>
-                      <svg viewBox="0 0 24 24" fill="var(--brass)"><path d="M12 2l2.6 7.1L22 9.3l-5.5 4.5L18.6 22 12 17.6 5.4 22l2.1-8.2L2 9.3l7.4-.2z" /></svg>
-                      <svg viewBox="0 0 24 24" fill="var(--brass)"><path d="M12 2l2.6 7.1L22 9.3l-5.5 4.5L18.6 22 12 17.6 5.4 22l2.1-8.2L2 9.3l7.4-.2z" /></svg>
-                      <svg viewBox="0 0 24 24" fill="var(--brass)"><path d="M12 2l2.6 7.1L22 9.3l-5.5 4.5L18.6 22 12 17.6 5.4 22l2.1-8.2L2 9.3l7.4-.2z" /></svg>
-                      <svg viewBox="0 0 24 24" fill="var(--line)"><path d="M12 2l2.6 7.1L22 9.3l-5.5 4.5L18.6 22 12 17.6 5.4 22l2.1-8.2L2 9.3l7.4-.2z" /></svg>
-                    </span>
-                    <span className="csv">4.2</span>
-                  </div>
-                </div>
-              </div>
-            </Reveal>
+                );
+              })}
+            </div>
           </div>
         </div>
       </section>
@@ -692,6 +674,226 @@ function App() {
           </div>
         </div>
       </footer>
+
+      {/* Dossier Detail Modal */}
+      {selectedAgent && (() => {
+        const scoreObj = selectedAgent.scores && selectedAgent.scores.length > 0 
+          ? JSON.parse(selectedAgent.scores[0].hardSignalScores)
+          : null;
+        const starsCount = scoreObj ? scoreObj.starsCount : 0;
+        const isUnrated = scoreObj?.insufficientEvidence;
+        
+        const dossier = selectedAgent.dossiers && selectedAgent.dossiers.length > 0
+          ? selectedAgent.dossiers[0]
+          : null;
+
+        // Auto-generate limitations text if not explicitly stored
+        const limitationsList = [];
+        if (!selectedAgent.githubUrl || selectedAgent.githubUrl === 'N/A' || selectedAgent.githubUrl === '') {
+          limitationsList.push("Open-source code repository: We could not verify the source code, developer commits, or contributor distribution.");
+        }
+        if (!selectedAgent.docsUrl || selectedAgent.docsUrl === 'N/A' || selectedAgent.docsUrl === '') {
+          limitationsList.push("Developer integration docs: Missing integration instructions or public API schemas.");
+        }
+        const activeWalletsSnapshot = selectedAgent.snapshots?.find((s: any) => s.signalKey === 'active_wallets_30d');
+        if (!activeWalletsSnapshot) {
+          limitationsList.push("On-chain user telemetry: Unique interacting address counts could not be verified.");
+        }
+        const auditSnapshot = selectedAgent.snapshots?.find((s: any) => s.signalKey === 'audit_exists');
+        if (!auditSnapshot || auditSnapshot.value === 0) {
+          limitationsList.push("Security audits: No public smart contract audit reports were evidenced.");
+        }
+        const adminKeysSnapshot = selectedAgent.snapshots?.find((s: any) => s.signalKey === 'admin_keys_safe');
+        if (!adminKeysSnapshot || adminKeysSnapshot.value === 0) {
+          limitationsList.push("Admin control keys: Upgradeability admin key structure remains undisclosed or unrestricted.");
+        }
+
+        return (
+          <div className="modal-overlay" style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(27, 42, 74, 0.6)',
+            backdropFilter: 'blur(8px)',
+            zIndex: 99999,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '24px'
+          }} onClick={() => setSelectedAgent(null)}>
+            <div className="modal-container" style={{
+              backgroundColor: '#fff',
+              border: '2px solid var(--ink)',
+              borderRadius: '16px',
+              maxWidth: '800px',
+              width: '100%',
+              maxHeight: '90vh',
+              overflowY: 'auto',
+              padding: '40px',
+              boxShadow: '0 20px 50px rgba(0,0,0,0.15)',
+              position: 'relative',
+              color: 'var(--ink)'
+            }} onClick={(e) => e.stopPropagation()}>
+              
+              <button style={{
+                position: 'absolute',
+                top: '20px',
+                right: '20px',
+                background: 'none',
+                border: 'none',
+                fontSize: '32px',
+                cursor: 'pointer',
+                color: 'var(--ink-soft)'
+              }} onClick={() => setSelectedAgent(null)}>×</button>
+
+              <div style={{ marginBottom: '24px' }}>
+                <span className="eyebrow" style={{ textTransform: 'uppercase' }}>ORDO DOSSIER №{dossier ? dossier.dossierNumber : 'SEED'}</span>
+                <h2 style={{ fontFamily: "'Fraunces', serif", fontSize: '36px', color: 'var(--ink)', margin: '8px 0 4px 0' }}>{selectedAgent.name}</h2>
+                <p style={{ color: 'var(--ink-soft)', textTransform: 'uppercase', fontSize: '12px', fontWeight: 700, letterSpacing: '1px' }}>
+                  {selectedAgent.category} · {selectedAgent.chains.toUpperCase()} · Methodology v0.1
+                </p>
+              </div>
+
+              {/* Score section */}
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: '1fr 1fr',
+                gap: '24px',
+                borderTop: '1px solid var(--line)',
+                borderBottom: '1px solid var(--line)',
+                padding: '24px 0',
+                marginBottom: '24px'
+              }}>
+                <div>
+                  <h4 style={{ margin: '0 0 12px 0' }}>Verdict Rating</h4>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                    <div style={{ fontSize: '36px', fontWeight: 800, color: 'var(--brass)' }}>
+                      {isUnrated ? 'Registered' : '★'.repeat(starsCount) + '☆'.repeat(3 - starsCount)}
+                    </div>
+                    <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--ink-soft)' }}>
+                      {scoreObj?.starLabel || 'Registered, not rated'}
+                    </div>
+                  </div>
+                  <p style={{ fontSize: '13px', color: 'var(--ink-soft)', marginTop: '8px' }}>
+                    {scoreObj?.starDesc || 'Insufficient evidence to compute rating.'}
+                  </p>
+                </div>
+                
+                <div style={{ borderLeft: '1px solid var(--line)', paddingLeft: '24px' }}>
+                  <h4 style={{ margin: '0 0 12px 0' }}>Rubric v0.1 Breakdown</h4>
+                  {!isUnrated && scoreObj ? (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '14px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                        <span>Verifiability (Docs, Web, Git)</span>
+                        <b>{scoreObj.verifiabilityScore} / 25</b>
+                      </div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                        <span>Activity (Unique Wallets)</span>
+                        <b>{Math.round(scoreObj.activityScore)} / 25</b>
+                      </div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                        <span>Maintenance (GitHub Commits)</span>
+                        <b>{Math.round(scoreObj.maintenanceScore)} / 25</b>
+                      </div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                        <span>Security Posture (Audit, Keys)</span>
+                        <b>{scoreObj.securityScore} / 25</b>
+                      </div>
+                    </div>
+                  ) : (
+                    <p style={{ fontSize: '13px', color: 'var(--ink-soft)' }}>
+                      No rating breakdown available due to insufficient data.
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              {/* Dossier Body */}
+              <div style={{ marginBottom: '32px' }}>
+                <h3 style={{ fontFamily: "'Fraunces', serif", fontSize: '24px', marginBottom: '12px' }}>
+                  {dossier ? dossier.title : 'Cohort Selection Overview'}
+                </h3>
+                <p style={{ lineHeight: 1.6, color: 'var(--ink-soft)', whiteSpace: 'pre-wrap' }}>
+                  {dossier ? dossier.body : `Selection Rationale: ${selectedAgent.selectionRationale}`}
+                </p>
+                {dossier && (
+                  <div style={{
+                    marginTop: '20px',
+                    padding: '16px',
+                    backgroundColor: 'var(--paper)',
+                    borderLeft: '4px solid var(--brass)',
+                    borderRadius: '4px'
+                  }}>
+                    <h5 style={{ textTransform: 'uppercase', fontSize: '11px', margin: '0 0 6px 0', letterSpacing: '0.5px' }}>Official Verdict</h5>
+                    <p style={{ margin: 0, fontStyle: 'italic', fontSize: '14px' }}>{dossier.verdict}</p>
+                  </div>
+                )}
+              </div>
+
+              {/* Telemetry Snapshots */}
+              <div style={{ marginBottom: '32px' }}>
+                <h4 style={{ margin: '0 0 12px 0' }}>Telemetry Evidence Store</h4>
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))',
+                  gap: '16px'
+                }}>
+                  <div style={{ padding: '12px', border: '1px solid var(--line)', borderRadius: '8px' }}>
+                    <span style={{ fontSize: '11px', color: 'var(--ink-soft)' }}>GitHub Commits (30d)</span>
+                    <h3 style={{ margin: '4px 0 0 0', fontFamily: 'monospace' }}>
+                      {scoreObj?.commitsVal !== undefined ? scoreObj.commitsVal : 'N/A'}
+                    </h3>
+                  </div>
+                  <div style={{ padding: '12px', border: '1px solid var(--line)', borderRadius: '8px' }}>
+                    <span style={{ fontSize: '11px', color: 'var(--ink-soft)' }}>Unique Users (30d)</span>
+                    <h3 style={{ margin: '4px 0 0 0', fontFamily: 'monospace' }}>
+                      {scoreObj?.uniqueAddresses !== undefined ? scoreObj.uniqueAddresses.toLocaleString() : 'N/A'}
+                    </h3>
+                  </div>
+                  <div style={{ padding: '12px', border: '1px solid var(--line)', borderRadius: '8px' }}>
+                    <span style={{ fontSize: '11px', color: 'var(--ink-soft)' }}>Security Audit</span>
+                    <h3 style={{ margin: '4px 0 0 0', color: selectedAgent.snapshots?.find((s: any) => s.signalKey === 'audit_exists')?.value === 1 ? '#137333' : '#A61D2D' }}>
+                      {selectedAgent.snapshots?.find((s: any) => s.signalKey === 'audit_exists')?.value === 1 ? 'Yes' : 'No / Unknown'}
+                    </h3>
+                  </div>
+                  <div style={{ padding: '12px', border: '1px solid var(--line)', borderRadius: '8px' }}>
+                    <span style={{ fontSize: '11px', color: 'var(--ink-soft)' }}>Admin Control Keys</span>
+                    <h3 style={{ margin: '4px 0 0 0', color: selectedAgent.snapshots?.find((s: any) => s.signalKey === 'admin_keys_safe')?.value === 1 ? '#137333' : '#A61D2D' }}>
+                      {selectedAgent.snapshots?.find((s: any) => s.signalKey === 'admin_keys_safe')?.value === 1 ? 'Safe' : 'Risky / Retained'}
+                    </h3>
+                  </div>
+                </div>
+              </div>
+
+              {/* Limitations Section */}
+              <div style={{
+                padding: '20px',
+                border: '1px solid #A61D2D',
+                backgroundColor: 'rgba(166, 29, 45, 0.03)',
+                borderRadius: '8px'
+              }}>
+                <h4 style={{ color: '#A61D2D', margin: '0 0 8px 0', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  ⚠ Limitations of Assessment
+                </h4>
+                {limitationsList.length > 0 ? (
+                  <ul style={{ margin: 0, paddingLeft: '20px', fontSize: '13px', color: 'var(--ink-soft)', lineHeight: 1.6 }}>
+                    {limitationsList.map((lim, idx) => (
+                      <li key={idx}>{lim}</li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p style={{ margin: 0, fontSize: '13px', color: 'var(--ink-soft)' }}>
+                    No verifiability limitations identified for this agent profile.
+                  </p>
+                )}
+              </div>
+
+            </div>
+          </div>
+        );
+      })()}
     </>
   )
 }

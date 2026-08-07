@@ -20,8 +20,19 @@ export class AgentsService {
     @InjectQueue('verify') private readonly verifyQueue: Queue,
   ) {}
 
-  async findAll() {
+  async findAll(walletAddress?: string) {
+    const cleanWallet = walletAddress?.toLowerCase().trim();
+    const whereCondition = cleanWallet 
+      ? {
+          OR: [
+            { submittedBy: 'seed' },
+            { submittedBy: { equals: walletAddress, mode: 'insensitive' as any } }
+          ]
+        }
+      : { submittedBy: 'seed' };
+
     return this.prisma.agent.findMany({
+      where: whereCondition,
       orderBy: { submittedAt: 'desc' },
       include: {
         scores: true,
@@ -30,6 +41,23 @@ export class AgentsService {
           where: { revokedAt: null },
         },
       },
+    });
+  }
+
+  async getPublicRankings() {
+    const agents = await this.prisma.agent.findMany({
+      orderBy: { submittedAt: 'desc' },
+      include: {
+        scores: true,
+        keyAwards: {
+          where: { revokedAt: null },
+        },
+      },
+    });
+
+    return agents.map(agent => {
+      const { submittedBy, ...publicData } = agent;
+      return publicData;
     });
   }
 

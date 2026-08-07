@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Headers, BadRequestException } from '@nestjs/common';
+import { Controller, Get, Post, Body, Headers, BadRequestException } from '@nestjs/common';
 import { EditorialService } from './editorial.service';
 import { DossierAiService } from './dossier-ai.service';
 import { CreateDossierDto, AwardKeyDto, RevokeKeyDto } from './dto/editorial.dto';
@@ -9,6 +9,11 @@ export class EditorialController {
     private readonly editorialService: EditorialService,
     private readonly dossierAiService: DossierAiService,
   ) {}
+
+  @Get('stats')
+  async getStats() {
+    return this.editorialService.getStats();
+  }
 
   private getEditorId(headers: Record<string, string>): string {
     const editorId = headers['x-editor-id'] || 'editor-default-id';

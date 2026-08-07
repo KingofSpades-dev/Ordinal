@@ -26,9 +26,30 @@ export class IngestService {
       if (!repoRes.ok) return { commits: 0, contributors: 0, stars: 0 };
       const repoData = await repoRes.json();
 
+      // Fetch actual commits in the last 30 days
+      const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 3600 * 1000).toISOString();
+      const commitsRes = await fetch(`https://api.github.com/repos/${owner}/${cleanRepo}/commits?since=${thirtyDaysAgo}&per_page=100`, { headers });
+      let commitsCount = 0;
+      if (commitsRes.ok) {
+        const commitsData = await commitsRes.json();
+        if (Array.isArray(commitsData)) {
+          commitsCount = commitsData.length;
+        }
+      }
+
+      // Fetch actual contributors
+      const contributorsRes = await fetch(`https://api.github.com/repos/${owner}/${cleanRepo}/contributors?per_page=50`, { headers });
+      let contributorsCount = 0;
+      if (contributorsRes.ok) {
+        const contributorsData = await contributorsRes.json();
+        if (Array.isArray(contributorsData)) {
+          contributorsCount = contributorsData.length;
+        }
+      }
+
       return {
-        commits: Math.floor(Math.random() * 50) + 10, // Mock commits frequency for demo/compliance
-        contributors: Math.floor(Math.random() * 5) + 2,
+        commits: commitsCount,
+        contributors: contributorsCount,
         stars: repoData.stargazers_count || 0,
       };
     } catch (e) {
@@ -66,9 +87,6 @@ export class IngestService {
 
   async fetchOnchainSignals(contractAddresses: string[], chains: string[]) {
     const mainChain = chains.length > 0 ? chains[0] : 'ethereum';
-    const isSolana = mainChain.toLowerCase() === 'solana';
-    
-    // Clean and validate address
     const rawAddress = contractAddresses.length > 0 ? contractAddresses[0].trim() : '';
     const isValid = this.isValidAddress(rawAddress, mainChain);
 
@@ -85,48 +103,149 @@ export class IngestService {
       };
     }
 
-    if (isSolana) {
-      if (process.env.HELIUS_API_KEY) {
-        try {
-          console.log(`[HELIUS RPC] Fetching real SOL balance for address: "${rawAddress}"`);
-          const rpcUrl = process.env.HELIUS_API_KEY;
-          const response = await fetch(rpcUrl, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              jsonrpc: '2.0',
-              id: 1,
-              method: 'getBalance',
-              params: [rawAddress]
-            })
-          });
+    const rpcUrls: Record<string, string> = {
+      base: 'https://mainnet.base.org',
+      ethereum: 'https://cloudflare-eth.com',
+      optimism: 'https://mainnet.optimism.io',
+      arbitrum: 'https://arb1.arbitrum.io/rpc',
+      solana: process.env.HELIUS_API_KEY || 'https://api.mainnet-beta.solana.com'
+    };
 
-          if (response.ok) {
-            const data = await response.json();
-            if (data && data.result && typeof data.result.value === 'number') {
-              const lamports = data.result.value;
-              tvl = lamports / 1_000_000_000;
-              console.log(`[HELIUS RPC] Successfully fetched real balance: ${tvl} SOL`);
-            }
+    const mainChainLower = mainChain.toLowerCase();
+    const rpcUrl = rpcUrls[mainChainLower] || rpcUrls.ethereum;
+
+    if (mainChainLower === 'solana') {
+      try {
+        console.log(`[SOLANA RPC] Fetching real SOL balance for address: "${rawAddress}"`);
+        const balanceRes = await fetch(rpcUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            jsonrpc: '2.0',
+            id: 1,
+            method: 'getBalance',
+            params: [rawAddress]
+          })
+        });
+
+        if (balanceRes.ok) {
+          const data = await balanceRes.json();
+          if (data && data.result && typeof data.result.value === 'number') {
+            tvl = data.result.value / 1_000_000_000;
+            console.log(`[SOLANA RPC] Successfully fetched real balance: ${tvl} SOL`);
           }
-          // Simulating active telemetry counts for live verified addresses
-          txCount30d = Math.floor(Math.random() * 2000) + 150;
-          activeWallets30d = Math.floor(Math.random() * 300) + 25;
-        } catch (err) {
-          console.warn('[HELIUS RPC] Connection failed, using fallback:', err.message);
-          tvl = 0;
         }
-      } else {
-        // Fallback mock counts if no Helius API key
-        tvl = Math.floor(Math.random() * 100) + 5;
-        txCount30d = Math.floor(Math.random() * 2000) + 150;
-        activeWallets30d = Math.floor(Math.random() * 300) + 25;
+
+        console.log(`[SOLANA RPC] Fetching signatures to calculate real tx frequency for: "${rawAddress}"`);
+        const sigRes = await fetch(rpcUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            jsonrpc: '2.0',
+            id: 1,
+            method: 'getSignaturesForAddress',
+            params: [rawAddress, { limit: 100 }]
+          })
+        });
+
+        if (sigRes.ok) {
+          const sigData = await sigRes.json();
+          if (sigData && sigData.result && Array.isArray(sigData.result) && sigData.result.length > 0) {
+            const count = sigData.result.length;
+            const newest = sigData.result[0];
+            const oldest = sigData.result[sigData.result.length - 1];
+
+            if (newest.blockTime && oldest.blockTime && newest.blockTime > oldest.blockTime) {
+              const dt = newest.blockTime - oldest.blockTime; // seconds
+              const tps = count / dt;
+              txCount30d = Math.round(tps * 30 * 24 * 3600);
+            } else {
+              txCount30d = count * 300; // fallback scaling
+            }
+            // Estimate unique users based on typical transaction-to-user ratio (e.g. 15%)
+            activeWallets30d = Math.max(5, Math.round(txCount30d * 0.15));
+            // Cap to realistic limits
+            txCount30d = Math.min(150000, Math.max(10, txCount30d));
+            activeWallets30d = Math.min(25000, Math.max(5, activeWallets30d));
+            console.log(`[SOLANA RPC] Real-time Calculated -> TxCount: ${txCount30d}, ActiveWallets: ${activeWallets30d}`);
+          }
+        }
+      } catch (err) {
+        console.warn('[SOLANA RPC] Connection failed, using fallback:', err.message);
       }
     } else {
-      // Non-Solana default mock values
-      tvl = Math.floor(Math.random() * 1000) + 10;
-      txCount30d = Math.floor(Math.random() * 2000) + 150;
-      activeWallets30d = Math.floor(Math.random() * 300) + 25;
+      // EVM Chain live logs analysis
+      try {
+        console.log(`[EVM RPC] Querying block number from: ${rpcUrl}`);
+        const blockRes = await fetch(rpcUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            jsonrpc: '2.0',
+            id: 1,
+            method: 'eth_blockNumber',
+            params: []
+          })
+        });
+
+        if (blockRes.ok) {
+          const blockData = await blockRes.json();
+          if (blockData && blockData.result) {
+            const latestBlockHex = blockData.result;
+            const latestBlock = parseInt(latestBlockHex, 16);
+            const fromBlock = latestBlock - 500; // look back 500 blocks (approx 15-20 min)
+
+            console.log(`[EVM RPC] Fetching Transfer logs for ${rawAddress} from block ${fromBlock} to ${latestBlock}`);
+            const logsRes = await fetch(rpcUrl, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                jsonrpc: '2.0',
+                id: 1,
+                method: 'eth_getLogs',
+                params: [{
+                  address: rawAddress,
+                  fromBlock: '0x' + fromBlock.toString(16),
+                  toBlock: latestBlockHex,
+                  topics: ['0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef'] // ERC20 Transfer
+                }]
+              })
+            });
+
+            if (logsRes.ok) {
+              const logsData = await logsRes.json();
+              if (logsData && logsData.result && Array.isArray(logsData.result)) {
+                const logsCount = logsData.result.length;
+                // Base block time is 2s, Ethereum is 12s, Optimism/Arbitrum is <1s
+                const blockTime = mainChainLower === 'ethereum' ? 12 : 2;
+                const timePeriod = 500 * blockTime; // seconds
+
+                const tps = logsCount / timePeriod;
+                txCount30d = Math.round(tps * 30 * 24 * 3600);
+
+                // Collect unique wallets from topics (topics[1] = from, topics[2] = to)
+                const uniqueAddressesSet = new Set<string>();
+                for (const log of logsData.result) {
+                  if (log.topics && log.topics.length >= 3) {
+                    uniqueAddressesSet.add(log.topics[1]);
+                    uniqueAddressesSet.add(log.topics[2]);
+                  }
+                }
+                // Scale up unique address count to 30 days based on ratio
+                const rate = uniqueAddressesSet.size / logsCount || 0.3;
+                activeWallets30d = Math.round(txCount30d * rate);
+
+                // Cap to realistic limits
+                txCount30d = Math.min(250000, Math.max(10, txCount30d));
+                activeWallets30d = Math.min(35000, Math.max(5, activeWallets30d));
+                console.log(`[EVM RPC] Real-time Calculated -> TxCount: ${txCount30d}, ActiveWallets: ${activeWallets30d}`);
+              }
+            }
+          }
+        }
+      } catch (err) {
+        console.warn(`[EVM RPC] Live query failed for ${mainChainLower}:`, err.message);
+      }
     }
 
     return {

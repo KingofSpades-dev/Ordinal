@@ -167,4 +167,42 @@ export class EditorialService {
       message: 'All keys have been revoked and verification badge status set to revoked.',
     };
   }
+
+  async getStats() {
+    const totalAgents = await this.prisma.agent.count({
+      where: { status: 'published' }
+    });
+
+    const totalDossiers = await this.prisma.dossier.count();
+
+    const activeKeyAwards = await this.prisma.keyAward.findMany({
+      where: { revokedAt: null }
+    });
+
+    const totalThreeKeyAwards = activeKeyAwards.filter(a => a.keyCount === 3).length;
+    const totalTwoKeyAwards = activeKeyAwards.filter(a => a.keyCount === 2).length;
+    const totalOneKeyAwards = activeKeyAwards.filter(a => a.keyCount === 1).length;
+
+    // Get category counts based on dossiers
+    const categoriesList = ['security', 'developer', 'research', 'trading'];
+    const categories: Record<string, number> = {};
+    for (const cat of categoriesList) {
+      categories[cat] = await this.prisma.dossier.count({
+        where: {
+          agent: {
+            category: { equals: cat, mode: 'insensitive' }
+          }
+        }
+      });
+    }
+
+    return {
+      totalAgents,
+      totalDossiers,
+      totalThreeKeyAwards,
+      totalTwoKeyAwards,
+      totalOneKeyAwards,
+      categories
+    };
+  }
 }

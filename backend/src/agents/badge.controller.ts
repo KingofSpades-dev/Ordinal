@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Res } from '@nestjs/common';
+import { Controller, Get, Param, Res, Query } from '@nestjs/common';
 import { Response } from 'express';
 import { PrismaService } from '../prisma/prisma.service';
 
@@ -7,9 +7,32 @@ export class BadgeController {
   constructor(private readonly prisma: PrismaService) { }
 
   @Get(':agentId.svg')
-  async getBadge(@Param('agentId') agentId: string, @Res() res: Response) {
+  async getBadge(
+    @Param('agentId') agentId: string, 
+    @Query('walletAddress') walletAddress: string,
+    @Res() res: Response
+  ) {
     res.setHeader('Content-Type', 'image/svg+xml');
     res.setHeader('Cache-Control', 'public, max-index=300'); // Short cache 5 mins
+
+    const agent = await this.prisma.agent.findUnique({
+      where: { id: agentId },
+      include: { scores: { orderBy: { computedAt: 'desc' } } },
+    });
+
+    if (!agent) {
+      res.status(404).send('Agent not found');
+      return;
+    }
+
+    if (agent.submittedBy !== 'seed') {
+      const cleanWallet = walletAddress?.toLowerCase().trim();
+      const cleanSubmitter = agent.submittedBy?.toLowerCase().trim();
+      if (!cleanWallet || cleanWallet !== cleanSubmitter) {
+        res.status(403).send('Forbidden: Only the submitter can access this private badge.');
+        return;
+      }
+    }
 
     // Fetch active unexpired keys
     const activeAward = await this.prisma.keyAward.findFirst({
@@ -25,10 +48,6 @@ export class BadgeController {
       },
     });
 
-    const agent = await this.prisma.agent.findUnique({
-      where: { id: agentId },
-      include: { scores: { orderBy: { computedAt: 'desc' } } },
-    });
     const name = agent ? agent.name : 'Unknown Agent';
 
     let scoreNum = 0;

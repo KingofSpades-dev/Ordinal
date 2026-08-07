@@ -14,6 +14,7 @@ interface Agent {
   xHandle?: string;
   submittedBy: string;
   submittedAt: string;
+  selectionRationale?: string;
   scores?: any[];
   snapshots?: any[];
   processAfter?: string | null;
@@ -103,6 +104,7 @@ export default function RatingAgents() {
   const [submitting, setSubmitting] = useState(false);
   const [userWallet, setUserWallet] = useState<string>('');
   const [selectedAgent, setSelectedAgent] = useState<Agent | null>(null);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
   const [scanningAgentId, setScanningAgentId] = useState<string | null>(null);
   const [notification, setNotification] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
 
@@ -158,14 +160,25 @@ export default function RatingAgents() {
     }
   };
 
-  const fetchAgents = async () => {
+  const fetchAgents = async (wallet?: string) => {
     try {
-      const res = await fetch(`${API_URL}/api/v1/agents`);
+      const url = wallet 
+        ? `${API_URL}/api/v1/agents?walletAddress=${encodeURIComponent(wallet)}`
+        : `${API_URL}/api/v1/agents`;
+      const res = await fetch(url);
       if (res.ok) {
         const data = await res.json();
         setAgentsList(data);
-        if (data.length > 0 && !selectedAgent) {
-          setSelectedAgent(data[0]); // Select first by default
+        if (data.length > 0) {
+          const currentSelectedId = selectedAgent?.id;
+          const stillExists = data.find((a: any) => a.id === currentSelectedId);
+          if (stillExists) {
+            setSelectedAgent(stillExists);
+          } else {
+            setSelectedAgent(data[0]);
+          }
+        } else {
+          setSelectedAgent(null);
         }
       }
     } catch (e) {
@@ -176,22 +189,8 @@ export default function RatingAgents() {
   };
 
   useEffect(() => {
-    fetchAgents();
-  }, []);
-
-  // Sync selectedAgent with filtered list on wallet connection/changes
-  useEffect(() => {
-    const filtered = agentsList.filter(a => userWallet && a.submittedBy.toLowerCase() === userWallet.toLowerCase());
-    if (userWallet && filtered.length > 0) {
-      if (!selectedAgent || !filtered.some(a => a.id === selectedAgent.id)) {
-        setSelectedAgent(filtered[0]);
-      }
-    } else if (!userWallet && agentsList.length > 0) {
-      if (!selectedAgent || !agentsList.some(a => a.id === selectedAgent.id)) {
-        setSelectedAgent(agentsList[0]);
-      }
-    }
-  }, [userWallet, agentsList]);
+    fetchAgents(userWallet);
+  }, [userWallet]);
 
   // Poll state changes when scanning a new agent
   useEffect(() => {
@@ -199,7 +198,10 @@ export default function RatingAgents() {
 
     const interval = setInterval(async () => {
       try {
-        const res = await fetch(`${API_URL}/api/v1/agents`);
+        const url = userWallet 
+          ? `${API_URL}/api/v1/agents?walletAddress=${encodeURIComponent(userWallet)}`
+          : `${API_URL}/api/v1/agents`;
+        const res = await fetch(url);
         if (res.ok) {
           const list: Agent[] = await res.json();
           setAgentsList(list);
@@ -289,7 +291,10 @@ export default function RatingAgents() {
 
         // Fetch list and select the newly registered agent immediately
         try {
-          const fetchRes = await fetch(`${API_URL}/api/v1/agents`);
+          const url = submitterWallet 
+            ? `${API_URL}/api/v1/agents?walletAddress=${encodeURIComponent(submitterWallet)}`
+            : `${API_URL}/api/v1/agents`;
+          const fetchRes = await fetch(url);
           if (fetchRes.ok) {
             const list: Agent[] = await fetchRes.json();
             setAgentsList(list);
@@ -323,7 +328,7 @@ export default function RatingAgents() {
 
 
 
-  const filteredAgents = agentsList.filter(a => userWallet && a.submittedBy.toLowerCase() === userWallet.toLowerCase());
+  const filteredAgents = agentsList;
 
   return (
     <>
@@ -419,7 +424,6 @@ export default function RatingAgents() {
         .overview-panel {
           display: flex;
           flex-direction: column;
-          gap: 24px;
         }
         
         .main-card {
@@ -702,7 +706,24 @@ export default function RatingAgents() {
           display: flex;
           flex-direction: column;
           gap: 12px;
-          margin-top: 24px;
+          margin-top: 16px;
+          max-height: 280px;
+          overflow-y: auto;
+          padding-right: 6px;
+        }
+        .sidebar-list::-webkit-scrollbar {
+          width: 5px;
+        }
+        .sidebar-list::-webkit-scrollbar-track {
+          background: var(--paper);
+          border-radius: 4px;
+        }
+        .sidebar-list::-webkit-scrollbar-thumb {
+          background: var(--line-2);
+          border-radius: 4px;
+        }
+        .sidebar-list::-webkit-scrollbar-thumb:hover {
+          background: var(--brass);
         }
         .sidebar-item {
           background: #fff;
@@ -722,11 +743,24 @@ export default function RatingAgents() {
         .sidebar-item .name {
           font-weight: 600;
           color: var(--ink);
-          font-size: 14px;
+          font-size: 13.5px;
+          white-space: nowrap;
+          text-overflow: ellipsis;
+          overflow: hidden;
+          flex: 1;
+          text-align: left;
+          margin-right: 12px;
         }
         .sidebar-item .cat {
-          color: var(--ink-faint);
+          color: var(--ink-soft);
           text-transform: uppercase;
+          font-size: 11px;
+          font-weight: 700;
+          padding: 6px 10px;
+          background: var(--paper);
+          border-radius: 6px;
+          border: 1px solid var(--line-2);
+          flex-shrink: 0;
         }
         .spinner {
           width: 52px;
@@ -879,6 +913,109 @@ export default function RatingAgents() {
           <div className="dash-grid">
             {/* Left Column: Scanner Form & Sidebar */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+              {/* Sidebar list picker */}
+              <div className="form-panel" style={{ padding: '20px' }}>
+                <h4 style={{ margin: '0 0 16px 0', fontSize: '15px', color: 'var(--ink)' }}>Reputation Registry</h4>
+                {loading ? (
+                  <p style={{ fontSize: '13px', color: '#888' }}>Loading registry...</p>
+                ) : filteredAgents.length === 0 ? (
+                  <p style={{ fontSize: '13px', color: 'var(--ink-soft)', textAlign: 'center', padding: '24px 12px', background: 'var(--paper)', borderRadius: '8px' }}>
+                    No scans available.
+                  </p>
+                ) : (
+                  <div style={{ position: 'relative', width: '100%' }}>
+                    {/* Trigger Button */}
+                    <div
+                      onClick={() => setDropdownOpen(!dropdownOpen)}
+                      className="sidebar-item active"
+                      style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        cursor: 'pointer',
+                        border: '1.5px solid var(--brass)',
+                        borderRadius: '8px',
+                        padding: '14px 18px',
+                        background: 'var(--brass-soft)',
+                        height: '52px',
+                        boxSizing: 'border-box'
+                      }}
+                    >
+                      <span className="name" style={{ fontWeight: 600, color: 'var(--ink)', fontSize: '13.5px', whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden', flex: 1, textAlign: 'left', marginRight: '12px' }}>
+                        {selectedAgent ? selectedAgent.name : 'Select Agent'}
+                      </span>
+                      <span className="cat" style={{ color: 'var(--ink-soft)', textTransform: 'uppercase', fontSize: '11px', fontWeight: 700, padding: '6px 10px', background: '#fff', borderRadius: '6px', border: '1px solid var(--line-2)', flexShrink: 0 }}>
+                        {selectedAgent ? selectedAgent.category.slice(0, 3) : ''}
+                      </span>
+                      <span style={{ marginLeft: '8px', fontSize: '10px', color: 'var(--brass)' }}>▼</span>
+                    </div>
+
+                    {/* Dropdown Options List */}
+                    {dropdownOpen && (
+                      <div
+                        style={{
+                          position: 'absolute',
+                          top: '58px',
+                          left: 0,
+                          right: 0,
+                          zIndex: 100,
+                          background: '#fff',
+                          border: '1.5px solid var(--line-2)',
+                          borderRadius: '8px',
+                          boxShadow: '0 8px 24px rgba(0,0,0,0.08)',
+                          maxHeight: '280px',
+                          overflowY: 'auto',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          gap: '4px',
+                          padding: '6px'
+                        }}
+                      >
+                        {filteredAgents.map((a) => (
+                          <div
+                            key={a.id}
+                            onClick={() => {
+                              setSelectedAgent(a);
+                              setDropdownOpen(false);
+                            }}
+                            className="sidebar-item"
+                            style={{
+                              display: 'flex',
+                              justifyContent: 'space-between',
+                              alignItems: 'center',
+                              cursor: 'pointer',
+                              borderRadius: '6px',
+                              padding: '10px 12px',
+                              background: selectedAgent?.id === a.id ? 'var(--brass-soft)' : '#fff',
+                              border: selectedAgent?.id === a.id ? '1px solid var(--brass)' : '1px solid transparent',
+                              transition: 'all 0.15s'
+                            }}
+                            onMouseEnter={(e) => {
+                              if (selectedAgent?.id !== a.id) {
+                                e.currentTarget.style.background = 'var(--paper)';
+                              }
+                            }}
+                            onMouseLeave={(e) => {
+                              if (selectedAgent?.id !== a.id) {
+                                e.currentTarget.style.background = '#fff';
+                              }
+                            }}
+                          >
+                            <span className="name" style={{ fontWeight: 600, color: 'var(--ink)', fontSize: '13px', whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden', flex: 1, textAlign: 'left', marginRight: '12px' }}>
+                              {a.name}
+                            </span>
+                            <span className="cat" style={{ color: 'var(--ink-soft)', textTransform: 'uppercase', fontSize: '10px', fontWeight: 700, padding: '4px 8px', background: 'var(--paper)', borderRadius: '6px', border: '1px solid var(--line-2)', flexShrink: 0 }}>
+                              {a.category.slice(0, 3)}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* Scanner Form */}
               <div className="form-panel">
                 <h3>Submit Agent for Scan</h3>
                 <form onSubmit={handleRegister}>
@@ -936,43 +1073,26 @@ export default function RatingAgents() {
                   </button>
                 </form>
               </div>
-
-              {/* Sidebar list picker */}
-              <div className="form-panel" style={{ padding: '20px' }}>
-                <h4 style={{ margin: '0 0 16px 0', fontSize: '15px', color: 'var(--ink)' }}>My Scanned Registry</h4>
-                {loading ? (
-                  <p style={{ fontSize: '13px', color: '#888' }}>Loading registry...</p>
-                ) : !userWallet ? (
-                  <p style={{ fontSize: '13px', color: 'var(--ink-soft)', textAlign: 'center', padding: '24px 12px', background: 'var(--paper)', borderRadius: '8px' }}>
-                    Connect your Solana wallet to view your scanned agents.
-                  </p>
-                ) : filteredAgents.length === 0 ? (
-                  <p style={{ fontSize: '13px', color: 'var(--ink-soft)', textAlign: 'center', padding: '24px 12px', background: 'var(--paper)', borderRadius: '8px' }}>
-                    No scans submitted by this wallet yet.
-                  </p>
-                ) : (
-                  <div className="sidebar-list">
-                    {filteredAgents.map((a) => (
-                      <div
-                        key={a.id}
-                        className={`sidebar-item ${selectedAgent?.id === a.id ? 'active' : ''}`}
-                        onClick={() => setSelectedAgent(a)}
-                      >
-                        <span className="name">{a.name}</span>
-                        <span className="cat">{a.category.slice(0, 3)}</span>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
             </div>
 
             {/* Right Column: High Fidelity Overview Dashboard */}
             <div className="overview-panel">
               {!userWallet ? (
-                <div style={{ background: '#fff', border: '1px dashed var(--line-2)', borderRadius: '12px', padding: '120px 40px', textAlign: 'center' }}>
-                  <h3 style={{ fontFamily: "'Fraunces', serif", fontSize: '26px', color: 'var(--brass)', marginBottom: '12px' }}>Access Restricted</h3>
-                  <p style={{ color: 'var(--ink-soft)', fontSize: '15px', maxWidth: '440px', margin: '0 auto', lineHeight: 1.6 }}>
+                <div style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  minHeight: '400px',
+                  textAlign: 'center',
+                  padding: '60px 40px',
+                  background: '#fff',
+                  border: '1.5px dashed var(--line-2)',
+                  borderRadius: '12px',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.01)'
+                }}>
+                  <h3 style={{ fontFamily: "'Fraunces', serif", fontSize: '32px', color: '#8c1d2d', margin: '0 0 16px 0', fontWeight: 'bold' }}>Access Restricted</h3>
+                  <p style={{ color: 'var(--ink-soft)', maxWidth: '440px', fontSize: '15px', lineHeight: 1.6, margin: 0 }}>
                     Please connect your Solana wallet using the button in the navigation bar to access the reputation registry and scan results.
                   </p>
                 </div>
@@ -1010,29 +1130,15 @@ export default function RatingAgents() {
                   ? JSON.parse(selectedAgent.scores[0].hardSignalScores)
                   : null;
 
-                const liveGithubScore = scoreObj ? Math.round(scoreObj.githubScore) : 0;
-                const liveOnchainScore = scoreObj ? Math.round(scoreObj.onchainScore) : 0;
-
+                const isUnrated = scoreObj?.insufficientEvidence;
                 const totalScore = scoreObj
-                  ? Math.round((scoreObj.githubScore * scoreObj.githubWeight) + (scoreObj.onchainScore * scoreObj.onchainWeight))
+                  ? (typeof scoreObj.finalScore === 'number'
+                    ? Math.round(selectedAgent.scores[0].editorialScore + scoreObj.finalScore)
+                    : Math.round(selectedAgent.scores[0].editorialScore + (scoreObj.verifiabilityScore + scoreObj.activityScore + scoreObj.maintenanceScore + scoreObj.securityScore - (scoreObj.adminPenalty || 0))))
                   : 0;
 
-                const performance = liveOnchainScore;
-                const reliability = liveGithubScore;
-                const security = liveOnchainScore ? Math.round(liveOnchainScore * 0.98) : 0;
-                const transparency = liveGithubScore ? Math.round(liveGithubScore * 0.95) : 0;
-                const tokenomics = liveOnchainScore ? Math.round(liveOnchainScore * 1.02) : 0;
-
-                // Map live snapshots from database
-                const txSnapshot = selectedAgent.snapshots?.find(s => s.signalKey === 'tx_count_30d');
-                const walletsSnapshot = selectedAgent.snapshots?.find(s => s.signalKey === 'active_wallets_30d');
                 const tvlSnapshot = selectedAgent.snapshots?.find(s => s.signalKey === 'tvl');
-                const uptimeSnapshot = selectedAgent.snapshots?.find(s => s.signalKey === 'uptime_30d');
-
-                const txCount = txSnapshot ? txSnapshot.value.toLocaleString() : '0';
-                const activeWallets = walletsSnapshot ? walletsSnapshot.value.toLocaleString() : '0';
                 const tvlVal = tvlSnapshot ? tvlSnapshot.value.toLocaleString() : '0';
-                const uptimeVal = uptimeSnapshot ? uptimeSnapshot.value.toFixed(1) + '%' : '0%';
 
                 // SVG Dash calculations
                 const radius = 60;
@@ -1090,6 +1196,7 @@ export default function RatingAgents() {
                           <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                             <span className="mc-tag">{selectedAgent.category}</span>
                             <span className="mc-tag">{selectedAgent.chains.toUpperCase()}</span>
+                            <span className="mc-tag" style={{ border: '1.5px solid var(--brass-soft)', color: 'var(--brass)', fontWeight: 700 }}>Bal: {tvlVal} {selectedAgent.chains.toUpperCase() === 'SOLANA' ? 'SOL' : 'ETH'}</span>
                           </div>
                           <a
                             href={`${API_URL}/api/v1/badge/${selectedAgent.id}.svg`}
@@ -1140,54 +1247,119 @@ export default function RatingAgents() {
 
                       {/* Right Scores List Breakdown */}
                       <div className="mc-scores-list">
-                        <div className="score-row-item">
-                          <span className="lbl">Performance</span>
-                          <span className="val">{performance}</span>
-                        </div>
-                        <div className="score-row-item">
-                          <span className="lbl">Reliability</span>
-                          <span className="val">{reliability}</span>
-                        </div>
-                        <div className="score-row-item">
-                          <span className="lbl">Security</span>
-                          <span className="val">{security}</span>
-                        </div>
-                        <div className="score-row-item">
-                          <span className="lbl">Transparency</span>
-                          <span className="val">{transparency}</span>
-                        </div>
-                        <div className="score-row-item">
-                          <span className="lbl">Tokenomics</span>
-                          <span className="val">{tokenomics}</span>
-                        </div>
-                        <div className="last-updated-text">
+                        {isUnrated ? (
+                          <div style={{ fontSize: '13px', color: 'var(--ink-soft)' }}>
+                            No rating breakdown available due to insufficient data.
+                          </div>
+                        ) : (
+                          <>
+                            <div className="score-row-item">
+                              <span className="lbl">Verifiability</span>
+                              <span className="val">{scoreObj ? scoreObj.verifiabilityScore : 0} / 25</span>
+                            </div>
+                            <div className="score-row-item">
+                              <span className="lbl">Activity</span>
+                              <span className="val">{scoreObj ? Math.round(scoreObj.activityScore) : 0} / 25</span>
+                            </div>
+                            <div className="score-row-item">
+                              <span className="lbl">Maintenance</span>
+                              <span className="val">{scoreObj ? Math.round(scoreObj.maintenanceScore) : 0} / 25</span>
+                            </div>
+                            <div className="score-row-item">
+                              <span className="lbl">Security Posture</span>
+                              <span className="val">{scoreObj ? scoreObj.securityScore : 0} / 25</span>
+                            </div>
+                          </>
+                        )}
+                        <div className="last-updated-text" style={{ marginTop: '16px' }}>
                           Last updated<br />{new Date(selectedAgent.submittedAt).toUTCString()}
                         </div>
                       </div>
                     </div>
 
-                    {/* 4 Cards Grid */}
-                    <div className="sub-cards-grid">
-                      <div className="sub-card">
-                        <div className="lbl">On-chain Activity</div>
-                        <div className="val">{txCount}</div>
-                        <div className="desc">Transactions</div>
+                    {/* Telemetry Evidence Store */}
+                    <div style={{ margin: '12px 0 24px' }}>
+                      <h4 style={{ margin: '0 0 12px 0', fontSize: '15px' }}>Telemetry Evidence Store</h4>
+                      <div className="sub-cards-grid">
+                        <div className="sub-card">
+                          <div className="lbl">GitHub Commits (30d)</div>
+                          <div className="val">{scoreObj?.commitsVal !== undefined ? scoreObj.commitsVal : 'N/A'}</div>
+                          <div className="desc">Commits</div>
+                        </div>
+                        <div className="sub-card">
+                          <div className="lbl">Unique Users (30d)</div>
+                          <div className="val">{scoreObj?.uniqueAddresses !== undefined ? scoreObj.uniqueAddresses.toLocaleString() : 'N/A'}</div>
+                          <div className="desc">Active Wallets</div>
+                        </div>
+                        <div className="sub-card">
+                          <div className="lbl">Security Audit</div>
+                          <div className="val" style={{ color: selectedAgent.snapshots?.find((s: any) => s.signalKey === 'audit_exists')?.value === 1 ? '#137333' : '#A61D2D' }}>
+                            {selectedAgent.snapshots?.find((s: any) => s.signalKey === 'audit_exists')?.value === 1 ? 'Yes' : 'No / Unknown'}
+                          </div>
+                          <div className="desc">Verified Audit</div>
+                        </div>
+                        <div className="sub-card">
+                          <div className="lbl">Admin Control Keys</div>
+                          <div className="val" style={{ color: selectedAgent.snapshots?.find((s: any) => s.signalKey === 'admin_keys_safe')?.value === 1 ? '#137333' : '#A61D2D' }}>
+                            {selectedAgent.snapshots?.find((s: any) => s.signalKey === 'admin_keys_safe')?.value === 1 ? 'Safe' : 'Risky / Retained'}
+                          </div>
+                          <div className="desc">Key Structure</div>
+                        </div>
                       </div>
-                      <div className="sub-card">
-                        <div className="lbl">Users</div>
-                        <div className="val">{activeWallets}</div>
-                        <div className="desc">Unique Wallets</div>
+                    </div>
+
+                    {/* Selection Rationale and Limitations */}
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px', marginBottom: '24px' }}>
+                      <div style={{ padding: '20px', border: '1px solid var(--line-2)', borderRadius: '8px', background: '#fff' }}>
+                        <h4 style={{ margin: '0 0 8px 0', fontSize: '14px' }}>Selection Rationale</h4>
+                        <p style={{ fontSize: '13px', color: 'var(--ink-soft)', lineHeight: 1.5, margin: 0 }}>
+                          {selectedAgent.selectionRationale || 'Autonomous Web3 AI agent seeded in the cohort.'}
+                        </p>
                       </div>
-                      <div className="sub-card">
-                        <div className="lbl">Uptime</div>
-                        <div className="val">{uptimeVal}</div>
-                        <div className="desc">Last 30 Days</div>
-                      </div>
-                      <div className="sub-card">
-                        <div className="lbl">Revenue Generated</div>
-                        <div className="val">{tvlVal} SOL</div>
-                        <div className="desc">Total</div>
-                      </div>
+
+                      {(() => {
+                        const limitationsList = [];
+                        if (!selectedAgent.githubUrl || selectedAgent.githubUrl === 'N/A' || selectedAgent.githubUrl === '') {
+                          limitationsList.push("Open-source code repository: We could not verify the source code, developer commits, or contributor distribution.");
+                        }
+                        if (!selectedAgent.docsUrl || selectedAgent.docsUrl === 'N/A' || selectedAgent.docsUrl === '') {
+                          limitationsList.push("Developer integration docs: Missing integration instructions or public API schemas.");
+                        }
+                        const activeWalletsSnapshot = selectedAgent.snapshots?.find((s: any) => s.signalKey === 'active_wallets_30d');
+                        if (!activeWalletsSnapshot) {
+                          limitationsList.push("On-chain user telemetry: Unique interacting address counts could not be verified.");
+                        }
+                        const auditSnapshot = selectedAgent.snapshots?.find((s: any) => s.signalKey === 'audit_exists');
+                        if (!auditSnapshot || auditSnapshot.value === 0) {
+                          limitationsList.push("Security audits: No public smart contract audit reports were evidenced.");
+                        }
+                        const adminKeysSnapshot = selectedAgent.snapshots?.find((s: any) => s.signalKey === 'admin_keys_safe');
+                        if (!adminKeysSnapshot || adminKeysSnapshot.value === 0) {
+                          limitationsList.push("Admin control keys: Upgradeability admin key structure remains undisclosed or unrestricted.");
+                        }
+
+                        return (
+                          <div style={{
+                            padding: '20px',
+                            border: '1px solid #A61D2D',
+                            backgroundColor: 'rgba(166, 29, 45, 0.03)',
+                            borderRadius: '8px'
+                          }}>
+                            <h4 style={{ color: '#A61D2D', margin: '0 0 8px 0', fontSize: '14px' }}>⚠ Limitations of Assessment</h4>
+                            {limitationsList.length > 0 ? (
+                              <ul style={{ margin: 0, paddingLeft: '20px', fontSize: '12px', color: 'var(--ink-soft)', lineHeight: 1.5 }}>
+                                {limitationsList.map((lim, idx) => (
+                                  <li key={idx}>{lim}</li>
+                                ))}
+                              </ul>
+                            ) : (
+                              <p style={{ margin: 0, fontSize: '12px', color: 'var(--ink-soft)' }}>
+                                No verifiability limitations identified for this agent profile.
+                              </p>
+                            )}
+                          </div>
+                        );
+                      })()}
                     </div>
 
                     {/* Bottom row: Chart and Checklist */}
@@ -1274,16 +1446,24 @@ export default function RatingAgents() {
                     </div>
                   </>
                 );
-              })() : filteredAgents.length === 0 ? (
-                <div style={{ background: '#fff', border: '1px dashed var(--line-2)', borderRadius: '12px', padding: '120px 40px', textAlign: 'center' }}>
-                  <h3 style={{ fontFamily: "'Fraunces', serif", fontSize: '24px', color: 'var(--brass)', marginBottom: '12px' }}>No Scan History Found</h3>
-                  <p style={{ color: 'var(--ink-soft)', fontSize: '15px', maxWidth: '440px', margin: '0 auto', lineHeight: 1.6 }}>
-                    You haven't scanned any AI Agents with this wallet yet. Please fill out the registration form on the left to begin your first scan!
+              })() : (
+                <div style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  minHeight: '400px',
+                  textAlign: 'center',
+                  padding: '60px 40px',
+                  background: '#fff',
+                  border: '1.5px dashed var(--line-2)',
+                  borderRadius: '12px',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.01)'
+                }}>
+                  <h3 style={{ fontFamily: "'Fraunces', serif", fontSize: '32px', color: '#8c1d2d', margin: '0 0 16px 0', fontWeight: 'bold' }}>No Rating Data</h3>
+                  <p style={{ color: 'var(--ink-soft)', maxWidth: '440px', fontSize: '15px', lineHeight: 1.6, margin: 0 }}>
+                    There are no scans or rating records in the registry for this wallet. Use the form on the left to submit an agent for reputation rating.
                   </p>
-                </div>
-              ) : (
-                <div style={{ background: '#fff', border: '1px dashed var(--line-2)', borderRadius: '12px', padding: '100px 40px', textAlign: 'center' }}>
-                  <p style={{ color: 'var(--ink-soft)', fontSize: '16px' }}>Select an agent from your sidebar registry to view the reputational dashboard.</p>
                 </div>
               )}
             </div>

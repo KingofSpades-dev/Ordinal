@@ -42,6 +42,7 @@ model Agent {
   updatedAt         DateTime           @updatedAt
   processAfter      DateTime?
   scanIndex         Int                @default(0)
+  selectionRationale String?
   snapshots         SignalSnapshot[]
   scores            Score[]
   dossiers          Dossier[]
