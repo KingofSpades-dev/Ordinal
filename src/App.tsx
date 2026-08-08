@@ -379,7 +379,109 @@ function App() {
                         <div className="vc-logo" style={{ textTransform: 'uppercase', fontWeight: 800 }}>{agent.name[0]}</div>
                         <div className="meta">
                           <div className="nm" style={{ fontSize: '18px', fontWeight: 700 }}>{agent.name}</div>
-                          <div className="cat-l" style={{ textTransform: 'capitalize' }}>{agent.category} · {agent.chains.toUpperCase()}</div>
+                          <div className="cat-l" style={{ textTransform: 'capitalize', display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap', marginTop: '3px' }}>
+                            <span>{agent.category}</span>
+                            <span style={{ color: 'var(--line)' }}>|</span>
+                            <span style={{ 
+                              display: 'inline-flex', 
+                              alignItems: 'center', 
+                              gap: '4px',
+                              background: 'var(--paper)',
+                              padding: '2px 6px',
+                              borderRadius: '4px',
+                              fontSize: '11px',
+                              fontWeight: 700,
+                              textTransform: 'uppercase',
+                              color: 'var(--ink)'
+                            }}>
+                              {agent.chains.toUpperCase()}
+                            </span>
+                            {(() => {
+                              const primaryIdentity = agent.identities?.find((id: any) => id.isPrimary) || agent.identities?.[0] || null;
+                              if (!primaryIdentity) return null;
+                              const contractAddress = primaryIdentity.contractAddress || '';
+                              const displayAddr = contractAddress 
+                                ? `${contractAddress.slice(0, 6)}...${contractAddress.slice(-6)}` 
+                                : 'N/A';
+                              const verificationTier = primaryIdentity.verificationTier || 'unverified';
+                              return (
+                                <>
+                                  <span style={{ color: 'var(--line)' }}>|</span>
+                                  <span 
+                                    style={{ 
+                                      fontFamily: 'monospace', 
+                                      fontSize: '11.5px', 
+                                      background: 'var(--paper)', 
+                                      padding: '2px 6px', 
+                                      borderRadius: '4px',
+                                      color: 'var(--ink-soft)',
+                                      display: 'inline-flex',
+                                      alignItems: 'center',
+                                      gap: '6px'
+                                    }}
+                                    title={contractAddress}
+                                  >
+                                    {displayAddr}
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        navigator.clipboard.writeText(contractAddress);
+                                        const target = e.currentTarget;
+                                        const originalText = target.innerHTML;
+                                        target.innerHTML = '✓';
+                                        target.style.color = 'var(--accent)';
+                                        setTimeout(() => {
+                                          target.innerHTML = originalText;
+                                          target.style.color = '';
+                                        }, 1000);
+                                      }}
+                                      style={{
+                                        background: 'none',
+                                        border: 'none',
+                                        cursor: 'pointer',
+                                        padding: 0,
+                                        fontSize: '10px',
+                                        color: 'var(--brass)',
+                                        display: 'inline-flex',
+                                        alignItems: 'center'
+                                      }}
+                                      title="Copy Address"
+                                    >
+                                      📋
+                                    </button>
+                                  </span>
+                                  <span 
+                                    style={{
+                                      fontSize: '10px',
+                                      fontWeight: 700,
+                                      textTransform: 'uppercase',
+                                      padding: '2px 6px',
+                                      borderRadius: '4px',
+                                      background: verificationTier === 'ownership_verified' 
+                                        ? 'var(--brass-soft)' 
+                                        : verificationTier === 'verified' 
+                                          ? '#e2ece9' 
+                                          : '#fdeded',
+                                      color: verificationTier === 'ownership_verified' 
+                                        ? 'var(--brass)' 
+                                        : verificationTier === 'verified' 
+                                          ? '#2d6a4f' 
+                                          : '#d32f2f',
+                                      border: `1px solid ${
+                                        verificationTier === 'ownership_verified' 
+                                          ? 'var(--brass)' 
+                                          : verificationTier === 'verified' 
+                                            ? '#2d6a4f' 
+                                            : '#d32f2f'
+                                      }`
+                                    }}
+                                  >
+                                    {verificationTier === 'ownership_verified' ? '✓ OWNER VERIFIED' : verificationTier === 'verified' ? '✓ VERIFIED' : 'UNVERIFIED'}
+                                  </span>
+                                </>
+                              );
+                            })()}
+                          </div>
                         </div>
                         <div className="vc-score">
                           {isUnrated ? (
@@ -762,6 +864,124 @@ function App() {
                 </p>
               </div>
 
+              {/* Identity Details Block */}
+              {(() => {
+                const primaryIdentity = selectedAgent.identities?.find((id: any) => id.isPrimary) || selectedAgent.identities?.[0] || null;
+                if (!primaryIdentity) return null;
+                const contractAddress = primaryIdentity.contractAddress || '';
+                const verificationTier = primaryIdentity.verificationTier || 'unverified';
+                const explorerUrl = primaryIdentity.explorerUrl || '';
+                const lastCheckedAt = primaryIdentity.lastCheckedAt || selectedAgent.updatedAt;
+                const formattedCheckedDate = lastCheckedAt ? new Date(lastCheckedAt).toLocaleDateString() : '';
+
+                return (
+                  <div style={{ 
+                    background: 'var(--paper)', 
+                    border: '1px solid var(--line)', 
+                    borderRadius: '8px', 
+                    padding: '16px', 
+                    marginBottom: '24px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '8px'
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                        <span style={{ fontWeight: 700, fontSize: '14px' }}>Verification Status:</span>
+                        <span 
+                          style={{
+                            fontSize: '11px',
+                            fontWeight: 700,
+                            textTransform: 'uppercase',
+                            padding: '4px 10px',
+                            borderRadius: '4px',
+                            background: verificationTier === 'ownership_verified' 
+                              ? 'var(--brass-soft)' 
+                              : verificationTier === 'verified' 
+                                ? '#e2ece9' 
+                                : '#fdeded',
+                            color: verificationTier === 'ownership_verified' 
+                              ? 'var(--brass)' 
+                              : verificationTier === 'verified' 
+                                ? '#2d6a4f' 
+                                : '#d32f2f',
+                            border: `1px solid ${
+                              verificationTier === 'ownership_verified' 
+                                ? 'var(--brass)' 
+                                : verificationTier === 'verified' 
+                                  ? '#2d6a4f' 
+                                  : '#d32f2f'
+                            }`
+                          }}
+                        >
+                          {verificationTier === 'ownership_verified' ? '✓ OWNER VERIFIED' : verificationTier === 'verified' ? '✓ VERIFIED' : 'UNVERIFIED'}
+                        </span>
+                      </div>
+                      {formattedCheckedDate && (
+                        <div style={{ fontSize: '12px', color: 'var(--ink-soft)' }}>
+                          Last checked: {formattedCheckedDate}
+                        </div>
+                      )}
+                    </div>
+
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', borderTop: '1px solid var(--line-2)', paddingTop: '8px', marginTop: '4px' }}>
+                      <span style={{ fontSize: '13.5px', color: 'var(--ink-soft)' }}>Contract Address:</span>
+                      {explorerUrl ? (
+                        <a 
+                          href={explorerUrl} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          style={{ 
+                            fontFamily: 'monospace', 
+                            fontSize: '14px', 
+                            color: 'var(--brass)', 
+                            textDecoration: 'underline',
+                            fontWeight: 600,
+                            wordBreak: 'break-all'
+                          }}
+                        >
+                          {contractAddress}
+                        </a>
+                      ) : (
+                        <span style={{ fontFamily: 'monospace', fontSize: '14px', color: 'var(--ink)', wordBreak: 'break-all' }}>
+                          {contractAddress}
+                        </span>
+                      )}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigator.clipboard.writeText(contractAddress);
+                          const target = e.currentTarget;
+                          const originalHTML = target.innerHTML;
+                          target.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
+                          setTimeout(() => {
+                            target.innerHTML = originalHTML;
+                          }, 1500);
+                        }}
+                        style={{
+                          background: 'none',
+                          cursor: 'pointer',
+                          padding: '6px',
+                          color: 'var(--brass)',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          backgroundColor: '#fff',
+                          border: '1px solid var(--line)',
+                          borderRadius: '4px',
+                          transition: 'background-color 0.2s'
+                        }}
+                        onMouseOver={(e) => e.currentTarget.style.backgroundColor = 'var(--paper)'}
+                        onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#fff'}
+                        title="Copy Address"
+                      >
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                      </button>
+                    </div>
+                  </div>
+                );
+              })()}
+
               {/* Score section */}
               <div style={{
                 display: 'grid',
@@ -836,6 +1056,135 @@ function App() {
                     <p style={{ margin: 0, fontStyle: 'italic', fontSize: '14px' }}>{dossier.verdict}</p>
                   </div>
                 )}
+              </div>
+
+              {/* Official Links Section */}
+              <div style={{ marginBottom: '32px' }}>
+                <h4 style={{ margin: '0 0 12px 0' }}>Verified Resources</h4>
+                <div style={{
+                  display: 'flex',
+                  gap: '12px',
+                  flexWrap: 'wrap'
+                }}>
+                  {selectedAgent.website && selectedAgent.website !== 'N/A' && selectedAgent.website !== '' && (
+                    <a
+                      href={selectedAgent.website}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{
+                        padding: '10px 16px',
+                        border: '1px solid var(--line)',
+                        borderRadius: '8px',
+                        fontSize: '13px',
+                        fontWeight: 600,
+                        color: 'var(--brass)',
+                        textDecoration: 'none',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        backgroundColor: 'var(--paper)',
+                        transition: 'opacity 0.2s'
+                      }}
+                      onMouseOver={(e) => e.currentTarget.style.opacity = '0.8'}
+                      onMouseOut={(e) => e.currentTarget.style.opacity = '1'}
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                        <circle cx="12" cy="12" r="10" />
+                        <line x1="2" y1="12" x2="22" y2="12" />
+                        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+                      </svg>
+                      <span>Website ↗</span>
+                    </a>
+                  )}
+                  {selectedAgent.docsUrl && selectedAgent.docsUrl !== 'N/A' && selectedAgent.docsUrl !== '' && (
+                    <a
+                      href={selectedAgent.docsUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{
+                        padding: '10px 16px',
+                        border: '1px solid var(--line)',
+                        borderRadius: '8px',
+                        fontSize: '13px',
+                        fontWeight: 600,
+                        color: 'var(--brass)',
+                        textDecoration: 'none',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        backgroundColor: 'var(--paper)',
+                        transition: 'opacity 0.2s'
+                      }}
+                      onMouseOver={(e) => e.currentTarget.style.opacity = '0.8'}
+                      onMouseOut={(e) => e.currentTarget.style.opacity = '1'}
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                        <polyline points="14 2 14 8 20 8" />
+                        <line x1="16" y1="13" x2="8" y2="13" />
+                        <line x1="16" y1="17" x2="8" y2="17" />
+                        <polyline points="10 9 9 9 8 9" />
+                      </svg>
+                      <span>Documentation ↗</span>
+                    </a>
+                  )}
+                  {selectedAgent.githubUrl && selectedAgent.githubUrl !== 'N/A' && selectedAgent.githubUrl !== '' && (
+                    <a
+                      href={selectedAgent.githubUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{
+                        padding: '10px 16px',
+                        border: '1px solid var(--line)',
+                        borderRadius: '8px',
+                        fontSize: '13px',
+                        fontWeight: 600,
+                        color: 'var(--brass)',
+                        textDecoration: 'none',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        backgroundColor: 'var(--paper)',
+                        transition: 'opacity 0.2s'
+                      }}
+                      onMouseOver={(e) => e.currentTarget.style.opacity = '0.8'}
+                      onMouseOut={(e) => e.currentTarget.style.opacity = '1'}
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22" />
+                      </svg>
+                      <span>GitHub ↗</span>
+                    </a>
+                  )}
+                  {selectedAgent.xHandle && selectedAgent.xHandle !== 'N/A' && selectedAgent.xHandle !== '' && (
+                    <a
+                      href={`https://x.com/${selectedAgent.xHandle}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{
+                        padding: '10px 16px',
+                        border: '1px solid var(--line)',
+                        borderRadius: '8px',
+                        fontSize: '13px',
+                        fontWeight: 600,
+                        color: 'var(--brass)',
+                        textDecoration: 'none',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        backgroundColor: 'var(--paper)',
+                        transition: 'opacity 0.2s'
+                      }}
+                      onMouseOver={(e) => e.currentTarget.style.opacity = '0.8'}
+                      onMouseOut={(e) => e.currentTarget.style.opacity = '1'}
+                    >
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+                      </svg>
+                      <span>X (Twitter) ↗</span>
+                    </a>
+                  )}
+                </div>
               </div>
 
               {/* Telemetry Snapshots */}

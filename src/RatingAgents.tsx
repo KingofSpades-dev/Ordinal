@@ -19,6 +19,8 @@ interface Agent {
   snapshots?: any[];
   processAfter?: string | null;
   scanIndex?: number;
+  identities?: any[];
+  updatedAt?: string;
 }
 
 const CountdownScreen = ({ processAfter, onComplete }: { processAfter: string; onComplete: () => void }) => {
@@ -1144,8 +1146,7 @@ export default function RatingAgents() {
                 const displayScore = totalScore;
                 const offset = circumference - (displayScore / 100) * circumference;
 
-                const firstAddr = selectedAgent.contractAddresses.split(',')[0].trim();
-                const displayAddr = firstAddr.slice(0, 8) + '...' + firstAddr.slice(-4);
+
 
                 const hasGithub = !!selectedAgent.githubUrl && selectedAgent.githubUrl !== 'N/A' && selectedAgent.githubUrl !== '';
 
@@ -1171,7 +1172,104 @@ export default function RatingAgents() {
                               {selectedAgent.name}
                               <span className="verified-badge">{selectedAgent.status.toUpperCase()}</span>
                             </h3>
-                            <div className="mc-address">{displayAddr}</div>
+                            {(() => {
+                              const primaryIdentity = selectedAgent.identities?.find((id: any) => id.isPrimary) || selectedAgent.identities?.[0] || null;
+                              const contractAddress = primaryIdentity?.contractAddress || selectedAgent.contractAddresses.split(',')[0].trim();
+                              const displayAddr = contractAddress 
+                                ? `${contractAddress.slice(0, 6)}...${contractAddress.slice(-6)}` 
+                                : 'N/A';
+                              const verificationTier = primaryIdentity?.verificationTier || 'unverified';
+                              const explorerUrl = primaryIdentity?.explorerUrl || '';
+                              const lastCheckedAt = primaryIdentity?.lastCheckedAt || selectedAgent.updatedAt;
+                              const formattedCheckedDate = lastCheckedAt ? new Date(lastCheckedAt).toLocaleDateString() : '';
+
+                              return (
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginTop: '4px' }}>
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                                    {explorerUrl ? (
+                                      <a 
+                                        href={explorerUrl} 
+                                        target="_blank" 
+                                        rel="noopener noreferrer"
+                                        style={{ 
+                                          fontFamily: 'monospace', 
+                                          fontSize: '13px', 
+                                          color: 'var(--brass)', 
+                                          textDecoration: 'underline',
+                                          fontWeight: 600
+                                        }}
+                                      >
+                                        {displayAddr}
+                                      </a>
+                                    ) : (
+                                      <span style={{ fontFamily: 'monospace', fontSize: '13px', color: 'var(--ink-soft)' }}>
+                                        {displayAddr}
+                                      </span>
+                                    )}
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        navigator.clipboard.writeText(contractAddress);
+                                        const target = e.currentTarget;
+                                        const originalText = target.innerHTML;
+                                        target.innerHTML = '✓';
+                                        target.style.color = 'var(--accent)';
+                                        setTimeout(() => {
+                                          target.innerHTML = originalText;
+                                          target.style.color = '';
+                                        }, 1000);
+                                      }}
+                                      style={{
+                                        background: 'none',
+                                        border: 'none',
+                                        cursor: 'pointer',
+                                        padding: 0,
+                                        fontSize: '12px',
+                                        color: 'var(--brass)',
+                                        display: 'inline-flex',
+                                        alignItems: 'center'
+                                      }}
+                                      title="Copy Address"
+                                    >
+                                      📋
+                                    </button>
+                                    <span 
+                                      style={{
+                                        fontSize: '10px',
+                                        fontWeight: 700,
+                                        textTransform: 'uppercase',
+                                        padding: '2px 6px',
+                                        borderRadius: '4px',
+                                        background: verificationTier === 'ownership_verified' 
+                                          ? 'var(--brass-soft)' 
+                                          : verificationTier === 'verified' 
+                                            ? '#e2ece9' 
+                                            : '#fdeded',
+                                        color: verificationTier === 'ownership_verified' 
+                                          ? 'var(--brass)' 
+                                          : verificationTier === 'verified' 
+                                            ? '#2d6a4f' 
+                                            : '#d32f2f',
+                                        border: `1px solid ${
+                                          verificationTier === 'ownership_verified' 
+                                            ? 'var(--brass)' 
+                                            : verificationTier === 'verified' 
+                                              ? '#2d6a4f' 
+                                              : '#d32f2f'
+                                        }`
+                                      }}
+                                    >
+                                      {verificationTier === 'ownership_verified' ? '✓ OWNER VERIFIED' : verificationTier === 'verified' ? '✓ VERIFIED' : 'UNVERIFIED'}
+                                    </span>
+                                  </div>
+                                  {formattedCheckedDate && (
+                                    <div style={{ fontSize: '11px', color: 'var(--ink-soft)' }}>
+                                      Checked on {formattedCheckedDate}
+                                    </div>
+                                  )}
+                                </div>
+                              );
+                            })()}
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '3px', marginTop: '6px' }}>
                               <div style={{ display: 'flex', gap: '2px', fontSize: '15px', color: 'var(--brass)' }}>
                                 {Array.from({ length: 3 }).map((_, i) => (

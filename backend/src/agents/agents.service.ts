@@ -11,6 +11,7 @@ import { IngestService } from './ingest.service';
 import { VerifyProcessor } from '../queue/verify.processor';
 import { IngestProcessor } from '../queue/ingest.processor';
 import { ScoringService } from '../editorial/scoring.service';
+import { EXPLORER_REGISTRY, isValidAddressForChain } from '../config/explorer-registry';
 
 @Injectable()
 export class AgentsService {
@@ -26,7 +27,7 @@ export class AgentsService {
       return [];
     }
 
-    return this.prisma.agent.findMany({
+    const agents = await this.prisma.agent.findMany({
       where: {
         submittedBy: { equals: walletAddress, mode: 'insensitive' as any }
       },
@@ -34,10 +35,30 @@ export class AgentsService {
       include: {
         scores: true,
         snapshots: true,
+        identities: true,
         keyAwards: {
           where: { revokedAt: null },
         },
       },
+    });
+
+    return agents.map(agent => {
+      const resolvedIdentities = (agent.identities || []).map(identity => {
+        const registryEntry = EXPLORER_REGISTRY[identity.chainKey.toLowerCase()];
+        let explorerUrl = '';
+        if (registryEntry) {
+          const template = identity.addressType === 'token' ? registryEntry.tokenUrlTemplate : registryEntry.addressUrlTemplate;
+          explorerUrl = template.replace('{address}', identity.contractAddress);
+        }
+        return {
+          ...identity,
+          explorerUrl
+        };
+      });
+      return {
+        ...agent,
+        identities: resolvedIdentities
+      };
     });
   }
 
@@ -46,6 +67,7 @@ export class AgentsService {
       orderBy: { submittedAt: 'desc' },
       include: {
         scores: true,
+        identities: true,
         keyAwards: {
           where: { revokedAt: null },
         },
@@ -54,7 +76,22 @@ export class AgentsService {
 
     return agents.map(agent => {
       const { submittedBy, ...publicData } = agent;
-      return publicData;
+      const resolvedIdentities = (publicData.identities || []).map(identity => {
+        const registryEntry = EXPLORER_REGISTRY[identity.chainKey.toLowerCase()];
+        let explorerUrl = '';
+        if (registryEntry) {
+          const template = identity.addressType === 'token' ? registryEntry.tokenUrlTemplate : registryEntry.addressUrlTemplate;
+          explorerUrl = template.replace('{address}', identity.contractAddress);
+        }
+        return {
+          ...identity,
+          explorerUrl
+        };
+      });
+      return {
+        ...publicData,
+        identities: resolvedIdentities
+      };
     });
   }
 
@@ -80,6 +117,41 @@ export class AgentsService {
         }
       } catch (err) {
         throw new BadRequestException('Failed to verify Solana wallet signature: ' + err.message);
+      }
+    }
+
+    // Anti-Abuse: Duplicate contract address check (exclude updating the user's own agent)
+    for (const address of dto.contractAddresses) {
+      const cleanAddr = address.trim();
+      if (cleanAddr && cleanAddr.toUpperCase() !== 'N/A') {
+        const duplicateAddr = await this.prisma.agent.findFirst({
+          where: {
+            contractAddresses: { contains: cleanAddr },
+            NOT: {
+              submittedBy: dto.submitterWallet
+            }
+          }
+        });
+        if (duplicateAddr) {
+          throw new ConflictException(`Contract address ${cleanAddr} has already been registered by another agent.`);
+        }
+      }
+    }
+
+    // Anti-Abuse: Name-similarity check
+    const newNameClean = dto.name.toLowerCase().replace(/[^a-z0-9]/g, '');
+    const allAgents = await this.prisma.agent.findMany({ select: { id: true, name: true, submittedBy: true } });
+    for (const other of allAgents) {
+      if (other.submittedBy === dto.submitterWallet && other.name.toLowerCase() === dto.name.toLowerCase()) {
+        continue;
+      }
+      const otherNameClean = other.name.toLowerCase().replace(/[^a-z0-9]/g, '');
+      const distance = this.getLevenshteinDistance(newNameClean, otherNameClean);
+      const maxLength = Math.max(newNameClean.length, otherNameClean.length);
+      const similarity = maxLength === 0 ? 1 : 1 - distance / maxLength;
+      
+      if (similarity >= 0.85) {
+        throw new ConflictException(`Agent name "${dto.name}" is too similar to existing agent "${other.name}". Impersonation is not permitted.`);
       }
     }
 
@@ -132,6 +204,8 @@ export class AgentsService {
         }
       });
       
+      await this.syncAgentIdentitiesAndLinks(updatedAgent.id, dto);
+
       // Delete old snapshots and scores to clean up history for a fresh scan
       await this.prisma.signalSnapshot.deleteMany({ where: { agentId: existingAgent.id } });
       await this.prisma.score.deleteMany({ where: { agentId: existingAgent.id } });
@@ -178,6 +252,8 @@ export class AgentsService {
         scanIndex: scanCount,
       },
     });
+
+    await this.syncAgentIdentitiesAndLinks(agent.id, dto);
 
     // 4. Queue background verification task
     let queued = false;
@@ -367,6 +443,127 @@ export class AgentsService {
     } catch (e) {
       console.error('Failed to check ORDO balance:', e);
       return false;
+    }
+  }
+
+  async getAgentIdentity(slug: string) {
+    const agent = await this.prisma.agent.findUnique({
+      where: { slug },
+      include: {
+        identities: true,
+        links: true,
+      }
+    });
+
+    if (!agent) {
+      throw new NotFoundException('Agent not found');
+    }
+
+    const resolvedIdentities = agent.identities.map(identity => {
+      const registryEntry = EXPLORER_REGISTRY[identity.chainKey.toLowerCase()];
+      let explorerUrl = '';
+      if (registryEntry) {
+        const template = identity.addressType === 'token' ? registryEntry.tokenUrlTemplate : registryEntry.addressUrlTemplate;
+        explorerUrl = template.replace('{address}', identity.contractAddress);
+      }
+      return {
+        ...identity,
+        explorerUrl
+      };
+    });
+
+    const primary = resolvedIdentities.find(id => id.isPrimary) || resolvedIdentities[0] || null;
+
+    return {
+      identities: resolvedIdentities,
+      links: agent.links,
+      primary
+    };
+  }
+
+  private getLevenshteinDistance(a: string, b: string): number {
+    const matrix = [];
+    for (let i = 0; i <= b.length; i++) matrix[i] = [i];
+    for (let j = 0; j <= a.length; j++) matrix[0][j] = j;
+    for (let i = 1; i <= b.length; i++) {
+      for (let j = 1; j <= a.length; j++) {
+        if (b.charAt(i - 1) === a.charAt(j - 1)) {
+          matrix[i][j] = matrix[i - 1][j - 1];
+        } else {
+          matrix[i][j] = Math.min(
+            matrix[i - 1][j - 1] + 1,
+            Math.min(
+              matrix[i][j - 1] + 1,
+              matrix[i - 1][j] + 1
+            )
+          );
+        }
+      }
+    }
+    return matrix[b.length][a.length];
+  }
+
+  private async syncAgentIdentitiesAndLinks(agentId: string, dto: SubmitAgentDto) {
+    // Delete existing identities & links for this agent first
+    await this.prisma.agentIdentity.deleteMany({ where: { agentId } });
+    await this.prisma.agentLink.deleteMany({ where: { agentId } });
+
+    // Create new identities
+    if (dto.contractAddresses && dto.contractAddresses.length > 0) {
+      for (let i = 0; i < dto.contractAddresses.length; i++) {
+        const addr = dto.contractAddresses[i].trim();
+        const chain = dto.chains[i] || dto.chains[0] || 'ethereum';
+        if (addr && addr.toUpperCase() !== 'N/A') {
+          await this.prisma.agentIdentity.create({
+            data: {
+              agentId,
+              chainKey: chain.toLowerCase(),
+              contractAddress: addr,
+              addressType: 'contract',
+              isPrimary: i === 0,
+              verificationTier: 'unverified',
+              verificationMethod: 'none',
+              verifiedAt: new Date(),
+              lastCheckedAt: new Date(),
+            }
+          });
+        }
+      }
+    }
+
+    // Create new links
+    if (dto.website && dto.website !== 'N/A' && dto.website !== '') {
+      await this.prisma.agentLink.create({
+        data: {
+          agentId,
+          kind: 'website',
+          url: dto.website,
+          resolves: false,
+          lastCheckedAt: new Date(),
+        }
+      });
+    }
+    if (dto.docsUrl && dto.docsUrl !== 'N/A' && dto.docsUrl !== '') {
+      await this.prisma.agentLink.create({
+        data: {
+          agentId,
+          kind: 'docs',
+          url: dto.docsUrl,
+          resolves: false,
+          lastCheckedAt: new Date(),
+        }
+      });
+    }
+    if (dto.githubUrl && dto.githubUrl !== 'N/A' && dto.githubUrl !== '') {
+      await this.prisma.agentLink.create({
+        data: {
+          agentId,
+          kind: 'github',
+          url: dto.githubUrl,
+          resolves: false,
+          lastCheckedAt: new Date(),
+        }
+      });
     }
   }
 }

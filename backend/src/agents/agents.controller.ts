@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Query, Param } from '@nestjs/common';
 import { AgentsService } from './agents.service';
 import { SubmitAgentDto } from './dto/submit-agent.dto';
 import { CreateRatingDto } from './dto/create-rating.dto';
@@ -15,6 +15,11 @@ export class AgentsController {
   @Get('public-rankings')
   async getPublicRankings() {
     return this.agentsService.getPublicRankings();
+  }
+
+  @Get(':slug/identity')
+  async getAgentIdentity(@Param('slug') slug: string) {
+    return this.agentsService.getAgentIdentity(slug);
   }
 
   @Post('submit')

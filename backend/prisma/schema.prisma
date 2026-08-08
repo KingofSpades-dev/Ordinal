@@ -48,6 +48,8 @@ model Agent {
   dossiers          Dossier[]
   keyAwards         KeyAward[]
   ratings           CommunityRating[]
+  identities        AgentIdentity[]
+  links             AgentLink[]
 }
 
 model SignalSnapshot {
@@ -117,4 +119,32 @@ model CommunityRating {
   createdAt     DateTime @default(now())
 
   @@unique([agentId, walletAddress])
+}
+
+model AgentIdentity {
+  id                 String   @id @default(uuid())
+  agentId            String
+  agent              Agent    @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  chainKey           String   // e.g. "solana", "ethereum", "base"
+  contractAddress    String
+  addressType        String   @default("contract") // contract | token | program | wallet
+  isPrimary          Boolean  @default(true)
+  verificationTier   String   @default("unverified") // unverified | verified | ownership_verified
+  verificationMethod String   @default("none") // signature | well_known | docs_string | none
+  verifiedAt         DateTime @default(now())
+  lastCheckedAt      DateTime @default(now())
+  createdAt          DateTime @default(now())
+
+  @@unique([agentId, chainKey, contractAddress])
+}
+
+model AgentLink {
+  id            String   @id @default(uuid())
+  agentId       String
+  agent         Agent    @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  kind          String   // website | docs | x | github | other
+  url           String
+  resolves      Boolean  @default(false)
+  lastCheckedAt DateTime @default(now())
+  httpStatus    Int?
 }
