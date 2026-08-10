@@ -98,6 +98,32 @@ const CountdownScreen = ({ processAfter, onComplete }: { processAfter: string; o
   );
 };
 
+const OrdoKeyIcon = ({ size = 24 }: { size?: number }) => (
+  <svg 
+    viewBox="0 0 100 100" 
+    fill="currentColor" 
+    style={{ width: `${size}px`, height: `${size}px`, color: 'var(--accent)' }}
+  >
+    <g transform="translate(50, 38)">
+      {Array.from({ length: 12 }).map((_, i) => (
+        <rect
+          key={i}
+          x="-3"
+          y="-24"
+          width="6"
+          height="12"
+          rx="3"
+          transform={`rotate(${i * 30})`}
+        />
+      ))}
+      <circle cx="0" cy="0" r="9" />
+      <circle cx="0" cy="0" r="3.5" fill="var(--paper, #F5F0E8)" />
+    </g>
+    <rect x="47" y="38" width="6" height="42" rx="1.5" />
+    <path d="M 53 62 h 12 v 6 h -6 v 4 h 6 v 6 h -12 Z" />
+  </svg>
+);
+
 function AgentFavicon({ websiteUrl, name, size = 48, className = '', borderRadius = '11px', fallback }: { websiteUrl?: string; name: string; size?: number; className?: string; borderRadius?: string; fallback?: React.ReactNode }) {
   const [imgError, setImgError] = useState(false);
   
@@ -126,14 +152,11 @@ function AgentFavicon({ websiteUrl, name, size = 48, className = '', borderRadiu
         className={className} 
         style={{ 
           ...containerStyle, 
-          background: 'var(--accent)', 
-          color: 'var(--paper)',
-          fontFamily: "'Fraunces', serif",
-          fontWeight: 600,
-          fontSize: `${Math.round(size * 0.45)}px`
+          background: 'var(--paper)',
+          border: '1.5px solid var(--line-2)'
         }}
       >
-        {name[0].toUpperCase()}
+        <OrdoKeyIcon size={Math.round(size * 0.6)} />
       </div>
     );
   };
@@ -145,7 +168,7 @@ function AgentFavicon({ websiteUrl, name, size = 48, className = '', borderRadiu
   try {
     const url = new URL(websiteUrl);
     const domain = url.hostname;
-    const faviconUrl = `https://www.google.com/s2/favicons?sz=64&domain=${domain}`;
+    const faviconUrl = `https://www.google.com/s2/favicons?sz=64&domain=${domain}&default=404`;
 
     return (
       <div 

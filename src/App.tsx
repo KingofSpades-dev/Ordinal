@@ -43,6 +43,32 @@ function Reveal({ children, className = '', delay = 0 }: RevealProps) {
 
 
 
+const OrdoKeyIcon = ({ size = 24 }: { size?: number }) => (
+  <svg 
+    viewBox="0 0 100 100" 
+    fill="currentColor" 
+    style={{ width: `${size}px`, height: `${size}px`, color: 'var(--accent)' }}
+  >
+    <g transform="translate(50, 38)">
+      {Array.from({ length: 12 }).map((_, i) => (
+        <rect
+          key={i}
+          x="-3"
+          y="-24"
+          width="6"
+          height="12"
+          rx="3"
+          transform={`rotate(${i * 30})`}
+        />
+      ))}
+      <circle cx="0" cy="0" r="9" />
+      <circle cx="0" cy="0" r="3.5" fill="var(--paper, #F5F0E8)" />
+    </g>
+    <rect x="47" y="38" width="6" height="42" rx="1.5" />
+    <path d="M 53 62 h 12 v 6 h -6 v 4 h 6 v 6 h -12 Z" />
+  </svg>
+);
+
 function AgentFavicon({ websiteUrl, name, size = 48, className = '' }: { websiteUrl?: string; name: string; size?: number; className?: string }) {
   const [imgError, setImgError] = useState(false);
   
@@ -58,28 +84,29 @@ function AgentFavicon({ websiteUrl, name, size = 48, className = '' }: { website
     textTransform: 'uppercase'
   };
 
-  if (!websiteUrl || imgError) {
+  const renderFallback = () => {
     return (
       <div 
         className={className} 
         style={{ 
           ...containerStyle, 
-          background: 'var(--accent)', 
-          color: 'var(--paper)',
-          fontFamily: "'Fraunces', serif",
-          fontWeight: 600,
-          fontSize: `${Math.round(size * 0.45)}px`
+          background: 'var(--paper)',
+          border: '1.5px solid var(--line-2)'
         }}
       >
-        {name[0].toUpperCase()}
+        <OrdoKeyIcon size={Math.round(size * 0.6)} />
       </div>
     );
+  };
+
+  if (!websiteUrl || imgError) {
+    return renderFallback();
   }
 
   try {
     const url = new URL(websiteUrl);
     const domain = url.hostname;
-    const faviconUrl = `https://www.google.com/s2/favicons?sz=64&domain=${domain}`;
+    const faviconUrl = `https://www.google.com/s2/favicons?sz=64&domain=${domain}&default=404`;
 
     return (
       <div 
@@ -102,21 +129,7 @@ function AgentFavicon({ websiteUrl, name, size = 48, className = '' }: { website
       </div>
     );
   } catch (e) {
-    return (
-      <div 
-        className={className} 
-        style={{ 
-          ...containerStyle, 
-          background: 'var(--accent)', 
-          color: 'var(--paper)',
-          fontFamily: "'Fraunces', serif",
-          fontWeight: 600,
-          fontSize: `${Math.round(size * 0.45)}px`
-        }}
-      >
-        {name[0].toUpperCase()}
-      </div>
-    );
+    return renderFallback();
   }
 }
 
@@ -472,54 +485,10 @@ function App() {
                             {(() => {
                               const primaryIdentity = agent.identities?.find((id: any) => id.isPrimary) || agent.identities?.[0] || null;
                               if (!primaryIdentity) return null;
-                              const contractAddress = primaryIdentity.contractAddress || '';
                               const verificationTier = primaryIdentity.verificationTier || 'unverified';
                               return (
                                 <>
-                                  <span style={{ color: 'var(--line)' }}>|</span>
-                                  <span
-                                    style={{
-                                      fontFamily: 'monospace',
-                                      fontSize: '11.5px',
-                                      background: 'var(--paper)',
-                                      padding: '2px 6px',
-                                      borderRadius: '4px',
-                                      color: 'var(--ink-soft)',
-                                      display: 'inline-flex',
-                                      alignItems: 'center',
-                                      gap: '6px'
-                                    }}
-                                    title={contractAddress}
-                                  >
-                                    {/* {displayAddr} */}
-                                    <button
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        navigator.clipboard.writeText(contractAddress);
-                                        const target = e.currentTarget;
-                                        const originalText = target.innerHTML;
-                                        target.innerHTML = '✓';
-                                        target.style.color = 'var(--accent)';
-                                        setTimeout(() => {
-                                          target.innerHTML = originalText;
-                                          target.style.color = '';
-                                        }, 1000);
-                                      }}
-                                      style={{
-                                        background: 'none',
-                                        border: 'none',
-                                        cursor: 'pointer',
-                                        padding: 0,
-                                        fontSize: '10px',
-                                        color: 'var(--brass)',
-                                        display: 'inline-flex',
-                                        alignItems: 'center'
-                                      }}
-                                      title="Copy Address"
-                                    >
-                                      📋
-                                    </button>
-                                  </span>
+
                                   <span
                                     style={{
                                       fontSize: '10px',
