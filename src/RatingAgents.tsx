@@ -98,6 +98,80 @@ const CountdownScreen = ({ processAfter, onComplete }: { processAfter: string; o
   );
 };
 
+function AgentFavicon({ websiteUrl, name, size = 48, className = '', borderRadius = '11px', fallback }: { websiteUrl?: string; name: string; size?: number; className?: string; borderRadius?: string; fallback?: React.ReactNode }) {
+  const [imgError, setImgError] = useState(false);
+  
+  const containerStyle: React.CSSProperties = {
+    width: `${size}px`,
+    height: `${size}px`,
+    borderRadius: borderRadius,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    overflow: 'hidden',
+    flex: 'none',
+    textTransform: 'uppercase'
+  };
+
+  const renderFallback = () => {
+    if (fallback) {
+      return (
+        <div className={className} style={{ ...containerStyle }}>
+          {fallback}
+        </div>
+      );
+    }
+    return (
+      <div 
+        className={className} 
+        style={{ 
+          ...containerStyle, 
+          background: 'var(--accent)', 
+          color: 'var(--paper)',
+          fontFamily: "'Fraunces', serif",
+          fontWeight: 600,
+          fontSize: `${Math.round(size * 0.45)}px`
+        }}
+      >
+        {name[0].toUpperCase()}
+      </div>
+    );
+  };
+
+  if (!websiteUrl || imgError) {
+    return renderFallback();
+  }
+
+  try {
+    const url = new URL(websiteUrl);
+    const domain = url.hostname;
+    const faviconUrl = `https://www.google.com/s2/favicons?sz=64&domain=${domain}`;
+
+    return (
+      <div 
+        className={className} 
+        style={{ 
+          ...containerStyle, 
+          background: 'transparent'
+        }}
+      >
+        <img 
+          src={faviconUrl} 
+          alt={`${name} favicon`} 
+          onError={() => setImgError(true)}
+          style={{ 
+            width: '100%', 
+            height: '100%', 
+            objectFit: 'contain'
+          }} 
+        />
+      </div>
+    );
+  } catch (e) {
+    return renderFallback();
+  }
+}
+
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
 export default function RatingAgents() {
@@ -1160,13 +1234,20 @@ export default function RatingAgents() {
                     <div className="main-card">
                       <div className="mc-left">
                         <div className="mc-header">
-                          <div className="mc-logo-wrapper">
-                            <svg fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                              <circle cx="12" cy="12" r="10" />
-                              <circle cx="12" cy="12" r="4" />
-                              <path d="M12 2v20M2 12h20" />
-                            </svg>
-                          </div>
+                          <AgentFavicon 
+                            websiteUrl={selectedAgent.website} 
+                            name={selectedAgent.name} 
+                            size={64} 
+                            className="mc-logo-wrapper" 
+                            borderRadius="50%" 
+                            fallback={
+                              <svg fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" style={{ width: '32px', height: '32px', color: 'var(--brass)' }}>
+                                <circle cx="12" cy="12" r="10" />
+                                <circle cx="12" cy="12" r="4" />
+                                <path d="M12 2v20M2 12h20" />
+                              </svg>
+                            }
+                          />
                           <div className="mc-title">
                             <h3>
                               {selectedAgent.name}

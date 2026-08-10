@@ -41,8 +41,83 @@ function Reveal({ children, className = '', delay = 0 }: RevealProps) {
   );
 }
 
-function AgentLogo({ name }: { name: string }) {
-  return <span style={{ fontSize: '12px', fontWeight: 600 }}>{name[0]}</span>;
+
+
+function AgentFavicon({ websiteUrl, name, size = 48, className = '' }: { websiteUrl?: string; name: string; size?: number; className?: string }) {
+  const [imgError, setImgError] = useState(false);
+  
+  const containerStyle: React.CSSProperties = {
+    width: `${size}px`,
+    height: `${size}px`,
+    borderRadius: '11px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    overflow: 'hidden',
+    flex: 'none',
+    textTransform: 'uppercase'
+  };
+
+  if (!websiteUrl || imgError) {
+    return (
+      <div 
+        className={className} 
+        style={{ 
+          ...containerStyle, 
+          background: 'var(--accent)', 
+          color: 'var(--paper)',
+          fontFamily: "'Fraunces', serif",
+          fontWeight: 600,
+          fontSize: `${Math.round(size * 0.45)}px`
+        }}
+      >
+        {name[0].toUpperCase()}
+      </div>
+    );
+  }
+
+  try {
+    const url = new URL(websiteUrl);
+    const domain = url.hostname;
+    const faviconUrl = `https://www.google.com/s2/favicons?sz=64&domain=${domain}`;
+
+    return (
+      <div 
+        className={className} 
+        style={{ 
+          ...containerStyle, 
+          background: 'transparent'
+        }}
+      >
+        <img 
+          src={faviconUrl} 
+          alt={`${name} favicon`} 
+          onError={() => setImgError(true)}
+          style={{ 
+            width: '100%', 
+            height: '100%', 
+            objectFit: 'contain'
+          }} 
+        />
+      </div>
+    );
+  } catch (e) {
+    return (
+      <div 
+        className={className} 
+        style={{ 
+          ...containerStyle, 
+          background: 'var(--accent)', 
+          color: 'var(--paper)',
+          fontFamily: "'Fraunces', serif",
+          fontWeight: 600,
+          fontSize: `${Math.round(size * 0.45)}px`
+        }}
+      >
+        {name[0].toUpperCase()}
+      </div>
+    );
+  }
 }
 
 function App() {
@@ -86,22 +161,22 @@ function App() {
   ];
 
   // Map real agents from database, fall back to placeholders if empty
-  const agents = agentsList.length > 0 
+  const agents = agentsList.length > 0
     ? agentsList.map(a => [a.name, a.category.slice(0, 3).toUpperCase(), '#1B2A4A', a])
     : [
-        ['Sentinel AI', 'SEC', '#1B2A4A'],
-        ['Nexus', 'INF', '#2B3A22'],
-        ['Oracle Prime', 'RES', '#3A2438'],
-        ['Vault Guard', 'SEC', '#14343A'],
-        ['DevForge', 'INF', '#3A2E14'],
-        ['AlphaScope', 'RES', '#233A3A'],
-        ['Helm', 'TRD', '#3A1E1E'],
-        ['Beacon', 'SEC', '#1E2A3A'],
-        ['Cortex', 'INF', '#2A1E3A'],
-        ['Ledger Eye', 'RES', '#3A331E'],
-        ['Momentum', 'TRD', '#1E3A2E'],
-        ['Warden', 'SEC', '#33223A']
-      ];
+      ['Sentinel AI', 'SEC', '#1B2A4A'],
+      ['Nexus', 'INF', '#2B3A22'],
+      ['Oracle Prime', 'RES', '#3A2438'],
+      ['Vault Guard', 'SEC', '#14343A'],
+      ['DevForge', 'INF', '#3A2E14'],
+      ['AlphaScope', 'RES', '#233A3A'],
+      ['Helm', 'TRD', '#3A1E1E'],
+      ['Beacon', 'SEC', '#1E2A3A'],
+      ['Cortex', 'INF', '#2A1E3A'],
+      ['Ledger Eye', 'RES', '#3A331E'],
+      ['Momentum', 'TRD', '#1E3A2E'],
+      ['Warden', 'SEC', '#33223A']
+    ];
 
   // For infinite scroll, double the arrays
   const extendedChains = [...chains, ...chains];
@@ -161,8 +236,8 @@ function App() {
               <a href="#method">Methodology</a>
               <a href="https://github.com/KingofSpades-dev/Ordo" target="_blank" rel="noopener noreferrer">GitHub</a>
             </div>
-            <a 
-              href="/ratingagents" 
+            <a
+              href="/ratingagents"
               onClick={(e) => {
                 e.preventDefault();
                 window.history.pushState({}, '', '/ratingagents');
@@ -296,11 +371,9 @@ function App() {
           <div className="marquee-label">Recently profiled</div>
           <div className="marquee rev">
             <div className="marquee-track" id="agentTrack">
-              {extendedAgents.map(([name, sub, color], idx) => (
+              {extendedAgents.map(([name, sub, _, agentRaw], idx) => (
                 <div key={`agent-${idx}`} className="chip agent">
-                  <span className="glyph" style={{ color: color }}>
-                    <AgentLogo name={name} />
-                  </span>
+                  <AgentFavicon websiteUrl={agentRaw?.website} name={name} size={50} className="glyph" />
                   <span style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.15 }}>
                     <span className="name">{name}</span>
                     <span className="sub">{sub}</span>
@@ -322,7 +395,7 @@ function App() {
               <p>Every agent gets a <b style={{ color: 'var(--ink)', fontWeight: 600 }}>Ordo Dossier</b>, which includes a full profile, scored review, and generated visual record. Our editorial verdict sits apart from community sentiment: always side by side, never blended.</p>
             </div>
           </Reveal>
-          
+
           <div className="stars-legend" style={{ marginBottom: '24px' }}>
             <Reveal delay={50}>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px' }}>
@@ -347,23 +420,23 @@ function App() {
               gap: '24px'
             }}>
               {agentsList.map((agent) => {
-                const scoreObj = agent.scores && agent.scores.length > 0 
+                const scoreObj = agent.scores && agent.scores.length > 0
                   ? JSON.parse(agent.scores[0].hardSignalScores)
                   : null;
                 const starsCount = scoreObj ? scoreObj.starsCount : 0;
                 const editorialScore = agent.scores?.[0]?.editorialScore ?? 0;
-                const finalScore = scoreObj 
-                  ? (typeof scoreObj.finalScore === 'number' 
-                      ? Math.round(editorialScore + scoreObj.finalScore)
-                      : Math.round(editorialScore + (scoreObj.verifiabilityScore + scoreObj.activityScore + scoreObj.maintenanceScore + scoreObj.securityScore - (scoreObj.adminPenalty || 0))))
+                const finalScore = scoreObj
+                  ? (typeof scoreObj.finalScore === 'number'
+                    ? Math.round(editorialScore + scoreObj.finalScore)
+                    : Math.round(editorialScore + (scoreObj.verifiabilityScore + scoreObj.activityScore + scoreObj.maintenanceScore + scoreObj.securityScore - (scoreObj.adminPenalty || 0))))
                   : 0;
                 const isUnrated = scoreObj?.insufficientEvidence;
 
                 return (
-                  <div 
-                    key={agent.id} 
-                    className="verdict-card" 
-                    style={{ cursor: 'pointer', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', transition: 'transform 0.2s, border-color 0.2s' }} 
+                  <div
+                    key={agent.id}
+                    className="verdict-card"
+                    style={{ cursor: 'pointer', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', transition: 'transform 0.2s, border-color 0.2s' }}
                     onClick={() => setSelectedAgent(agent)}
                     onMouseOver={(e) => {
                       e.currentTarget.style.transform = 'translateY(-4px)';
@@ -376,15 +449,15 @@ function App() {
                   >
                     <div>
                       <div className="vc-top">
-                        <div className="vc-logo" style={{ textTransform: 'uppercase', fontWeight: 800 }}>{agent.name[0]}</div>
+                        <AgentFavicon websiteUrl={agent.website} name={agent.name} size={48} className="vc-logo" />
                         <div className="meta">
                           <div className="nm" style={{ fontSize: '18px', fontWeight: 700 }}>{agent.name}</div>
                           <div className="cat-l" style={{ textTransform: 'capitalize', display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap', marginTop: '3px' }}>
                             <span>{agent.category}</span>
                             <span style={{ color: 'var(--line)' }}>|</span>
-                            <span style={{ 
-                              display: 'inline-flex', 
-                              alignItems: 'center', 
+                            <span style={{
+                              display: 'inline-flex',
+                              alignItems: 'center',
                               gap: '4px',
                               background: 'var(--paper)',
                               padding: '2px 6px',
@@ -400,19 +473,16 @@ function App() {
                               const primaryIdentity = agent.identities?.find((id: any) => id.isPrimary) || agent.identities?.[0] || null;
                               if (!primaryIdentity) return null;
                               const contractAddress = primaryIdentity.contractAddress || '';
-                              const displayAddr = contractAddress 
-                                ? `${contractAddress.slice(0, 6)}...${contractAddress.slice(-6)}` 
-                                : 'N/A';
                               const verificationTier = primaryIdentity.verificationTier || 'unverified';
                               return (
                                 <>
                                   <span style={{ color: 'var(--line)' }}>|</span>
-                                  <span 
-                                    style={{ 
-                                      fontFamily: 'monospace', 
-                                      fontSize: '11.5px', 
-                                      background: 'var(--paper)', 
-                                      padding: '2px 6px', 
+                                  <span
+                                    style={{
+                                      fontFamily: 'monospace',
+                                      fontSize: '11.5px',
+                                      background: 'var(--paper)',
+                                      padding: '2px 6px',
                                       borderRadius: '4px',
                                       color: 'var(--ink-soft)',
                                       display: 'inline-flex',
@@ -421,7 +491,7 @@ function App() {
                                     }}
                                     title={contractAddress}
                                   >
-                                    {displayAddr}
+                                    {/* {displayAddr} */}
                                     <button
                                       onClick={(e) => {
                                         e.stopPropagation();
@@ -450,30 +520,29 @@ function App() {
                                       📋
                                     </button>
                                   </span>
-                                  <span 
+                                  <span
                                     style={{
                                       fontSize: '10px',
                                       fontWeight: 700,
                                       textTransform: 'uppercase',
                                       padding: '2px 6px',
                                       borderRadius: '4px',
-                                      background: verificationTier === 'ownership_verified' 
-                                        ? 'var(--brass-soft)' 
-                                        : verificationTier === 'verified' 
-                                          ? '#e2ece9' 
+                                      background: verificationTier === 'ownership_verified'
+                                        ? 'var(--brass-soft)'
+                                        : verificationTier === 'verified'
+                                          ? '#e2ece9'
                                           : '#fdeded',
-                                      color: verificationTier === 'ownership_verified' 
-                                        ? 'var(--brass)' 
-                                        : verificationTier === 'verified' 
-                                          ? '#2d6a4f' 
+                                      color: verificationTier === 'ownership_verified'
+                                        ? 'var(--brass)'
+                                        : verificationTier === 'verified'
+                                          ? '#2d6a4f'
                                           : '#d32f2f',
-                                      border: `1px solid ${
-                                        verificationTier === 'ownership_verified' 
-                                          ? 'var(--brass)' 
-                                          : verificationTier === 'verified' 
-                                            ? '#2d6a4f' 
-                                            : '#d32f2f'
-                                      }`
+                                      border: `1px solid ${verificationTier === 'ownership_verified'
+                                        ? 'var(--brass)'
+                                        : verificationTier === 'verified'
+                                          ? '#2d6a4f'
+                                          : '#d32f2f'
+                                        }`
                                     }}
                                   >
                                     {verificationTier === 'ownership_verified' ? '✓ OWNER VERIFIED' : verificationTier === 'verified' ? '✓ VERIFIED' : 'UNVERIFIED'}
@@ -494,10 +563,10 @@ function App() {
                           )}
                         </div>
                       </div>
-                      <div style={{ 
-                        padding: '16px 26px 0 26px', 
-                        fontSize: '13.5px', 
-                        color: 'var(--ink-soft)', 
+                      <div style={{
+                        padding: '16px 26px 0 26px',
+                        fontSize: '13.5px',
+                        color: 'var(--ink-soft)',
                         lineHeight: 1.5,
                         display: '-webkit-box',
                         WebkitLineClamp: 2,
@@ -517,7 +586,7 @@ function App() {
                           'Verdict · Unverified'
                         ) : (
                           <>
-                             Verdict · <span style={{ fontSize: '26px', lineHeight: 1, verticalAlign: 'middle', marginTop: '-4px', letterSpacing: '-1px' }}>{'★'.repeat(starsCount)}{'☆'.repeat(3 - starsCount)}</span>
+                            Verdict · <span style={{ fontSize: '26px', lineHeight: 1, verticalAlign: 'middle', marginTop: '-4px', letterSpacing: '-1px' }}>{'★'.repeat(starsCount)}{'☆'.repeat(3 - starsCount)}</span>
                           </>
                         )}
                       </span>
@@ -785,12 +854,12 @@ function App() {
 
       {/* Dossier Detail Modal */}
       {selectedAgent && (() => {
-        const scoreObj = selectedAgent.scores && selectedAgent.scores.length > 0 
+        const scoreObj = selectedAgent.scores && selectedAgent.scores.length > 0
           ? JSON.parse(selectedAgent.scores[0].hardSignalScores)
           : null;
         const starsCount = scoreObj ? scoreObj.starsCount : 0;
         const isUnrated = scoreObj?.insufficientEvidence;
-        
+
         const dossier = selectedAgent.dossiers && selectedAgent.dossiers.length > 0
           ? selectedAgent.dossiers[0]
           : null;
@@ -844,7 +913,7 @@ function App() {
               position: 'relative',
               color: 'var(--ink)'
             }} onClick={(e) => e.stopPropagation()}>
-              
+
               <button style={{
                 position: 'absolute',
                 top: '20px',
@@ -868,18 +937,18 @@ function App() {
               {(() => {
                 const primaryIdentity = selectedAgent.identities?.find((id: any) => id.isPrimary) || selectedAgent.identities?.[0] || null;
                 if (!primaryIdentity) return null;
-                const contractAddress = primaryIdentity.contractAddress || '';
+                // const contractAddress = primaryIdentity.contractAddress || '';
                 const verificationTier = primaryIdentity.verificationTier || 'unverified';
-                const explorerUrl = primaryIdentity.explorerUrl || '';
+                // const explorerUrl = primaryIdentity.explorerUrl || '';
                 const lastCheckedAt = primaryIdentity.lastCheckedAt || selectedAgent.updatedAt;
                 const formattedCheckedDate = lastCheckedAt ? new Date(lastCheckedAt).toLocaleDateString() : '';
 
                 return (
-                  <div style={{ 
-                    background: 'var(--paper)', 
-                    border: '1px solid var(--line)', 
-                    borderRadius: '8px', 
-                    padding: '16px', 
+                  <div style={{
+                    background: 'var(--paper)',
+                    border: '1px solid var(--line)',
+                    borderRadius: '8px',
+                    padding: '16px',
                     marginBottom: '24px',
                     display: 'flex',
                     flexDirection: 'column',
@@ -888,30 +957,29 @@ function App() {
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                         <span style={{ fontWeight: 700, fontSize: '14px' }}>Verification Status:</span>
-                        <span 
+                        <span
                           style={{
                             fontSize: '11px',
                             fontWeight: 700,
                             textTransform: 'uppercase',
                             padding: '4px 10px',
                             borderRadius: '4px',
-                            background: verificationTier === 'ownership_verified' 
-                              ? 'var(--brass-soft)' 
-                              : verificationTier === 'verified' 
-                                ? '#e2ece9' 
+                            background: verificationTier === 'ownership_verified'
+                              ? 'var(--brass-soft)'
+                              : verificationTier === 'verified'
+                                ? '#e2ece9'
                                 : '#fdeded',
-                            color: verificationTier === 'ownership_verified' 
-                              ? 'var(--brass)' 
-                              : verificationTier === 'verified' 
-                                ? '#2d6a4f' 
+                            color: verificationTier === 'ownership_verified'
+                              ? 'var(--brass)'
+                              : verificationTier === 'verified'
+                                ? '#2d6a4f'
                                 : '#d32f2f',
-                            border: `1px solid ${
-                              verificationTier === 'ownership_verified' 
-                                ? 'var(--brass)' 
-                                : verificationTier === 'verified' 
-                                  ? '#2d6a4f' 
-                                  : '#d32f2f'
-                            }`
+                            border: `1px solid ${verificationTier === 'ownership_verified'
+                              ? 'var(--brass)'
+                              : verificationTier === 'verified'
+                                ? '#2d6a4f'
+                                : '#d32f2f'
+                              }`
                           }}
                         >
                           {verificationTier === 'ownership_verified' ? '✓ OWNER VERIFIED' : verificationTier === 'verified' ? '✓ VERIFIED' : 'UNVERIFIED'}
@@ -924,17 +992,17 @@ function App() {
                       )}
                     </div>
 
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', borderTop: '1px solid var(--line-2)', paddingTop: '8px', marginTop: '4px' }}>
+                    {/* <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', borderTop: '1px solid var(--line-2)', paddingTop: '8px', marginTop: '4px' }}>
                       <span style={{ fontSize: '13.5px', color: 'var(--ink-soft)' }}>Contract Address:</span>
                       {explorerUrl ? (
-                        <a 
-                          href={explorerUrl} 
-                          target="_blank" 
+                        <a
+                          href={explorerUrl}
+                          target="_blank"
                           rel="noopener noreferrer"
-                          style={{ 
-                            fontFamily: 'monospace', 
-                            fontSize: '14px', 
-                            color: 'var(--brass)', 
+                          style={{
+                            fontFamily: 'monospace',
+                            fontSize: '14px',
+                            color: 'var(--brass)',
                             textDecoration: 'underline',
                             fontWeight: 600,
                             wordBreak: 'break-all'
@@ -977,7 +1045,7 @@ function App() {
                       >
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
                       </button>
-                    </div>
+                    </div> */}
                   </div>
                 );
               })()}
@@ -1006,7 +1074,7 @@ function App() {
                     {scoreObj?.starDesc || 'Insufficient evidence to compute rating.'}
                   </p>
                 </div>
-                
+
                 <div style={{ borderLeft: '1px solid var(--line)', paddingLeft: '24px' }}>
                   <h4 style={{ margin: '0 0 12px 0' }}>Rubric v0.1 Breakdown</h4>
                   {!isUnrated && scoreObj ? (
