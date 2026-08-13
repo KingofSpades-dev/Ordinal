@@ -113,7 +113,30 @@ export class IngestProcessor extends WorkerHost {
       ],
     });
 
-    // 3. Update agent status to analyzing
+    // 3. Automated Security Signals Ingestion
+    const secSignals = await this.ingestService.fetchSecuritySignals(agent.docsUrl, agent.website, agent.githubUrl || undefined);
+    await this.prisma.signalSnapshot.createMany({
+      data: [
+        {
+          agentId,
+          signalKey: 'audit_exists',
+          value: secSignals.auditExists,
+          source: 'automated_probing',
+          methodVersion: 'v1',
+          rawPayload: JSON.stringify({ docsUrl: agent.docsUrl }),
+        },
+        {
+          agentId,
+          signalKey: 'admin_keys_safe',
+          value: secSignals.adminKeysSafe,
+          source: 'automated_probing',
+          methodVersion: 'v1',
+          rawPayload: JSON.stringify({ docsUrl: agent.docsUrl }),
+        },
+      ],
+    });
+
+    // 4. Update agent status to analyzing
     await this.prisma.agent.update({
       where: { id: agentId },
       data: { status: 'analyzing' },

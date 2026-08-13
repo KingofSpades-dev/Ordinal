@@ -114,6 +114,18 @@ export class EditorialService {
       throw new BadRequestException('Editor/User not found in database');
     }
 
+    // Task 1.3 Guardrail: Validate keyCount against ScoringService calculated rating
+    const scoreRecord = await this.scoringService.calculateAgentScore(dto.agentId);
+    let hardScores: any = {};
+    try {
+      hardScores = typeof scoreRecord.hardSignalScores === 'string' ? JSON.parse(scoreRecord.hardSignalScores) : scoreRecord.hardSignalScores;
+    } catch (e) {}
+
+    const maxAllowedKeys = hardScores.keysCount ?? hardScores.starsCount ?? 0;
+    if (dto.keyCount > maxAllowedKeys) {
+      throw new BadRequestException(`Cannot award ${dto.keyCount} Keys. Scoring engine calculated maximum ${maxAllowedKeys} Keys for this agent (Final Score: ${hardScores.finalScore ?? 0}).`);
+    }
+
     const expiresAt = new Date();
     expiresAt.setDate(expiresAt.getDate() + dto.expiresInDays);
 

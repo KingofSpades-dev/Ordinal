@@ -359,10 +359,49 @@ function App() {
           </div>
           <div className="nav-right">
             <div className="nav-links">
-              <a href="#">Home</a>
-              <a href="#">About</a>
+              <a href="/">Home</a>
+              <a
+                href="/reports"
+                onClick={(e) => {
+                  e.preventDefault();
+                  window.history.pushState({}, '', '/reports');
+                  window.dispatchEvent(new PopStateEvent('popstate'));
+                }}
+              >
+                Reports
+              </a>
               <a href="#rankings">Ratings</a>
               <a href="#method">Methodology</a>
+              <a
+                href="/guide/2026"
+                onClick={(e) => {
+                  e.preventDefault();
+                  window.history.pushState({}, '', '/guide/2026');
+                  window.dispatchEvent(new PopStateEvent('popstate'));
+                }}
+              >
+                Guide
+              </a>
+              <a
+                href="/record/2026-08"
+                onClick={(e) => {
+                  e.preventDefault();
+                  window.history.pushState({}, '', '/record/2026-08');
+                  window.dispatchEvent(new PopStateEvent('popstate'));
+                }}
+              >
+                Record
+              </a>
+              <a
+                href="/corrections"
+                onClick={(e) => {
+                  e.preventDefault();
+                  window.history.pushState({}, '', '/corrections');
+                  window.dispatchEvent(new PopStateEvent('popstate'));
+                }}
+              >
+                Corrections
+              </a>
               <a href="https://x.com/OrdoKeyRank" target="_blank" rel="noopener noreferrer" aria-label="X (Twitter)" style={{ display: 'inline-flex', alignItems: 'center' }}>
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
                   <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />

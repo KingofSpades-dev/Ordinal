@@ -62,7 +62,9 @@ export class ScoringService {
     const auditVal = auditSnapshot ? auditSnapshot.value : 0; // 1 = exists, 0 = none
     const adminKeysVal = adminKeysSnapshot ? adminKeysSnapshot.value : 0; // 1 = safe, 0 = risky
 
-    const securityScore = (auditVal * 15) + (adminKeysVal * 10);
+    // Task 1.3 Guardrail: If no public audit or risky admin keys, cap security score at 10 max
+    const rawSecurityScore = (auditVal * 15) + (adminKeysVal * 10);
+    const securityScore = (auditVal === 0 || adminKeysVal === 0) ? Math.min(10, rawSecurityScore) : rawSecurityScore;
 
     // Evaluate Insufficient Evidence (if 2 or more dimensions are not evidenced)
     const unevidencedCount = [verifiabilityEvidenced, activityEvidenced, maintenanceEvidenced, securityEvidenced].filter(e => !e).length;
@@ -74,29 +76,33 @@ export class ScoringService {
     const finalScore = Math.max(0, rawScore - adminPenalty);
 
     let confidence = 1.0;
-    let starsCount = 0;
-    let starLabel = '';
-    let starDesc = '';
+    let keysCount = 0;
+    let keyLabel = '';
+    let keyDesc = '';
 
     if (insufficientEvidence) {
       confidence = 0.0;
-      starsCount = 0;
-      starLabel = 'Registered, not rated';
-      starDesc = 'Insufficient evidence to produce an ORDO rating.';
+      keysCount = 0;
+      keyLabel = 'Registered, unrated';
+      keyDesc = 'Insufficient evidence to produce an ORDO Key rating.';
     } else {
-      // Elevated Industry Standards: 3 Stars >= 93, 2 Stars >= 75, 1 Star >= 50
-      starsCount = finalScore >= 93 ? 3 : finalScore >= 75 ? 2 : finalScore >= 50 ? 1 : 0;
-      starLabel = starsCount === 3 ? "Three Stars: Exceptional" : starsCount === 2 ? "Two Stars: Excellent" : starsCount === 1 ? "One Star: Notable" : "Unrated";
-      starDesc = starsCount === 3 ? "A category-defining agent. The standard others are measured against." : starsCount === 2 ? "Among the best in its category. Worth going out of your way to use." : starsCount === 1 ? "A capable agent worth knowing in its category. Solid execution, real utility." : "Below Ordo rating threshold.";
+      // Task 1.3 Michelin Standards: 3 Keys >= 90, 2 Keys >= 80, 1 Key >= 65, Registered < 65
+      // Guardrail Constraint: If no audit or risky admin keys, max allowed keys is 1
+      const maxKeysBySecurity = (auditVal === 0 || adminKeysVal === 0) ? 1 : 3;
+      const computedKeys = finalScore >= 90 ? 3 : finalScore >= 80 ? 2 : finalScore >= 65 ? 1 : 0;
+      keysCount = Math.min(computedKeys, maxKeysBySecurity);
+
+      keyLabel = keysCount === 3 ? "Three Keys: Benchmark" : keysCount === 2 ? "Two Keys: Exemplary" : keysCount === 1 ? "One Key: Notable" : "Registered, unrated";
+      keyDesc = keysCount === 3 ? "A category-defining agent. The benchmark against which others are measured." : keysCount === 2 ? "Exemplary agent execution and verifiable security posture." : keysCount === 1 ? "A notable agent with verified utility and baseline posture." : "Registered agent in ORDO directory; unrated or below key award threshold.";
     }
 
-    console.log(`[SCAN PIPELINE - STEP 3] Elevated Rubric v0.1 Calculation for "${agent.name}":`);
+    console.log(`[SCAN PIPELINE - STEP 3] Michelin Rubric v0.1 Calculation for "${agent.name}":`);
     console.log(`- Verifiability: ${verifiabilityScore} (Evidenced: ${verifiabilityEvidenced})`);
     console.log(`- Activity: ${activityScore} (Evidenced: ${activityEvidenced})`);
     console.log(`- Maintenance: ${maintenanceScore} (Evidenced: ${maintenanceEvidenced})`);
     console.log(`- Security: ${securityScore} (Evidenced: ${securityEvidenced})`);
     console.log(`- Admin Control Penalty: -${adminPenalty}`);
-    console.log(`- Final Score: ${finalScore} / 100 (Insufficient Evidence: ${insufficientEvidence})`);
+    console.log(`- Final Score: ${finalScore} / 100 (Keys Awarded: ${keysCount})`);
 
     const hardSignalScores = {
       verifiabilityScore,
@@ -108,9 +114,13 @@ export class ScoringService {
       commitsVal: commitsCount,
       uniqueAddresses,
       insufficientEvidence,
-      starsCount,
-      starLabel,
-      starDesc,
+      keysCount,
+      keyLabel,
+      keyDesc,
+      // Legacy aliases for backwards compatibility
+      starsCount: keysCount,
+      starLabel: keyLabel,
+      starDesc: keyDesc,
     };
 
     const score = await this.prisma.score.create({

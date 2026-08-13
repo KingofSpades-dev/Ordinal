@@ -22,6 +22,16 @@ export class AgentsController {
     return this.agentsService.getAgentIdentity(slug);
   }
 
+  @Get(':slug/erc8004')
+  async getErc8004Identity(@Param('slug') slug: string) {
+    return this.agentsService.getErc8004Identity(slug);
+  }
+
+  @Post(':slug/x402-wash-filter')
+  async runWashFilter(@Param('slug') slug: string, @Body('transactions') transactions: any[]) {
+    return this.agentsService.runWashFilter(slug, transactions || []);
+  }
+
   @Post('submit')
   async submit(@Body() dto: SubmitAgentDto) {
     return this.agentsService.submitAgent(dto);

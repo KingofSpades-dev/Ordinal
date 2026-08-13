@@ -17,36 +17,64 @@ export class IngestService {
       const headers: Record<string, string> = {
         'User-Agent': 'ORDO-Backend-Ingest',
       };
-      if (process.env.GITHUB_TOKEN) {
-        headers['Authorization'] = `token ${process.env.GITHUB_TOKEN}`;
+      const rawToken = process.env.GITHUB_PAT || process.env.GITHUB_TOKEN;
+      const token = rawToken ? rawToken.replace(/^["']|["']$/g, '').trim() : '';
+
+      if (token) {
+        headers['Authorization'] = token.startsWith('github_pat_') || token.startsWith('ghp_') ? `Bearer ${token}` : `token ${token}`;
+      } else {
+        console.warn(`[INGEST WARNING] Neither GITHUB_PAT nor GITHUB_TOKEN set in environment. GitHub API calls will be unauthenticated (60 req/hr limit).`);
       }
 
       // Fetch repo details
-      const repoRes = await fetch(`https://api.github.com/repos/${owner}/${cleanRepo}`, { headers });
-      if (!repoRes.ok) return { commits: 0, contributors: 0, stars: 0 };
+      let repoRes = await fetch(`https://api.github.com/repos/${owner}/${cleanRepo}`, { headers });
+      if (repoRes.status === 401 && headers['Authorization']) {
+        console.warn(`[GITHUB API] Token invalid/expired (401). Retrying unauthenticated for ${owner}/${cleanRepo}...`);
+        delete headers['Authorization'];
+        repoRes = await fetch(`https://api.github.com/repos/${owner}/${cleanRepo}`, { headers });
+      }
+
+      if (!repoRes.ok) {
+        console.warn(`[GITHUB API] Fetch repo details for ${owner}/${cleanRepo} returned status: ${repoRes.status}`);
+        return { commits: 0, contributors: 0, stars: 0 };
+      }
       const repoData = await repoRes.json();
 
       // Fetch actual commits in the last 30 days
       const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 3600 * 1000).toISOString();
-      const commitsRes = await fetch(`https://api.github.com/repos/${owner}/${cleanRepo}/commits?since=${thirtyDaysAgo}&per_page=100`, { headers });
+      let commitsRes = await fetch(`https://api.github.com/repos/${owner}/${cleanRepo}/commits?since=${thirtyDaysAgo}&per_page=100`, { headers });
+      if (commitsRes.status === 401 && headers['Authorization']) {
+        delete headers['Authorization'];
+        commitsRes = await fetch(`https://api.github.com/repos/${owner}/${cleanRepo}/commits?since=${thirtyDaysAgo}&per_page=100`, { headers });
+      }
+
       let commitsCount = 0;
       if (commitsRes.ok) {
         const commitsData = await commitsRes.json();
         if (Array.isArray(commitsData)) {
           commitsCount = commitsData.length;
         }
+      } else {
+        console.warn(`[GITHUB API] Fetch commits for ${owner}/${cleanRepo} returned status: ${commitsRes.status}`);
       }
 
       // Fetch actual contributors
-      const contributorsRes = await fetch(`https://api.github.com/repos/${owner}/${cleanRepo}/contributors?per_page=50`, { headers });
+      let contributorsRes = await fetch(`https://api.github.com/repos/${owner}/${cleanRepo}/contributors?per_page=50`, { headers });
+      if (contributorsRes.status === 401 && headers['Authorization']) {
+        delete headers['Authorization'];
+        contributorsRes = await fetch(`https://api.github.com/repos/${owner}/${cleanRepo}/contributors?per_page=50`, { headers });
+      }
       let contributorsCount = 0;
       if (contributorsRes.ok) {
         const contributorsData = await contributorsRes.json();
         if (Array.isArray(contributorsData)) {
           contributorsCount = contributorsData.length;
         }
+      } else {
+        console.warn(`[GITHUB API] Fetch contributors for ${owner}/${cleanRepo} returned status: ${contributorsRes.status}`);
       }
 
+      console.log(`[GITHUB API SUCCESS] ${owner}/${cleanRepo} -> Commits(30d): ${commitsCount}, Contributors: ${contributorsCount}, Stars: ${repoData.stargazers_count || 0}`);
       return {
         commits: commitsCount,
         contributors: contributorsCount,
@@ -56,6 +84,31 @@ export class IngestService {
       console.error(`Failed to fetch GitHub stats for ${owner}/${cleanRepo}:`, e.message);
       return { commits: 0, contributors: 0, stars: 0 };
     }
+  }
+
+  // 1b. Automated Security Signals Discovery
+  async fetchSecuritySignals(docsUrl?: string, websiteUrl?: string, githubUrl?: string) {
+    let auditExists = 0;
+    let adminKeysSafe = 0;
+
+    const urlsToProbe = [docsUrl, websiteUrl, githubUrl].filter(Boolean) as string[];
+    const auditKeywords = ['audit', 'certik', 'openzeppelin', 'halborn', 'trailofbits', 'ackee', 'code4rena', 'sherlock', 'quantstamp', 'veridise'];
+    const safeKeyKeywords = ['renounced', 'timelock', 'multisig', 'immutable', 'no admin', 'decentralized governance'];
+
+    for (const url of urlsToProbe) {
+      const lower = url.toLowerCase();
+      if (auditKeywords.some(kw => lower.includes(kw))) {
+        auditExists = 1;
+      }
+      if (safeKeyKeywords.some(kw => lower.includes(kw))) {
+        adminKeysSafe = 1;
+      }
+    }
+
+    return {
+      auditExists,
+      adminKeysSafe,
+    };
   }
 
   isValidAddress(address: string, chain: string): boolean {

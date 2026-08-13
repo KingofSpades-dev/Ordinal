@@ -1171,7 +1171,10 @@ async function main() {
     
     const auditVal = auditSnapshot ? auditSnapshot.value : 0;
     const adminKeysVal = adminKeysSnapshot ? adminKeysSnapshot.value : 0;
-    const securityScore = (auditVal * 15) + (adminKeysVal * 10);
+
+    // Security Guardrail: Cap at 10 if no audit or risky admin keys
+    const rawSecurityScore = (auditVal * 15) + (adminKeysVal * 10);
+    const securityScore = (auditVal === 0 || adminKeysVal === 0) ? Math.min(10, rawSecurityScore) : rawSecurityScore;
 
     const unevidencedCount = [verifiabilityEvidenced, activityEvidenced, maintenanceEvidenced, securityEvidenced].filter(e => !e).length;
     const insufficientEvidence = unevidencedCount >= 2;
@@ -1181,19 +1184,22 @@ async function main() {
     const finalScore = Math.max(0, rawScore - adminPenalty);
     
     let confidence = 1.0;
-    let starsCount = 0;
-    let starLabel = '';
-    let starDesc = '';
+    let keysCount = 0;
+    let keyLabel = '';
+    let keyDesc = '';
 
     if (insufficientEvidence) {
       confidence = 0.0;
-      starsCount = 0;
-      starLabel = 'Registered, not rated';
-      starDesc = 'Insufficient evidence to produce an ORDO rating.';
+      keysCount = 0;
+      keyLabel = 'Registered, unrated';
+      keyDesc = 'Insufficient evidence to produce an ORDO Key rating.';
     } else {
-      starsCount = finalScore >= 93 ? 3 : finalScore >= 75 ? 2 : finalScore >= 50 ? 1 : 0;
-      starLabel = starsCount === 3 ? "Three Stars: Exceptional" : starsCount === 2 ? "Two Stars: Excellent" : starsCount === 1 ? "One Star: Notable" : "Unrated";
-      starDesc = starsCount === 3 ? "A category-defining agent. The standard others are measured against." : starsCount === 2 ? "Among the best in its category. Worth going out of your way to use." : starsCount === 1 ? "A capable agent worth knowing in its category. Solid execution, real utility." : "Below Ordo rating threshold.";
+      const maxKeysBySecurity = (auditVal === 0 || adminKeysVal === 0) ? 1 : 3;
+      const computedKeys = finalScore >= 90 ? 3 : finalScore >= 80 ? 2 : finalScore >= 65 ? 1 : 0;
+      keysCount = Math.min(computedKeys, maxKeysBySecurity);
+
+      keyLabel = keysCount === 3 ? "Three Keys: Benchmark" : keysCount === 2 ? "Two Keys: Exemplary" : keysCount === 1 ? "One Key: Notable" : "Registered, unrated";
+      keyDesc = keysCount === 3 ? "A category-defining agent. The benchmark against which others are measured." : keysCount === 2 ? "Exemplary agent execution and verifiable security posture." : keysCount === 1 ? "A notable agent with verified utility and baseline posture." : "Registered agent in ORDO directory; unrated or below key award threshold.";
     }
 
     const hardSignalScores = {
@@ -1206,9 +1212,12 @@ async function main() {
       commitsVal: commitsCount,
       uniqueAddresses,
       insufficientEvidence,
-      starsCount,
-      starLabel,
-      starDesc,
+      keysCount,
+      keyLabel,
+      keyDesc,
+      starsCount: keysCount,
+      starLabel: keyLabel,
+      starDesc: keyDesc,
     };
 
     await prisma.score.create({
@@ -1221,14 +1230,14 @@ async function main() {
       }
     });
 
-    // 4. Seeding Key Awards
-    if (agentData.keyCount > 0) {
+    // 4. Seeding Key Awards based on Michelin Thresholds
+    if (keysCount > 0) {
       const expiresAt = new Date();
       expiresAt.setDate(expiresAt.getDate() + 365);
       await prisma.keyAward.create({
         data: {
           agentId: agent.id,
-          keyCount: agentData.keyCount,
+          keyCount: keysCount,
           expiresAt,
           methodologyVersion: '0.1',
           editorId: admin.id,
