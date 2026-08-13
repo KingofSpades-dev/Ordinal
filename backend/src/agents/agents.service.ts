@@ -431,7 +431,7 @@ export class AgentsService {
       if (wallet.startsWith('0x')) return false;
 
       const rpcUrl = process.env.HELIUS_API_KEY || 'https://api.mainnet-beta.solana.com';
-      const ORDO_MINT = 'OrdoTokenMintAddressPlaceholder111111111111';
+      const ORDO_MINT = '3x3JGdcSj1zjuqV9doa657QRVrDUMxjwRN5baxSGpump';
 
       const payload = {
         jsonrpc: '2.0',
@@ -460,9 +460,13 @@ export class AgentsService {
 
       const data = await res.json();
       if (data.result && data.result.value && data.result.value.length > 0) {
-        const tokenAccount = data.result.value[0];
-        const balance = tokenAccount.account.data.parsed.info.tokenAmount.uiAmount || 0;
-        return balance >= 50000;
+        let totalBalance = 0;
+        for (const tokenAccount of data.result.value) {
+          const amount = tokenAccount.account?.data?.parsed?.info?.tokenAmount?.uiAmount || 0;
+          totalBalance += amount;
+        }
+        console.log(`[BALANCE CHECK] Wallet ${wallet} has total ${totalBalance} $ORDO tokens.`);
+        return totalBalance >= 50000;
       }
       return false;
     } catch (e) {

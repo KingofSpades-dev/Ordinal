@@ -80,7 +80,7 @@ const CountdownScreen = ({ processAfter, onComplete }: { processAfter: string; o
           Want to skip the queue? Hold at least <b>50,000 $ORDO</b> in your wallet for <b>instant rating</b>!
         </p>
         <a
-          href="https://pump.fun"
+          href="https://pump.fun/coin/3x3JGdcSj1zjuqV9doa657QRVrDUMxjwRN5baxSGpump"
           target="_blank"
           rel="noopener noreferrer"
           style={{

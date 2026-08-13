@@ -254,6 +254,7 @@ function App() {
   const [agentsList, setAgentsList] = useState<any[]>([]);
   const [selectedAgent, setSelectedAgent] = useState<any>(null);
   const [activeModelModal, setActiveModelModal] = useState<typeof MODEL_DETAILS['claude'] | null>(null);
+  const [copiedCa, setCopiedCa] = useState(false);
 
   useEffect(() => {
     async function loadData() {
@@ -343,6 +344,66 @@ function App() {
             <img src="/hero_transparent.png" alt="Ordo Illustration" className="hero-bg-img" />
           </div>
           <div className="hero-left">
+            <Reveal delay={80}>
+              <div style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '8px',
+                background: 'var(--paper, #F5F0E8)',
+                border: '1.5px solid var(--line-2, #E2D9CC)',
+                borderRadius: '20px',
+                padding: '6px 14px',
+                marginBottom: '16px',
+                boxShadow: '0 2px 8px rgba(27, 42, 74, 0.03)',
+                fontSize: '12.5px',
+                color: 'var(--ink-soft, #5A6578)'
+              }}>
+                <span style={{ fontWeight: 800, color: 'var(--accent, #7C1522)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                  CA:
+                </span>
+                <span style={{ fontFamily: 'monospace', fontWeight: 700, color: 'var(--ink, #1B2A4A)' }}>
+                  {import.meta.env.VITE_ORDO_CA || '3x3JGdcSj1zjuqV9doa657QRVrDUMxjwRN5baxSGpump'}
+                </span>
+                <button
+                  onClick={() => {
+                    const caText = import.meta.env.VITE_ORDO_CA || '3x3JGdcSj1zjuqV9doa657QRVrDUMxjwRN5baxSGpump';
+                    navigator.clipboard.writeText(caText);
+                    setCopiedCa(true);
+                    setTimeout(() => setCopiedCa(false), 2000);
+                  }}
+                  title={copiedCa ? 'Copied!' : 'Copy Contract Address'}
+                  style={{
+                    background: 'transparent',
+                    border: 'none',
+                    cursor: 'pointer',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: '2px',
+                    marginLeft: '4px',
+                    color: copiedCa ? '#137333' : 'var(--accent, #7C1522)',
+                    transition: 'transform 0.2s ease, color 0.2s ease'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'scale(1.15)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'scale(1)';
+                  }}
+                >
+                  {copiedCa ? (
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#137333" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                  ) : (
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                      <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                    </svg>
+                  )}
+                </button>
+              </div>
+            </Reveal>
             <Reveal delay={100}>
               <h1 className="hero">The Standard for Web3 AI Agents</h1>
             </Reveal>
