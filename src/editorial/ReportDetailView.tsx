@@ -1,3 +1,4 @@
+import React, { useState } from 'react';
 import { OrdoNavbar, OrdoKeyIcon } from '../components/OrdoNavbar';
 
 export interface ReportData {
@@ -5,6 +6,7 @@ export interface ReportData {
   slug: string;
   category: string;
   chains: string[];
+  websiteUrl?: string;
   dossierNumber: number;
   methodologyVersion: string;
   publicationDate: string;
@@ -55,6 +57,7 @@ export const SAMPLE_REPORTS: Record<string, ReportData> = {
     slug: 'aixbt',
     category: 'trading',
     chains: ['base'],
+    websiteUrl: 'https://aixbt.ai',
     dossierNumber: 38,
     methodologyVersion: 'v0.1',
     publicationDate: '2026-08-10',
@@ -105,6 +108,7 @@ export const SAMPLE_REPORTS: Record<string, ReportData> = {
     slug: 'nosana',
     category: 'developer',
     chains: ['solana'],
+    websiteUrl: 'https://nosana.io',
     dossierNumber: 39,
     methodologyVersion: 'v0.1',
     publicationDate: '2026-08-11',
@@ -194,6 +198,54 @@ export const SAMPLE_REPORTS: Record<string, ReportData> = {
   },
 };
 
+function AgentFavicon({ websiteUrl, name, size = 48 }: { websiteUrl?: string; name: string; size?: number }) {
+  const [imgError, setImgError] = useState(false);
+
+  const containerStyle: React.CSSProperties = {
+    width: `${size}px`,
+    height: `${size}px`,
+    borderRadius: '12px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    overflow: 'hidden',
+    flex: 'none',
+    background: '#fff',
+    border: '1.5px solid var(--line-2, #E2D9CC)',
+    boxShadow: '0 2px 8px rgba(27, 42, 74, 0.05)',
+  };
+
+  if (!websiteUrl || imgError) {
+    return (
+      <div style={containerStyle}>
+        <OrdoKeyIcon size={Math.round(size * 0.55)} />
+      </div>
+    );
+  }
+
+  try {
+    const url = new URL(websiteUrl);
+    const domain = url.hostname;
+    const faviconUrl = `https://www.google.com/s2/favicons?sz=128&domain=${domain}`;
+    return (
+      <div style={containerStyle}>
+        <img
+          src={faviconUrl}
+          alt={name}
+          onError={() => setImgError(true)}
+          style={{ width: `${Math.round(size * 0.65)}px`, height: `${Math.round(size * 0.65)}px`, objectFit: 'contain' }}
+        />
+      </div>
+    );
+  } catch {
+    return (
+      <div style={containerStyle}>
+        <OrdoKeyIcon size={Math.round(size * 0.55)} />
+      </div>
+    );
+  }
+}
+
 export function ReportsCatalogView({ onSelectReport }: { onSelectReport: (slug: string) => void }) {
   return (
     <div style={{ background: 'var(--paper, #F5F0E8)', minHeight: '100vh', color: 'var(--ink, #1B2A4A)', fontFamily: "'Inter', sans-serif" }}>
@@ -280,11 +332,14 @@ export function ReportsCatalogView({ onSelectReport }: { onSelectReport: (slug: 
                   </div>
                 </div>
 
-                {/* Title and Standfirst */}
+                {/* Title with Logo and Standfirst */}
                 <div>
-                  <h2 style={{ fontFamily: "'Fraunces', serif", fontSize: '26px', fontWeight: 700, margin: '4px 0 8px 0', color: 'var(--ink, #1B2A4A)', letterSpacing: '-0.015em' }}>
-                    {rep.agentName}
-                  </h2>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '14px', margin: '4px 0 8px 0' }}>
+                    <AgentFavicon websiteUrl={rep.websiteUrl} name={rep.agentName} size={42} />
+                    <h2 style={{ fontFamily: "'Fraunces', serif", fontSize: '26px', fontWeight: 700, margin: 0, color: 'var(--ink, #1B2A4A)', letterSpacing: '-0.015em' }}>
+                      {rep.agentName}
+                    </h2>
+                  </div>
                   <p style={{ fontSize: '15.5px', color: 'var(--ink-soft, #5A6578)', margin: 0, lineHeight: 1.6, fontWeight: 400 }}>
                     "{rep.standfirst}"
                   </p>
@@ -382,9 +437,12 @@ export function ReportsCatalogView({ onSelectReport }: { onSelectReport: (slug: 
             ))}
           </div>
 
-          <h1 style={{ fontFamily: "'Fraunces', serif", fontSize: '44px', fontWeight: 700, margin: '4px 0 8px 0', letterSpacing: '-0.02em', color: 'var(--ink, #1B2A4A)' }}>
-            {report.agentName}
-          </h1>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px', margin: '6px 0 10px 0' }}>
+            <AgentFavicon websiteUrl={report.websiteUrl} name={report.agentName} size={54} />
+            <h1 style={{ fontFamily: "'Fraunces', serif", fontSize: '44px', fontWeight: 700, margin: 0, letterSpacing: '-0.02em', color: 'var(--ink, #1B2A4A)' }}>
+              {report.agentName}
+            </h1>
+          </div>
 
           <p style={{ margin: 0, fontSize: '14px', color: 'var(--ink-soft, #5A6578)' }}>
             Published {report.publicationDate} • Editor: <strong style={{ color: 'var(--ink, #1B2A4A)' }}>{report.editorName}</strong> • Verification Tier: <span style={{ fontWeight: 800, color: 'var(--brass, #A37E36)', textTransform: 'capitalize' }}>✓ {report.verificationTier}</span>
