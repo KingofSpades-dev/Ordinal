@@ -363,7 +363,7 @@ function App() {
               <a href="#">About</a>
               <a href="#rankings">Ratings</a>
               <a href="#method">Methodology</a>
-              <a href="https://x.com/OrdoKeyRank" target="_blank" rel="noopener noreferrer">X (Twitter)</a>
+              <a href="https://x.com/OrdoKeyRank" target="_blank" rel="noopener noreferrer">X</a>
               <a href="https://github.com/KingofSpades-dev/OrdoKey" target="_blank" rel="noopener noreferrer">GitHub</a>
             </div>
             <a
