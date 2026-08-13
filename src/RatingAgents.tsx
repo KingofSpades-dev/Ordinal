@@ -200,7 +200,7 @@ function AgentFavicon({ websiteUrl, name, size = 48, className = '', borderRadiu
   }
 }
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:3001').replace(/\/+$/, '');
 
 export default function RatingAgents() {
   const [agentsList, setAgentsList] = useState<Agent[]>([]);

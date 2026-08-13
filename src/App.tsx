@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:3001').replace(/\/+$/, '');
 
 interface RevealProps {
   children: ReactNode;
