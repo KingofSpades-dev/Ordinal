@@ -7,6 +7,7 @@ export interface ReportData {
   category: string;
   chains: string[];
   websiteUrl?: string;
+  logoUrl?: string;
   dossierNumber: number;
   methodologyVersion: string;
   publicationDate: string;
@@ -57,7 +58,8 @@ export const SAMPLE_REPORTS: Record<string, ReportData> = {
     slug: 'aixbt',
     category: 'trading',
     chains: ['base'],
-    websiteUrl: 'https://aixbt.ai',
+    websiteUrl: 'https://aixbt.tech/',
+    logoUrl: 'https://unavatar.io/x/aixbt_agent',
     dossierNumber: 38,
     methodologyVersion: 'v0.1',
     publicationDate: '2026-08-10',
@@ -109,6 +111,7 @@ export const SAMPLE_REPORTS: Record<string, ReportData> = {
     category: 'developer',
     chains: ['solana'],
     websiteUrl: 'https://nosana.io',
+    logoUrl: 'https://unavatar.io/x/nosana_ci',
     dossierNumber: 39,
     methodologyVersion: 'v0.1',
     publicationDate: '2026-08-11',
@@ -198,8 +201,8 @@ export const SAMPLE_REPORTS: Record<string, ReportData> = {
   },
 };
 
-function AgentFavicon({ websiteUrl, name, size = 48 }: { websiteUrl?: string; name: string; size?: number }) {
-  const [imgError, setImgError] = useState(false);
+function AgentFavicon({ websiteUrl, logoUrl, name, size = 48 }: { websiteUrl?: string; logoUrl?: string; name: string; size?: number }) {
+  const [imgErrorIndex, setImgErrorIndex] = useState(0);
 
   const containerStyle: React.CSSProperties = {
     width: `${size}px`,
@@ -215,7 +218,24 @@ function AgentFavicon({ websiteUrl, name, size = 48 }: { websiteUrl?: string; na
     boxShadow: '0 2px 8px rgba(27, 42, 74, 0.05)',
   };
 
-  if (!websiteUrl || imgError) {
+  const getFaviconSources = (): string[] => {
+    const sources: string[] = [];
+    if (logoUrl) sources.push(logoUrl);
+    if (websiteUrl) {
+      try {
+        const domain = new URL(websiteUrl).hostname;
+        sources.push(`https://icon.horse/icon/${domain}`);
+        sources.push(`https://www.google.com/s2/favicons?sz=128&domain=${domain}`);
+      } catch {
+        // ignore
+      }
+    }
+    return sources;
+  };
+
+  const sources = getFaviconSources();
+
+  if (imgErrorIndex >= sources.length || sources.length === 0) {
     return (
       <div style={containerStyle}>
         <OrdoKeyIcon size={Math.round(size * 0.55)} />
@@ -223,27 +243,16 @@ function AgentFavicon({ websiteUrl, name, size = 48 }: { websiteUrl?: string; na
     );
   }
 
-  try {
-    const url = new URL(websiteUrl);
-    const domain = url.hostname;
-    const faviconUrl = `https://www.google.com/s2/favicons?sz=128&domain=${domain}`;
-    return (
-      <div style={containerStyle}>
-        <img
-          src={faviconUrl}
-          alt={name}
-          onError={() => setImgError(true)}
-          style={{ width: `${Math.round(size * 0.65)}px`, height: `${Math.round(size * 0.65)}px`, objectFit: 'contain' }}
-        />
-      </div>
-    );
-  } catch {
-    return (
-      <div style={containerStyle}>
-        <OrdoKeyIcon size={Math.round(size * 0.55)} />
-      </div>
-    );
-  }
+  return (
+    <div style={containerStyle}>
+      <img
+        src={sources[imgErrorIndex]}
+        alt={name}
+        onError={() => setImgErrorIndex(prev => prev + 1)}
+        style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '10px' }}
+      />
+    </div>
+  );
 }
 
 export function ReportsCatalogView({ onSelectReport }: { onSelectReport: (slug: string) => void }) {
@@ -334,9 +343,9 @@ export function ReportsCatalogView({ onSelectReport }: { onSelectReport: (slug: 
 
                 {/* Title with Logo and Standfirst */}
                 <div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '14px', margin: '4px 0 8px 0' }}>
-                    <AgentFavicon websiteUrl={rep.websiteUrl} name={rep.agentName} size={42} />
-                    <h2 style={{ fontFamily: "'Fraunces', serif", fontSize: '26px', fontWeight: 700, margin: 0, color: 'var(--ink, #1B2A4A)', letterSpacing: '-0.015em' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '16px', margin: '6px 0 10px 0' }}>
+                    <AgentFavicon websiteUrl={rep.websiteUrl} logoUrl={rep.logoUrl} name={rep.agentName} size={64} />
+                    <h2 style={{ fontFamily: "'Fraunces', serif", fontSize: '28px', fontWeight: 700, margin: 0, color: 'var(--ink, #1B2A4A)', letterSpacing: '-0.015em' }}>
                       {rep.agentName}
                     </h2>
                   </div>
@@ -389,7 +398,7 @@ export function ReportsCatalogView({ onSelectReport }: { onSelectReport: (slug: 
       </footer>
     </div>
   );
-}export function ReportDetailView({ report, onBack }: { report: ReportData; onBack: () => void }) {
+} export function ReportDetailView({ report, onBack }: { report: ReportData; onBack: () => void }) {
   const keyLabel = report.keyCount === 3 ? "Three Keys: Benchmark" : report.keyCount === 2 ? "Two Keys: Exemplary" : report.keyCount === 1 ? "One Key: Notable" : "Registered, Unrated";
 
   return (
@@ -437,9 +446,9 @@ export function ReportsCatalogView({ onSelectReport }: { onSelectReport: (slug: 
             ))}
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px', margin: '6px 0 10px 0' }}>
-            <AgentFavicon websiteUrl={report.websiteUrl} name={report.agentName} size={54} />
-            <h1 style={{ fontFamily: "'Fraunces', serif", fontSize: '44px', fontWeight: 700, margin: 0, letterSpacing: '-0.02em', color: 'var(--ink, #1B2A4A)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '20px', margin: '8px 0 12px 0' }}>
+            <AgentFavicon websiteUrl={report.websiteUrl} logoUrl={report.logoUrl} name={report.agentName} size={80} />
+            <h1 style={{ fontFamily: "'Fraunces', serif", fontSize: '46px', fontWeight: 700, margin: 0, letterSpacing: '-0.02em', color: 'var(--ink, #1B2A4A)' }}>
               {report.agentName}
             </h1>
           </div>
@@ -453,7 +462,7 @@ export function ReportsCatalogView({ onSelectReport }: { onSelectReport: (slug: 
       {/* Main 2-Column Layout */}
       <main style={{ maxWidth: '1200px', margin: '36px auto 80px auto', padding: '0 24px' }}>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 340px', gap: '36px', alignItems: 'start' }}>
-          
+
           {/* LEFT COLUMN: Main Research Analysis */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
             {/* Standfirst Quote Card */}
@@ -474,7 +483,7 @@ export function ReportsCatalogView({ onSelectReport }: { onSelectReport: (slug: 
             {/* Section 2: On-Chain Evidence & Metrics */}
             <section style={{ background: '#fff', border: '1.5px solid var(--line-2, #E2D9CC)', borderRadius: '12px', padding: '28px', boxShadow: '0 4px 16px rgba(27, 42, 74, 0.03)' }}>
               <h3 style={{ fontSize: '12px', fontWeight: 800, letterSpacing: '1.5px', color: 'var(--brass, #A37E36)', textTransform: 'uppercase', margin: '0 0 16px 0' }}>2. On-Chain Evidence &amp; Qualified Volume</h3>
-              
+
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', marginBottom: '20px' }}>
                 <div style={{ border: '1.5px solid var(--line-2, #E2D9CC)', padding: '18px', borderRadius: '8px', background: 'var(--paper, #F5F0E8)' }}>
                   <div style={{ fontSize: '11px', color: 'var(--ink-soft, #5A6578)', textTransform: 'uppercase', fontWeight: 700 }}>Qualified Settlement Volume</div>

@@ -878,7 +878,7 @@ function App() {
 
           {/* Bottom Row: Steps Roadmap Diagram */}
           <Reveal delay={150}>
-            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '-90px' }}>
               <img
                 src="/images/methodology-steps.png"
                 alt="Ordo Rating Steps Roadmap Diagram: Step 1 Hard Signal Spine, Step 2 Named Editorial Layer, Step 3 Versioned Changelog"
