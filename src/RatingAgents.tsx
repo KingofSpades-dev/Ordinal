@@ -206,13 +206,20 @@ export default function RatingAgents() {
   const [agentsList, setAgentsList] = useState<Agent[]>([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
-  const [userWallet, setUserWallet] = useState<string>('');
+  const [userWallet, setUserWallet] = useState<string>(() => {
+    const savedAddr = localStorage.getItem('ordo_wallet_address');
+    const savedExpiry = localStorage.getItem('ordo_wallet_session_expiry');
+    if (savedAddr && savedExpiry && Date.now() < parseInt(savedExpiry, 10)) {
+      return savedAddr;
+    }
+    localStorage.removeItem('ordo_wallet_address');
+    localStorage.removeItem('ordo_wallet_session_expiry');
+    return '';
+  });
   const [selectedAgent, setSelectedAgent] = useState<Agent | null>(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [scanningAgentId, setScanningAgentId] = useState<string | null>(null);
   const [notification, setNotification] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
-
-
 
   const showNotification = (message: string, type: 'success' | 'error' | 'info') => {
     setNotification({ message, type });
@@ -256,7 +263,10 @@ export default function RatingAgents() {
         const resp = await anyWindow.solana.connect();
         const addr = resp.publicKey.toString();
         setUserWallet(addr);
-        showNotification('Solana wallet connected successfully!', 'success');
+        const expiry = Date.now() + 30 * 60 * 1000; // 30 minute session
+        localStorage.setItem('ordo_wallet_address', addr);
+        localStorage.setItem('ordo_wallet_session_expiry', expiry.toString());
+        showNotification('Solana wallet connected (30-min active session)!', 'success');
       } catch (err) {
         console.error('Solana wallet connection failed:', err);
         showNotification('Failed to connect wallet.', 'error');
@@ -269,10 +279,10 @@ export default function RatingAgents() {
   const fetchAgents = async (wallet?: string) => {
     try {
       const activeWallet = wallet !== undefined ? wallet : userWallet;
-      const url = activeWallet 
+      let url = activeWallet 
         ? `${API_URL}/api/v1/agents?walletAddress=${encodeURIComponent(activeWallet)}`
-        : `${API_URL}/api/v1/agents`;
-      const res = await fetch(url);
+        : `${API_URL}/api/v1/agents/public-rankings`;
+      let res = await fetch(url);
       if (res.ok) {
         const data = await res.json();
         setAgentsList(data);
