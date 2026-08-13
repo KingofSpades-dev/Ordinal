@@ -67,7 +67,7 @@ export class VerifyProcessor extends WorkerHost {
       }
     }
 
-    // 3. Update agent pipeline state based on verification results
+    // 3. Update agent pipeline state & identity verification tier based on results
     if (errors.length > 0) {
       await this.prisma.agent.update({
         where: { id: agentId },
@@ -83,7 +83,19 @@ export class VerifyProcessor extends WorkerHost {
           status: 'queued',
         },
       });
-      console.log(`Agent ${agent.name} verification passed and queued.`);
+
+      // Update AgentIdentity verification tier to 'verified'!
+      await this.prisma.agentIdentity.updateMany({
+        where: { agentId },
+        data: {
+          verificationTier: 'verified',
+          verificationMethod: 'rpc_bytecode_deployed',
+          verifiedAt: new Date(),
+          lastCheckedAt: new Date(),
+        },
+      });
+
+      console.log(`Agent ${agent.name} contract address verified on-chain and queued.`);
     }
   }
 }
