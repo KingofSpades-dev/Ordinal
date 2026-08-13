@@ -988,6 +988,8 @@ export default function RatingAgents() {
           <div className="nav-right">
             <div className="nav-links">
               <a href="#" onClick={(e) => { e.preventDefault(); navigateToHome(); }}>← Back to Home</a>
+              <a href="https://x.com/OrdoKeyRank" target="_blank" rel="noopener noreferrer">X (Twitter)</a>
+              <a href="https://github.com/KingofSpades-dev/OrdoKey" target="_blank" rel="noopener noreferrer">GitHub</a>
             </div>
             <button
               onClick={connectWallet}

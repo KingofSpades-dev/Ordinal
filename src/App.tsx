@@ -44,9 +44,9 @@ function Reveal({ children, className = '', delay = 0 }: RevealProps) {
 
 
 const OrdoKeyIcon = ({ size = 24 }: { size?: number }) => (
-  <svg 
-    viewBox="0 0 100 100" 
-    fill="currentColor" 
+  <svg
+    viewBox="0 0 100 100"
+    fill="currentColor"
     style={{ width: `${size}px`, height: `${size}px`, color: 'var(--accent)' }}
   >
     <g transform="translate(50, 38)">
@@ -71,7 +71,7 @@ const OrdoKeyIcon = ({ size = 24 }: { size?: number }) => (
 
 function AgentFavicon({ websiteUrl, name, size = 48, className = '' }: { websiteUrl?: string; name: string; size?: number; className?: string }) {
   const [imgError, setImgError] = useState(false);
-  
+
   const containerStyle: React.CSSProperties = {
     width: `${size}px`,
     height: `${size}px`,
@@ -86,10 +86,10 @@ function AgentFavicon({ websiteUrl, name, size = 48, className = '' }: { website
 
   const renderFallback = () => {
     return (
-      <div 
-        className={className} 
-        style={{ 
-          ...containerStyle, 
+      <div
+        className={className}
+        style={{
+          ...containerStyle,
           background: 'var(--paper)',
           border: '1.5px solid var(--line-2)'
         }}
@@ -109,22 +109,22 @@ function AgentFavicon({ websiteUrl, name, size = 48, className = '' }: { website
     const faviconUrl = `https://www.google.com/s2/favicons?sz=64&domain=${domain}&default=404`;
 
     return (
-      <div 
-        className={className} 
-        style={{ 
-          ...containerStyle, 
+      <div
+        className={className}
+        style={{
+          ...containerStyle,
           background: 'transparent'
         }}
       >
-        <img 
-          src={faviconUrl} 
-          alt={`${name} favicon`} 
+        <img
+          src={faviconUrl}
+          alt={`${name} favicon`}
           onError={() => setImgError(true)}
-          style={{ 
-            width: '100%', 
-            height: '100%', 
+          style={{
+            width: '100%',
+            height: '100%',
             objectFit: 'contain'
-          }} 
+          }}
         />
       </div>
     );
@@ -159,22 +159,22 @@ const MODEL_DETAILS: Record<string, {
       {
         title: "Document Intelligence",
         desc: "Deep contextual extraction across whitepapers, technical documentation, API specifications, and architecture diagrams to map out core capabilities and operational boundaries.",
-        iconSvg: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#b05446" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        iconSvg: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#b05446" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /><line x1="16" y1="13" x2="8" y2="13" /><line x1="16" y1="17" x2="8" y2="17" /></svg>
       },
       {
         title: "Contract & Code Reading",
         desc: "Automated static and dynamic inspection of deployed smart contract bytecodes, GitHub repositories, admin permissions, and proxy upgrade patterns to verify immutable trust.",
-        iconSvg: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#b05446" strokeWidth="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+        iconSvg: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#b05446" strokeWidth="2"><polyline points="16 18 22 12 16 6" /><polyline points="8 6 2 12 8 18" /></svg>
       },
       {
         title: "On-chain Footprint Analysis",
         desc: "Continuous monitoring of live wallet interactions, TVL trends, transaction velocity, liquidity routing, and cross-protocol dependencies directly from blockchain ledgers.",
-        iconSvg: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#b05446" strokeWidth="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+        iconSvg: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#b05446" strokeWidth="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" /><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" /></svg>
       },
       {
         title: "Structured Report Drafting",
         desc: "Synthesizing multi-source empirical data into standardized Dossier evaluations, systematically scoring each criterion against our published editorial rubric.",
-        iconSvg: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#b05446" strokeWidth="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        iconSvg: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#b05446" strokeWidth="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" /><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" /></svg>
       }
     ]
   },
@@ -191,22 +191,22 @@ const MODEL_DETAILS: Record<string, {
       {
         title: "Cover Imagery",
         desc: "High-resolution thematic editorial cover artwork tailored specifically to reflect each AI agent's domain identity and publication aesthetic.",
-        iconSvg: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#e5b938" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+        iconSvg: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#e5b938" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2" /><circle cx="8.5" cy="8.5" r="1.5" /><polyline points="21 15 16 10 5 21" /></svg>
       },
       {
         title: "Product Stills",
         desc: "Studio-grade visual captures showcasing agent user interfaces (UI), terminal consoles, dashboard layouts, and interactive workflow previews.",
-        iconSvg: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#e5b938" strokeWidth="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+        iconSvg: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#e5b938" strokeWidth="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" /><circle cx="12" cy="13" r="4" /></svg>
       },
       {
         title: "Diagram Plates",
         desc: "Vector-quality architectural blueprints rendering sequence flows, data pipelines, and complex multi-agent network interactions with precision.",
-        iconSvg: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#e5b938" strokeWidth="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        iconSvg: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#e5b938" strokeWidth="2"><rect x="3" y="3" width="7" height="7" /><rect x="14" y="3" width="7" height="7" /><rect x="14" y="14" width="7" height="7" /><rect x="3" y="14" width="7" height="7" /></svg>
       },
       {
         title: "Visual Consistency",
         desc: "Strict enforcement of brand identity guidelines, harmonious color palettes, and editorial typography across all Dossier visual assets.",
-        iconSvg: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#e5b938" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a7 7 0 1 0 7 7"/></svg>
+        iconSvg: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#e5b938" strokeWidth="2"><circle cx="12" cy="12" r="10" /><path d="M12 2a7 7 0 1 0 7 7" /></svg>
       }
     ]
   },
@@ -225,24 +225,24 @@ const MODEL_DETAILS: Record<string, {
         desc: "Continuous 24/7 web socket monitoring of X (Twitter) feeds, developer updates, official announcements, and community discussions.",
         iconSvg: (
           <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+            <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
           </svg>
         )
       },
       {
         title: "Sentiment Analysis",
         desc: "Natural language processing (NLP) to parse public trust scores, community perception, developer engagement, and tone velocity surrounding agent listings.",
-        iconSvg: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#111418" strokeWidth="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        iconSvg: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#111418" strokeWidth="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg>
       },
       {
         title: "Momentum Detection",
         desc: "Early identification of organic virality spikes, transaction volume surges, community growth trends, and developer activity acceleration.",
-        iconSvg: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#111418" strokeWidth="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+        iconSvg: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#111418" strokeWidth="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18" /><polyline points="17 6 23 6 23 12" /></svg>
       },
       {
         title: "Risk Alerts",
         desc: "Immediate automated warnings for sudden sentiment drops, key contributor changes, potential smart contract exploits, or anomaly events.",
-        iconSvg: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#111418" strokeWidth="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        iconSvg: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#111418" strokeWidth="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>
       }
     ]
   }
@@ -363,7 +363,8 @@ function App() {
               <a href="#">About</a>
               <a href="#rankings">Ratings</a>
               <a href="#method">Methodology</a>
-              <a href="https://github.com/KingofSpades-dev/Ordo" target="_blank" rel="noopener noreferrer">GitHub</a>
+              <a href="https://x.com/OrdoKeyRank" target="_blank" rel="noopener noreferrer">X (Twitter)</a>
+              <a href="https://github.com/KingofSpades-dev/OrdoKey" target="_blank" rel="noopener noreferrer">GitHub</a>
             </div>
             <a
               href="/ratingagents"
@@ -704,15 +705,15 @@ function App() {
                 <div className="human-verified-card">
                   <div className="human-verified-header">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#d96253" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-                      <polyline points="9 12 11 14 15 10"/>
+                      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                      <polyline points="9 12 11 14 15 10" />
                     </svg>
                     <span className="human-verified-title">HUMAN VERIFIED</span>
                   </div>
                   <div className="human-verified-body">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(247,243,235,0.6)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ marginTop: '2px', flexShrink: 0 }}>
-                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                      <circle cx="12" cy="7" r="4"/>
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                      <circle cx="12" cy="7" r="4" />
                     </svg>
                     <span className="human-verified-text">No automated star is published unreviewed.</span>
                   </div>
@@ -738,25 +739,25 @@ function App() {
                   <ul className="scell-features">
                     <li>
                       <span className="feature-icon claude">
-                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /><line x1="16" y1="13" x2="8" y2="13" /><line x1="16" y1="17" x2="8" y2="17" /></svg>
                       </span>
                       Document Intelligence
                     </li>
                     <li>
                       <span className="feature-icon claude">
-                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="16 18 22 12 16 6" /><polyline points="8 6 2 12 8 18" /></svg>
                       </span>
                       Contract &amp; Code Reading
                     </li>
                     <li>
                       <span className="feature-icon claude">
-                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" /><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" /></svg>
                       </span>
                       On-chain Footprint Analysis
                     </li>
                     <li>
                       <span className="feature-icon claude">
-                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" /><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" /></svg>
                       </span>
                       Structured Report Drafting
                     </li>
@@ -786,25 +787,25 @@ function App() {
                   <ul className="scell-features">
                     <li>
                       <span className="feature-icon nano">
-                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2" /><circle cx="8.5" cy="8.5" r="1.5" /><polyline points="21 15 16 10 5 21" /></svg>
                       </span>
                       Cover Imagery
                     </li>
                     <li>
                       <span className="feature-icon nano">
-                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" /><circle cx="12" cy="13" r="4" /></svg>
                       </span>
                       Product Stills
                     </li>
                     <li>
                       <span className="feature-icon nano">
-                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="7" height="7" /><rect x="14" y="3" width="7" height="7" /><rect x="14" y="14" width="7" height="7" /><rect x="3" y="14" width="7" height="7" /></svg>
                       </span>
                       Diagram Plates
                     </li>
                     <li>
                       <span className="feature-icon nano">
-                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a7 7 0 1 0 7 7"/></svg>
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10" /><path d="M12 2a7 7 0 1 0 7 7" /></svg>
                       </span>
                       Visual Consistency
                     </li>
@@ -835,26 +836,26 @@ function App() {
                     <li>
                       <span className="feature-icon grok">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-                          <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                          <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
                         </svg>
                       </span>
                       Live X Monitoring
                     </li>
                     <li>
                       <span className="feature-icon grok">
-                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg>
                       </span>
                       Sentiment Analysis
                     </li>
                     <li>
                       <span className="feature-icon grok">
-                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18" /><polyline points="17 6 23 6 23 12" /></svg>
                       </span>
                       Momentum Detection
                     </li>
                     <li>
                       <span className="feature-icon grok">
-                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>
                       </span>
                       Risk Alerts
                     </li>
@@ -1544,10 +1545,10 @@ function App() {
                 )}
               </div>
 
-              </div>
             </div>
-          );
-        })()}
+          </div>
+        );
+      })()}
 
       {/* Model Detail Popup Modal */}
       {activeModelModal && (
