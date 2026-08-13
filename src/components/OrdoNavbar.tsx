@@ -32,6 +32,27 @@ export const OrdoNavbar: React.FC<OrdoNavbarProps> = ({ currentPath }) => {
     }
   };
 
+  const scrollToSection = (sectionId: string) => {
+    if (typeof window !== 'undefined') {
+      if (window.location.pathname !== '/') {
+        window.history.pushState({}, '', '/#' + sectionId);
+        window.dispatchEvent(new PopStateEvent('popstate'));
+        setTimeout(() => {
+          const el = document.getElementById(sectionId);
+          if (el) {
+            el.scrollIntoView({ behavior: 'smooth' });
+          }
+        }, 150);
+      } else {
+        window.history.pushState({}, '', '/#' + sectionId);
+        const el = document.getElementById(sectionId);
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth' });
+        }
+      }
+    }
+  };
+
   const getLinkStyle = (path: string) => {
     const isActive = activePath === path || (path !== '/' && activePath.startsWith(path));
     return {
@@ -62,11 +83,8 @@ export const OrdoNavbar: React.FC<OrdoNavbarProps> = ({ currentPath }) => {
         <div style={{ display: 'flex', alignItems: 'center', gap: '22px', fontSize: '13.5px' }}>
           <a href="/" onClick={(e) => { e.preventDefault(); navigateTo('/'); }} style={getLinkStyle('/')}>Home</a>
           <a href="/reports" onClick={(e) => { e.preventDefault(); navigateTo('/reports'); }} style={getLinkStyle('/reports')}>Reports</a>
-          <a href="/ratingagents" onClick={(e) => { e.preventDefault(); navigateTo('/ratingagents'); }} style={getLinkStyle('/ratingagents')}>Ratings</a>
-          <a href="/#methodology" onClick={(e) => { e.preventDefault(); navigateTo('/#methodology'); }} style={getLinkStyle('/#methodology')}>Methodology</a>
-          {/* <a href="/guide" onClick={(e) => { e.preventDefault(); navigateTo('/guide'); }} style={getLinkStyle('/guide')}>Guide</a>
-          <a href="/record" onClick={(e) => { e.preventDefault(); navigateTo('/record'); }} style={getLinkStyle('/record')}>Record</a>
-          <a href="/corrections" onClick={(e) => { e.preventDefault(); navigateTo('/corrections'); }} style={getLinkStyle('/corrections')}>Corrections</a> */}
+          <a href="/#rankings" onClick={(e) => { e.preventDefault(); scrollToSection('rankings'); }} style={{ color: 'var(--ink-soft, #5A6578)', fontWeight: 600, textDecoration: 'none' }}>Ratings</a>
+          <a href="/#method" onClick={(e) => { e.preventDefault(); scrollToSection('method'); }} style={{ color: 'var(--ink-soft, #5A6578)', fontWeight: 600, textDecoration: 'none' }}>Methodology</a>
           <a href="https://x.com/OrdoKeyRank" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--ink-soft, #5A6578)', fontWeight: 600, textDecoration: 'none' }}>X</a>
           <a href="https://github.com/KingofSpades-dev/OrdoKey" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--ink-soft, #5A6578)', fontWeight: 600, textDecoration: 'none' }}>GitHub</a>
 
