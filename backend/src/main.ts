@@ -12,7 +12,7 @@ async function bootstrap() {
   });
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
   const port = process.env.PORT || 3001;
-  await app.listen(port);
-  console.log(`Ordo Backend running on: http://localhost:${port}/api/v1`);
+  await app.listen(port, '0.0.0.0');
+  console.log(`Ordo Backend running on port ${port} (0.0.0.0)`);
 }
 bootstrap();
