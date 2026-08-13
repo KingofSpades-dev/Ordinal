@@ -869,7 +869,17 @@ function App() {
                     width: 'auto',
                     objectFit: 'contain',
                     filter: 'drop-shadow(0 12px 28px rgba(27, 42, 74, 0.08))',
-                    borderRadius: '16px'
+                    borderRadius: '16px',
+                    cursor: 'pointer',
+                    transition: 'transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), filter 0.4s ease'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'scale(1.05)';
+                    e.currentTarget.style.filter = 'drop-shadow(0 18px 36px rgba(27, 42, 74, 0.14))';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'scale(1)';
+                    e.currentTarget.style.filter = 'drop-shadow(0 12px 28px rgba(27, 42, 74, 0.08))';
                   }}
                 />
               </div>
@@ -887,7 +897,17 @@ function App() {
                   maxWidth: '960px',
                   height: 'auto',
                   borderRadius: '16px',
-                  display: 'block'
+                  display: 'block',
+                  cursor: 'pointer',
+                  transition: 'transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), filter 0.4s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'scale(1.04)';
+                  e.currentTarget.style.filter = 'drop-shadow(0 16px 36px rgba(27, 42, 74, 0.12))';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'scale(1)';
+                  e.currentTarget.style.filter = 'none';
                 }}
               />
             </div>

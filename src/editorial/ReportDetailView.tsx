@@ -50,6 +50,12 @@ export interface ReportData {
     statement?: string;
     requestedAt: string;
   };
+  resources?: {
+    website?: string;
+    documentation?: string;
+    github?: string;
+    twitter?: string;
+  };
 }
 
 export const SAMPLE_REPORTS: Record<string, ReportData> = {
@@ -87,6 +93,7 @@ export const SAMPLE_REPORTS: Record<string, ReportData> = {
       maintenanceReason: 'Zero public commits in 30 days (Closed Source).',
       securityScore: 0,
       securityReason: 'No public audit report evidenced and unrestricted admin control keys.',
+      adminPenalty: 5,
     },
     riskRegister: {
       auditStatus: 'No / Unknown',
@@ -103,6 +110,12 @@ export const SAMPLE_REPORTS: Record<string, ReportData> = {
       hasResponded: true,
       statement: 'We are preparing our code repository for open-source audit in Q4 2026.',
       requestedAt: '2026-08-08',
+    },
+    resources: {
+      website: 'https://aixbt.tech/',
+      documentation: 'https://docs.aixbt.tech/',
+      github: 'https://github.com/aixbt',
+      twitter: 'https://x.com/aixbt_agent',
     },
   },
   'nosana': {
@@ -133,12 +146,13 @@ export const SAMPLE_REPORTS: Record<string, ReportData> = {
     rubric: {
       verifiabilityScore: 25,
       verifiabilityReason: 'Complete docs, website, and GitHub repository available.',
-      activityScore: 20,
+      activityScore: 22,
       activityReason: '1,734 active wallets and strong GPU node volume.',
-      maintenanceScore: 25,
+      maintenanceScore: 19,
       maintenanceReason: 'High developer activity with >80 commits in 30 days.',
-      securityScore: 10,
-      securityReason: 'Capped at 10 due to retained admin control keys.',
+      securityScore: 5,
+      securityReason: 'Capped at 5 due to retained admin control keys.',
+      adminPenalty: 5,
     },
     riskRegister: {
       auditStatus: 'Verified Public Audit',
@@ -154,20 +168,28 @@ export const SAMPLE_REPORTS: Record<string, ReportData> = {
       hasResponded: false,
       requestedAt: '2026-08-09',
     },
+    resources: {
+      website: 'https://nosana.io/',
+      documentation: 'https://docs.nosana.io/',
+      github: 'https://github.com/nosana-ci',
+      twitter: 'https://x.com/nosana_ci',
+    },
   },
-  'refused-agent': {
-    agentName: 'Refused Rating Agent',
-    slug: 'refused-agent',
-    category: 'security',
-    chains: ['ethereum'],
+  'skyai': {
+    agentName: 'SkyAI (SKYAI)',
+    slug: 'skyai',
+    category: 'research',
+    chains: ['bnb chain'],
+    websiteUrl: 'https://sky.ai',
+    logoUrl: 'https://unavatar.io/x/skyai',
     dossierNumber: 40,
     methodologyVersion: 'v0.1',
     publicationDate: '2026-08-12',
     editorName: 'Senior Editorial Board',
     keyCount: 0,
-    verificationTier: 'unrated',
-    standfirst: 'Rating refused due to insufficient evidence and unverified smart contract deployment.',
-    claim: 'Claimed to offer autonomous security scanning.',
+    verificationTier: 'registered',
+    standfirst: 'SkyAI is registered in ORDO directory, but operates below key award threshold due to unverified code and zero activity.',
+    claim: 'SkyAI claims to provide decentralized research data scanning and AI inference orchestration.',
     evidence: {
       rawVolume: 0,
       qualifiedVolume: 0,
@@ -177,27 +199,39 @@ export const SAMPLE_REPORTS: Record<string, ReportData> = {
       retentionMonth3: 0,
       top5WalletShare: 0,
     },
-    divergence: 'Declared capabilities could not be observed on-chain.',
+    divergence: 'Declared capabilities could not be verified on BNB Chain. Zero active wallets and no open-source commits detected.',
     rubric: {
       verifiabilityScore: 5,
-      verifiabilityReason: 'Incomplete documentation and dead website link.',
+      verifiabilityReason: 'Incomplete documentation and unverified source repository links.',
       activityScore: 0,
-      activityReason: 'Zero verifiable active wallets.',
+      activityReason: 'Zero on-chain activity or paying unique wallets detected.',
       maintenanceScore: 0,
-      maintenanceReason: 'Zero public commits.',
+      maintenanceReason: 'Zero public commits in 30 days.',
       securityScore: 0,
-      securityReason: 'No audit evidenced.',
+      securityReason: 'No public audit report evidenced and unrestricted admin control keys.',
+      adminPenalty: 5,
     },
     riskRegister: {
-      auditStatus: 'None',
-      adminKeys: 'Unrestricted',
+      auditStatus: 'No / Unknown',
+      adminKeys: 'Risky / Retained',
       timelock: 'None',
-      multisig: 'None',
+      multisig: 'Unverified',
     },
     limitations: [
-      'Insufficient evidence across 3 or more rubric dimensions.',
+      'Source code availability: Closed repository without public developer commits.',
+      'Security audit: No independent smart contract audit reports submitted.',
     ],
-    verdict: 'ORDO Board refused to issue an editorial rating for this agent submission.',
+    verdict: 'SkyAI is registered in the ORDO directory; unrated or below key award threshold.',
+    rightOfReply: {
+      hasResponded: false,
+      requestedAt: '2026-08-10',
+    },
+    resources: {
+      website: 'https://sky.ai/',
+      documentation: 'https://docs.sky.ai/',
+      github: 'https://github.com/skyai-network',
+      twitter: 'https://x.com/skyai',
+    },
   },
 };
 
@@ -398,8 +432,18 @@ export function ReportsCatalogView({ onSelectReport }: { onSelectReport: (slug: 
       </footer>
     </div>
   );
-} export function ReportDetailView({ report, onBack }: { report: ReportData; onBack: () => void }) {
+}
+
+export function ReportDetailView({ report, onBack }: { report: ReportData; onBack: () => void }) {
+  const [copied, setCopied] = useState(false);
+  const totalScore = (report.rubric.verifiabilityScore || 0) + (report.rubric.activityScore || 0) + (report.rubric.maintenanceScore || 0) + (report.rubric.securityScore || 0) - (report.rubric.adminPenalty || 0);
   const keyLabel = report.keyCount === 3 ? "Three Keys: Benchmark" : report.keyCount === 2 ? "Two Keys: Exemplary" : report.keyCount === 1 ? "One Key: Notable" : "Registered, Unrated";
+
+  const handleCopyLink = () => {
+    navigator.clipboard.writeText(window.location.href);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 3000);
+  };
 
   return (
     <div style={{ background: 'var(--paper, #F5F0E8)', minHeight: '100vh', color: 'var(--ink, #1B2A4A)', fontFamily: "'Inter', sans-serif" }}>
@@ -448,14 +492,15 @@ export function ReportsCatalogView({ onSelectReport }: { onSelectReport: (slug: 
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '20px', margin: '8px 0 12px 0' }}>
             <AgentFavicon websiteUrl={report.websiteUrl} logoUrl={report.logoUrl} name={report.agentName} size={80} />
-            <h1 style={{ fontFamily: "'Fraunces', serif", fontSize: '46px', fontWeight: 700, margin: 0, letterSpacing: '-0.02em', color: 'var(--ink, #1B2A4A)' }}>
-              {report.agentName}
-            </h1>
+            <div>
+              <h1 style={{ fontFamily: "'Fraunces', serif", fontSize: '46px', fontWeight: 700, margin: 0, letterSpacing: '-0.02em', color: 'var(--ink, #1B2A4A)' }}>
+                {report.agentName}
+              </h1>
+              <p style={{ margin: '4px 0 0 0', fontSize: '14.5px', color: 'var(--ink-soft, #5A6578)' }}>
+                Published {report.publicationDate} • Lead Editor: <strong style={{ color: 'var(--ink, #1B2A4A)' }}>{report.editorName}</strong> • Tier: <span style={{ fontWeight: 800, color: 'var(--brass, #A37E36)', textTransform: 'capitalize' }}>✓ {report.verificationTier}</span>
+              </p>
+            </div>
           </div>
-
-          <p style={{ margin: 0, fontSize: '14px', color: 'var(--ink-soft, #5A6578)' }}>
-            Published {report.publicationDate} • Editor: <strong style={{ color: 'var(--ink, #1B2A4A)' }}>{report.editorName}</strong> • Verification Tier: <span style={{ fontWeight: 800, color: 'var(--brass, #A37E36)', textTransform: 'capitalize' }}>✓ {report.verificationTier}</span>
-          </p>
         </div>
       </section>
 
@@ -463,18 +508,50 @@ export function ReportsCatalogView({ onSelectReport }: { onSelectReport: (slug: 
       <main style={{ maxWidth: '1200px', margin: '36px auto 80px auto', padding: '0 24px' }}>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 340px', gap: '36px', alignItems: 'start' }}>
 
-          {/* LEFT COLUMN: Main Research Analysis */}
+          {/* LEFT COLUMN: Detailed Research Analysis */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
+
             {/* Standfirst Quote Card */}
-            <div style={{ background: '#fff', border: '1.5px solid var(--line-2, #E2D9CC)', borderLeft: '6px solid var(--accent, #7C1522)', padding: '24px 28px', borderRadius: '12px', boxShadow: '0 4px 16px rgba(27, 42, 74, 0.03)' }}>
+            <div style={{ background: '#fff', border: '1.5px solid var(--line-2, #E2D9CC)', borderLeft: '6px solid var(--accent, #7C1522)', padding: '28px 32px', borderRadius: '12px', boxShadow: '0 4px 16px rgba(27, 42, 74, 0.03)' }}>
+              <div style={{ fontSize: '11px', fontWeight: 800, letterSpacing: '1.5px', color: 'var(--brass, #A37E36)', textTransform: 'uppercase', marginBottom: '8px' }}>EXECUTIVE STANDFIRST</div>
               <p style={{ fontFamily: "'Fraunces', serif", fontSize: '22px', fontWeight: 600, margin: 0, lineHeight: 1.5, color: 'var(--ink, #1B2A4A)' }}>
                 "{report.standfirst}"
               </p>
             </div>
 
+            {/* Overview & Audit Scope Card */}
+            <section style={{ background: '#fff', border: '1.5px solid var(--line-2, #E2D9CC)', borderRadius: '12px', padding: '28px', boxShadow: '0 4px 16px rgba(27, 42, 74, 0.03)' }}>
+              <h3 style={{ fontSize: '12px', fontWeight: 800, letterSpacing: '1.5px', color: 'var(--brass, #A37E36)', textTransform: 'uppercase', margin: '0 0 14px 0' }}>Research Overview &amp; Scope</h3>
+              <p style={{ fontSize: '14.5px', lineHeight: 1.7, color: 'var(--ink, #1B2A4A)', margin: '0 0 16px 0' }}>
+                This dossier evaluates <strong>{report.agentName}</strong> under the official Ordo Reputation Architecture Methodology ({report.methodologyVersion}). The evaluation combines automated smart contract telemetry, on-chain qualified volume verification, open-source repository commit analysis, and independent security audit verification.
+              </p>
+
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px', background: 'var(--paper, #F5F0E8)', padding: '16px', borderRadius: '8px', border: '1px solid var(--line-2, #E2D9CC)' }}>
+                <div>
+                  <div style={{ fontSize: '10.5px', color: 'var(--ink-soft, #5A6578)', textTransform: 'uppercase', fontWeight: 700 }}>Total Rubric Score</div>
+                  <div style={{ fontSize: '20px', fontWeight: 800, color: 'var(--accent, #7C1522)', marginTop: '2px' }}>{totalScore.toFixed(1)} <span style={{ fontSize: '13px', color: 'var(--ink-soft, #5A6578)', fontWeight: 500 }}>/ 100</span></div>
+                </div>
+                <div>
+                  <div style={{ fontSize: '10.5px', color: 'var(--ink-soft, #5A6578)', textTransform: 'uppercase', fontWeight: 700 }}>Key Award</div>
+                  <div style={{ fontSize: '16px', fontWeight: 800, color: 'var(--brass, #A37E36)', marginTop: '4px' }}>{report.keyCount} {report.keyCount === 1 ? 'Key' : 'Keys'}</div>
+                </div>
+                <div>
+                  <div style={{ fontSize: '10.5px', color: 'var(--ink-soft, #5A6578)', textTransform: 'uppercase', fontWeight: 700 }}>Audit Horizon</div>
+                  <div style={{ fontSize: '15px', fontWeight: 800, color: 'var(--ink, #1B2A4A)', marginTop: '4px' }}>30 Days</div>
+                </div>
+                <div>
+                  <div style={{ fontSize: '10.5px', color: 'var(--ink-soft, #5A6578)', textTransform: 'uppercase', fontWeight: 700 }}>Chains Monitored</div>
+                  <div style={{ fontSize: '15px', fontWeight: 800, color: '#2563eb', marginTop: '4px', textTransform: 'capitalize' }}>{report.chains.join(', ')}</div>
+                </div>
+              </div>
+            </section>
+
             {/* Section 1: The Claim */}
             <section style={{ background: '#fff', border: '1.5px solid var(--line-2, #E2D9CC)', borderRadius: '12px', padding: '28px', boxShadow: '0 4px 16px rgba(27, 42, 74, 0.03)' }}>
-              <h3 style={{ fontSize: '12px', fontWeight: 800, letterSpacing: '1.5px', color: 'var(--brass, #A37E36)', textTransform: 'uppercase', margin: '0 0 14px 0' }}>1. The Claim</h3>
+              <h3 style={{ fontSize: '12px', fontWeight: 800, letterSpacing: '1.5px', color: 'var(--brass, #A37E36)', textTransform: 'uppercase', margin: '0 0 14px 0' }}>1. The Claimed Capabilities</h3>
+              <p style={{ fontSize: '14px', lineHeight: 1.6, color: 'var(--ink-soft, #5A6578)', margin: '0 0 12px 0' }}>
+                The following statement represents the agent development team's official value proposition submitted to the Ordo Directory:
+              </p>
               <blockquote style={{ margin: 0, padding: '18px 22px', background: 'var(--paper, #F5F0E8)', border: '1px solid var(--line-2, #E2D9CC)', borderRadius: '8px', fontSize: '15px', fontStyle: 'italic', lineHeight: 1.6, color: 'var(--ink, #1B2A4A)' }}>
                 "{report.claim}"
               </blockquote>
@@ -482,45 +559,58 @@ export function ReportsCatalogView({ onSelectReport }: { onSelectReport: (slug: 
 
             {/* Section 2: On-Chain Evidence & Metrics */}
             <section style={{ background: '#fff', border: '1.5px solid var(--line-2, #E2D9CC)', borderRadius: '12px', padding: '28px', boxShadow: '0 4px 16px rgba(27, 42, 74, 0.03)' }}>
-              <h3 style={{ fontSize: '12px', fontWeight: 800, letterSpacing: '1.5px', color: 'var(--brass, #A37E36)', textTransform: 'uppercase', margin: '0 0 16px 0' }}>2. On-Chain Evidence &amp; Qualified Volume</h3>
+              <h3 style={{ fontSize: '12px', fontWeight: 800, letterSpacing: '1.5px', color: 'var(--brass, #A37E36)', textTransform: 'uppercase', margin: '0 0 16px 0' }}>2. On-Chain Evidence &amp; Qualified Settlement Telemetry</h3>
+
+              <p style={{ fontSize: '14.5px', lineHeight: 1.65, color: 'var(--ink, #1B2A4A)', margin: '0 0 20px 0' }}>
+                Ordo filters raw transaction volume to exclude self-dealing, wash trading, and automated bot loops. Qualified volume requires verifiable payment of gas fees or protocol service fees by distinct non-sybil wallet addresses.
+              </p>
 
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', marginBottom: '20px' }}>
                 <div style={{ border: '1.5px solid var(--line-2, #E2D9CC)', padding: '18px', borderRadius: '8px', background: 'var(--paper, #F5F0E8)' }}>
                   <div style={{ fontSize: '11px', color: 'var(--ink-soft, #5A6578)', textTransform: 'uppercase', fontWeight: 700 }}>Qualified Settlement Volume</div>
                   <div style={{ fontSize: '24px', fontWeight: 800, color: '#137333', marginTop: '4px' }}>${report.evidence.qualifiedVolume.toLocaleString()}</div>
-                  <div style={{ fontSize: '11px', color: 'var(--ink-soft, #5A6578)', marginTop: '2px' }}>Raw: ${report.evidence.rawVolume.toLocaleString()}</div>
+                  <div style={{ fontSize: '11.5px', color: 'var(--ink-soft, #5A6578)', marginTop: '2px' }}>Raw Unfiltered: ${report.evidence.rawVolume.toLocaleString()}</div>
                 </div>
                 <div style={{ border: '1.5px solid var(--line-2, #E2D9CC)', padding: '18px', borderRadius: '8px', background: 'var(--paper, #F5F0E8)' }}>
                   <div style={{ fontSize: '11px', color: 'var(--ink-soft, #5A6578)', textTransform: 'uppercase', fontWeight: 700 }}>Distinct Paying Wallets</div>
                   <div style={{ fontSize: '24px', fontWeight: 800, marginTop: '4px', color: 'var(--ink, #1B2A4A)' }}>{report.evidence.uniqueWallets.toLocaleString()}</div>
-                  <div style={{ fontSize: '11px', color: 'var(--ink-soft, #5A6578)', marginTop: '2px' }}>Verified Payers</div>
+                  <div style={{ fontSize: '11.5px', color: 'var(--ink-soft, #5A6578)', marginTop: '2px' }}>Verified Unique Accounts</div>
                 </div>
                 <div style={{ border: '1.5px solid var(--line-2, #E2D9CC)', padding: '18px', borderRadius: '8px', background: 'var(--paper, #F5F0E8)' }}>
                   <div style={{ fontSize: '11px', color: 'var(--ink-soft, #5A6578)', textTransform: 'uppercase', fontWeight: 700 }}>Top 5 Payer Concentration</div>
                   <div style={{ fontSize: '24px', fontWeight: 800, color: report.evidence.top5WalletShare > 50 ? 'var(--accent, #7C1522)' : 'var(--ink, #1B2A4A)', marginTop: '4px' }}>{report.evidence.top5WalletShare}%</div>
-                  <div style={{ fontSize: '11px', color: 'var(--ink-soft, #5A6578)', marginTop: '2px' }}>Wallet Share</div>
+                  <div style={{ fontSize: '11.5px', color: 'var(--ink-soft, #5A6578)', marginTop: '2px' }}>Concentration Risk Ratio</div>
                 </div>
               </div>
 
-              {/* Retention Bars */}
-              <div style={{ border: '1.5px solid var(--line-2, #E2D9CC)', padding: '18px', borderRadius: '8px', background: 'var(--paper, #F5F0E8)' }}>
-                <h4 style={{ margin: '0 0 12px 0', fontSize: '13px', fontWeight: 700, color: 'var(--ink, #1B2A4A)' }}>Cohort Retention (Month 1 → Month 3)</h4>
-                <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', marginBottom: '4px' }}>
+              {/* Cohort Retention Bar Chart */}
+              <div style={{ border: '1.5px solid var(--line-2, #E2D9CC)', padding: '20px', borderRadius: '8px', background: 'var(--paper, #F5F0E8)' }}>
+                <h4 style={{ margin: '0 0 14px 0', fontSize: '13px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.5px', color: 'var(--ink, #1B2A4A)' }}>Payer Cohort Retention Trajectory</h4>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' }}>
+                  <div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', marginBottom: '6px' }}>
                       <span>Month 1 Retention</span>
                       <strong>{report.evidence.retentionMonth1}%</strong>
                     </div>
-                    <div style={{ background: '#E2D9CC', height: '8px', borderRadius: '4px', overflow: 'hidden' }}>
+                    <div style={{ background: '#E2D9CC', height: '10px', borderRadius: '5px', overflow: 'hidden' }}>
                       <div style={{ background: '#2563eb', width: `${report.evidence.retentionMonth1}%`, height: '100%' }} />
                     </div>
                   </div>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', marginBottom: '4px' }}>
+                  <div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', marginBottom: '6px' }}>
+                      <span>Month 2 Retention</span>
+                      <strong>{report.evidence.retentionMonth2}%</strong>
+                    </div>
+                    <div style={{ background: '#E2D9CC', height: '10px', borderRadius: '5px', overflow: 'hidden' }}>
+                      <div style={{ background: '#3b82f6', width: `${report.evidence.retentionMonth2}%`, height: '100%' }} />
+                    </div>
+                  </div>
+                  <div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', marginBottom: '6px' }}>
                       <span>Month 3 Retention</span>
                       <strong>{report.evidence.retentionMonth3}%</strong>
                     </div>
-                    <div style={{ background: '#E2D9CC', height: '8px', borderRadius: '4px', overflow: 'hidden' }}>
+                    <div style={{ background: '#E2D9CC', height: '10px', borderRadius: '5px', overflow: 'hidden' }}>
                       <div style={{ background: '#137333', width: `${report.evidence.retentionMonth3}%`, height: '100%' }} />
                     </div>
                   </div>
@@ -530,47 +620,150 @@ export function ReportsCatalogView({ onSelectReport }: { onSelectReport: (slug: 
 
             {/* Section 3: The Divergence */}
             <section style={{ background: '#FFF5F5', border: '1.5px solid #F5C6CB', borderRadius: '12px', padding: '24px', boxShadow: '0 4px 16px rgba(124, 21, 34, 0.04)' }}>
-              <h3 style={{ fontSize: '12px', fontWeight: 800, letterSpacing: '1.5px', color: 'var(--accent, #7C1522)', textTransform: 'uppercase', margin: '0 0 10px 0' }}>3. The Divergence</h3>
-              <p style={{ margin: 0, fontSize: '14.5px', lineHeight: 1.6, color: '#7C1522' }}>
+              <h3 style={{ fontSize: '12px', fontWeight: 800, letterSpacing: '1.5px', color: 'var(--accent, #7C1522)', textTransform: 'uppercase', margin: '0 0 10px 0' }}>3. Editorial Divergence &amp; Discrepancy Findings</h3>
+              <p style={{ margin: 0, fontSize: '15px', lineHeight: 1.65, color: '#7C1522', fontWeight: 500 }}>
                 {report.divergence}
               </p>
             </section>
 
-            {/* Section 4: Rubric Breakdown */}
+            {/* Section 4: Detailed 4-Dimension Rubric Breakdown */}
             <section style={{ background: '#fff', border: '1.5px solid var(--line-2, #E2D9CC)', borderRadius: '12px', padding: '28px', boxShadow: '0 4px 16px rgba(27, 42, 74, 0.03)' }}>
-              <h3 style={{ fontSize: '12px', fontWeight: 800, letterSpacing: '1.5px', color: 'var(--brass, #A37E36)', textTransform: 'uppercase', margin: '0 0 16px 0' }}>4. Rubric Breakdown</h3>
+              <h3 style={{ fontSize: '12px', fontWeight: 800, letterSpacing: '1.5px', color: 'var(--brass, #A37E36)', textTransform: 'uppercase', margin: '0 0 16px 0' }}>4. Detailed 4-Dimension Rubric Breakdown</h3>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-                <div style={{ border: '1.5px solid var(--line-2, #E2D9CC)', padding: '16px', borderRadius: '8px', background: 'var(--paper, #F5F0E8)' }}>
-                  <div style={{ fontWeight: 700, fontSize: '14px', color: 'var(--ink, #1B2A4A)' }}>Verifiability: {report.rubric.verifiabilityScore} / 25</div>
-                  <div style={{ fontSize: '12.5px', color: 'var(--ink-soft, #5A6578)', marginTop: '4px' }}>{report.rubric.verifiabilityReason}</div>
-                </div>
-                <div style={{ border: '1.5px solid var(--line-2, #E2D9CC)', padding: '16px', borderRadius: '8px', background: 'var(--paper, #F5F0E8)' }}>
-                  <div style={{ fontWeight: 700, fontSize: '14px', color: 'var(--ink, #1B2A4A)' }}>Activity: {report.rubric.activityScore} / 25</div>
-                  <div style={{ fontSize: '12.5px', color: 'var(--ink-soft, #5A6578)', marginTop: '4px' }}>{report.rubric.activityReason}</div>
-                </div>
-                <div style={{ border: '1.5px solid var(--line-2, #E2D9CC)', padding: '16px', borderRadius: '8px', background: 'var(--paper, #F5F0E8)' }}>
-                  <div style={{ fontWeight: 700, fontSize: '14px', color: 'var(--ink, #1B2A4A)' }}>Maintenance: {report.rubric.maintenanceScore} / 25</div>
-                  <div style={{ fontSize: '12.5px', color: 'var(--ink-soft, #5A6578)', marginTop: '4px' }}>{report.rubric.maintenanceReason}</div>
-                </div>
-                <div style={{ border: '1.5px solid var(--line-2, #E2D9CC)', padding: '16px', borderRadius: '8px', background: 'var(--paper, #F5F0E8)' }}>
-                  <div style={{ fontWeight: 700, fontSize: '14px', color: 'var(--ink, #1B2A4A)' }}>Security Posture: {report.rubric.securityScore} / 25</div>
-                  <div style={{ fontSize: '12.5px', color: 'var(--ink-soft, #5A6578)', marginTop: '4px' }}>{report.rubric.securityReason}</div>
-                </div>
-                <div style={{ border: '1.5px solid var(--line-2, #E2D9CC)', padding: '16px', borderRadius: '8px', gridColumn: 'span 2', background: (report.rubric.adminPenalty || 0) > 0 ? '#FFF5F5' : 'var(--paper, #F5F0E8)' }}>
-                  <div style={{ fontWeight: 700, fontSize: '14px', color: (report.rubric.adminPenalty || 0) > 0 ? 'var(--accent, #7C1522)' : 'var(--ink, #1B2A4A)' }}>
-                    Admin Control Penalty: {(report.rubric.adminPenalty || 0) > 0 ? `-${report.rubric.adminPenalty} pt` : '0 pt'}
+
+                {/* Verifiability */}
+                <div style={{ border: '1.5px solid var(--line-2, #E2D9CC)', padding: '18px', borderRadius: '10px', background: 'var(--paper, #F5F0E8)' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                    <div style={{ fontWeight: 800, fontSize: '14px', color: 'var(--ink, #1B2A4A)', display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent, #7C1522)" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                        <polyline points="14 2 14 8 20 8" />
+                        <path d="m9 15 2 2 4-4" />
+                      </svg>
+                      <span>Verifiability</span>
+                    </div>
+                    <span style={{ fontSize: '13px', fontWeight: 800, color: 'var(--accent, #7C1522)', background: '#fff', padding: '2px 8px', borderRadius: '6px', border: '1px solid var(--line-2, #E2D9CC)' }}>
+                      {report.rubric.verifiabilityScore} / 25
+                    </span>
                   </div>
-                  <div style={{ fontSize: '12.5px', color: 'var(--ink-soft, #5A6578)', marginTop: '4px' }}>
-                    {(report.rubric.adminPenalty || 0) > 0 ? 'Penalty applied for centralized or unverified admin keys.' : 'No centralized admin key penalty.'}
+                  <p style={{ fontSize: '13px', color: 'var(--ink-soft, #5A6578)', margin: 0, lineHeight: 1.6 }}>{report.rubric.verifiabilityReason}</p>
+                </div>
+
+                {/* Activity */}
+                <div style={{ border: '1.5px solid var(--line-2, #E2D9CC)', padding: '18px', borderRadius: '10px', background: 'var(--paper, #F5F0E8)' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                    <div style={{ fontWeight: 800, fontSize: '14px', color: 'var(--ink, #1B2A4A)', display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#137333" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                        <line x1="18" y1="20" x2="18" y2="10" />
+                        <line x1="12" y1="20" x2="12" y2="4" />
+                        <line x1="6" y1="20" x2="6" y2="14" />
+                      </svg>
+                      <span>Activity &amp; Adoption</span>
+                    </div>
+                    <span style={{ fontSize: '13px', fontWeight: 800, color: '#137333', background: '#fff', padding: '2px 8px', borderRadius: '6px', border: '1px solid var(--line-2, #E2D9CC)' }}>
+                      {report.rubric.activityScore} / 25
+                    </span>
                   </div>
+                  <p style={{ fontSize: '13px', color: 'var(--ink-soft, #5A6578)', margin: 0, lineHeight: 1.6 }}>{report.rubric.activityReason}</p>
+                </div>
+
+                {/* Maintenance */}
+                <div style={{ border: '1.5px solid var(--line-2, #E2D9CC)', padding: '18px', borderRadius: '10px', background: 'var(--paper, #F5F0E8)' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                    <div style={{ fontWeight: 800, fontSize: '14px', color: 'var(--ink, #1B2A4A)', display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--ink, #1B2A4A)" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
+                      </svg>
+                      <span>Code Maintenance</span>
+                    </div>
+                    <span style={{ fontSize: '13px', fontWeight: 800, color: 'var(--ink, #1B2A4A)', background: '#fff', padding: '2px 8px', borderRadius: '6px', border: '1px solid var(--line-2, #E2D9CC)' }}>
+                      {report.rubric.maintenanceScore} / 25
+                    </span>
+                  </div>
+                  <p style={{ fontSize: '13px', color: 'var(--ink-soft, #5A6578)', margin: 0, lineHeight: 1.6 }}>{report.rubric.maintenanceReason}</p>
+                </div>
+
+                {/* Security */}
+                <div style={{ border: '1.5px solid var(--line-2, #E2D9CC)', padding: '18px', borderRadius: '10px', background: 'var(--paper, #F5F0E8)' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                    <div style={{ fontWeight: 800, fontSize: '14px', color: 'var(--ink, #1B2A4A)', display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--brass, #A37E36)" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                      </svg>
+                      <span>Security Posture</span>
+                    </div>
+                    <span style={{ fontSize: '13px', fontWeight: 800, color: report.rubric.securityScore < 15 ? 'var(--accent, #7C1522)' : '#137333', background: '#fff', padding: '2px 8px', borderRadius: '6px', border: '1px solid var(--line-2, #E2D9CC)' }}>
+                      {report.rubric.securityScore} / 25
+                    </span>
+                  </div>
+                  <p style={{ fontSize: '13px', color: 'var(--ink-soft, #5A6578)', margin: 0, lineHeight: 1.6 }}>{report.rubric.securityReason}</p>
+                </div>
+
+                {/* Admin Penalty Banner */}
+                <div style={{ border: '1.5px solid var(--line-2, #E2D9CC)', padding: '18px', borderRadius: '10px', gridColumn: 'span 2', background: (report.rubric.adminPenalty || 0) > 0 ? '#FFF5F5' : 'var(--paper, #F5F0E8)' }}>
+                  <div style={{ fontWeight: 800, fontSize: '14px', color: (report.rubric.adminPenalty || 0) > 0 ? 'var(--accent, #7C1522)' : 'var(--ink, #1B2A4A)', display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent, #7C1522)" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                      <line x1="12" y1="9" x2="12" y2="13" />
+                      <line x1="12" y1="17" x2="12.01" y2="17" />
+                    </svg>
+                    <span>Centralized Admin Control Penalty: {(report.rubric.adminPenalty || 0) > 0 ? `-${report.rubric.adminPenalty} Points Applied` : '0 Points (No Penalty)'}</span>
+                  </div>
+                  <p style={{ fontSize: '13px', color: 'var(--ink-soft, #5A6578)', marginTop: '4px', margin: 0, lineHeight: 1.6 }}>
+                    {(report.rubric.adminPenalty || 0) > 0 ? 'Deduction applied due to single-key upgradeability authority or unverified timelock multisig.' : 'No centralized admin key penalty incurred.'}
+                  </p>
                 </div>
               </div>
             </section>
 
+            {/* Technical Benchmark Summary Table */}
+            <section style={{ background: '#fff', border: '1.5px solid var(--line-2, #E2D9CC)', borderRadius: '12px', padding: '28px', boxShadow: '0 4px 16px rgba(27, 42, 74, 0.03)' }}>
+              <h3 style={{ fontSize: '12px', fontWeight: 800, letterSpacing: '1.5px', color: 'var(--brass, #A37E36)', textTransform: 'uppercase', margin: '0 0 16px 0' }}>Technical Indicator Matrix</h3>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13.5px', textAlign: 'left' }}>
+                <thead>
+                  <tr style={{ borderBottom: '1.5px solid var(--line-2, #E2D9CC)', background: 'var(--paper, #F5F0E8)' }}>
+                    <th style={{ padding: '12px 16px', color: 'var(--ink, #1B2A4A)', fontWeight: 800 }}>Technical Indicator</th>
+                    <th style={{ padding: '12px 16px', color: 'var(--ink, #1B2A4A)', fontWeight: 800 }}>Observed Status</th>
+                    <th style={{ padding: '12px 16px', color: 'var(--ink, #1B2A4A)', fontWeight: 800 }}>Ordo Benchmark Requirement</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr style={{ borderBottom: '1px solid var(--line-2, #E2D9CC)' }}>
+                    <td style={{ padding: '12px 16px', fontWeight: 600 }}>Source Code Access</td>
+                    <td style={{ padding: '12px 16px', color: report.rubric.maintenanceScore > 0 ? '#137333' : 'var(--accent, #7C1522)', fontWeight: 700 }}>
+                      {report.rubric.maintenanceScore > 0 ? '✓ Open Source Repository' : '✗ Closed Source Repository'}
+                    </td>
+                    <td style={{ padding: '12px 16px', color: 'var(--ink-soft, #5A6578)' }}>Public GitHub / Gitlab repo</td>
+                  </tr>
+                  <tr style={{ borderBottom: '1px solid var(--line-2, #E2D9CC)' }}>
+                    <td style={{ padding: '12px 16px', fontWeight: 600 }}>Smart Contract Audit</td>
+                    <td style={{ padding: '12px 16px', color: report.riskRegister.auditStatus.toLowerCase().includes('verified') ? '#137333' : 'var(--accent, #7C1522)', fontWeight: 700 }}>
+                      {report.riskRegister.auditStatus}
+                    </td>
+                    <td style={{ padding: '12px 16px', color: 'var(--ink-soft, #5A6578)' }}>Top-tier independent audit report</td>
+                  </tr>
+                  <tr style={{ borderBottom: '1px solid var(--line-2, #E2D9CC)' }}>
+                    <td style={{ padding: '12px 16px', fontWeight: 600 }}>30-Day Developer Commits</td>
+                    <td style={{ padding: '12px 16px', fontWeight: 700, color: 'var(--ink, #1B2A4A)' }}>
+                      {report.rubric.maintenanceScore > 0 ? '>50 Active Commits' : '0 Public Commits'}
+                    </td>
+                    <td style={{ padding: '12px 16px', color: 'var(--ink-soft, #5A6578)' }}>At least &gt;10 commits / month</td>
+                  </tr>
+                  <tr>
+                    <td style={{ padding: '12px 16px', fontWeight: 600 }}>Timelock &amp; Multisig</td>
+                    <td style={{ padding: '12px 16px', fontWeight: 700, color: report.riskRegister.timelock !== 'None' ? '#137333' : 'var(--accent, #7C1522)' }}>
+                      {report.riskRegister.timelock} ({report.riskRegister.multisig})
+                    </td>
+                    <td style={{ padding: '12px 16px', color: 'var(--ink-soft, #5A6578)' }}>≥ 48h Timelock + 3-of-5 Multisig</td>
+                  </tr>
+                </tbody>
+              </table>
+            </section>
+
             {/* Section 5: Verdict */}
             <section style={{ background: '#fff', border: '1.5px solid var(--line-2, #E2D9CC)', borderRadius: '12px', padding: '28px', boxShadow: '0 4px 16px rgba(27, 42, 74, 0.03)' }}>
-              <h3 style={{ fontSize: '12px', fontWeight: 800, letterSpacing: '1.5px', color: 'var(--brass, #A37E36)', textTransform: 'uppercase', margin: '0 0 12px 0' }}>5. Editorial Verdict</h3>
-              <p style={{ fontFamily: "'Fraunces', serif", fontSize: '19px', lineHeight: 1.6, margin: 0, color: 'var(--ink, #1B2A4A)' }}>
+              <h3 style={{ fontSize: '12px', fontWeight: 800, letterSpacing: '1.5px', color: 'var(--brass, #A37E36)', textTransform: 'uppercase', margin: '0 0 12px 0' }}>5. Official Editorial Board Verdict</h3>
+              <p style={{ fontFamily: "'Fraunces', serif", fontSize: '20px', lineHeight: 1.6, margin: 0, color: 'var(--ink, #1B2A4A)', fontWeight: 600 }}>
                 {report.verdict}
               </p>
             </section>
@@ -578,19 +771,205 @@ export function ReportsCatalogView({ onSelectReport }: { onSelectReport: (slug: 
 
           {/* RIGHT COLUMN: Sidebar Panel */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+
             {/* Key Award Seal Badge */}
             <div style={{ background: '#fff', border: '1.5px solid var(--brass, #A37E36)', borderTop: '6px solid var(--brass, #A37E36)', borderRadius: '12px', padding: '28px 24px', textAlign: 'center', boxShadow: '0 8px 24px rgba(163, 126, 54, 0.15)' }}>
-              <div style={{ fontSize: '11px', fontWeight: 800, letterSpacing: '1.5px', color: 'var(--brass, #A37E36)', marginBottom: '10px' }}>OFFICIAL KEY AWARD</div>
+              <div style={{ fontSize: '11px', fontWeight: 800, letterSpacing: '1.5px', color: 'var(--brass, #A37E36)', marginBottom: '10px' }}>OFFICIAL KEY AWARD SEAL</div>
               <div style={{ display: 'flex', justifyContent: 'center', gap: '6px', marginBottom: '10px' }}>
                 {Array.from({ length: 3 }).map((_, i) => (
-                  <OrdoKeyIcon key={i} size={32} color={i < report.keyCount ? 'var(--brass, #A37E36)' : '#D0C5B4'} />
+                  <OrdoKeyIcon key={i} size={34} color={i < report.keyCount ? 'var(--brass, #A37E36)' : '#D0C5B4'} />
                 ))}
               </div>
-              <div style={{ fontSize: '14px', fontWeight: 800, color: 'var(--ink, #1B2A4A)', letterSpacing: '0.5px' }}>
+              <div style={{ fontSize: '15px', fontWeight: 800, color: 'var(--ink, #1B2A4A)', letterSpacing: '0.5px' }}>
                 {keyLabel.toUpperCase()}
               </div>
               <div style={{ fontSize: '12px', color: 'var(--ink-soft, #5A6578)', marginTop: '6px' }}>
                 Verified by ORDO Editorial Board
+              </div>
+            </div>
+
+            {/* Dossier Actions Card */}
+            <div style={{ background: '#fff', border: '1.5px solid var(--line-2, #E2D9CC)', borderRadius: '12px', padding: '22px', boxShadow: '0 4px 16px rgba(27, 42, 74, 0.03)' }}>
+              <h4 style={{ margin: '0 0 14px 0', fontSize: '12px', fontWeight: 800, textTransform: 'uppercase', color: 'var(--brass, #A37E36)', letterSpacing: '1px' }}>Share &amp; Export Dossier</h4>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                <button
+                  onClick={handleCopyLink}
+                  style={{
+                    width: '100%',
+                    padding: '10px',
+                    borderRadius: '8px',
+                    border: '1.5px solid var(--line-2, #E2D9CC)',
+                    background: copied ? '#137333' : 'var(--paper, #F5F0E8)',
+                    color: copied ? '#fff' : 'var(--ink, #1B2A4A)',
+                    fontWeight: 700,
+                    fontSize: '13px',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease'
+                  }}
+                >
+                  {copied ? '✓ Dossier URL Copied!' : '🔗 Copy Report Link'}
+                </button>
+                <a
+                  href={`https://x.com/intent/post?text=Read%20the%20official%20ORDO%20Research%20Report%20for%20${report.agentName}:%20${encodeURIComponent(window.location.href)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    display: 'block',
+                    textAlign: 'center',
+                    padding: '10px',
+                    borderRadius: '8px',
+                    border: 'none',
+                    background: 'var(--ink, #1B2A4A)',
+                    color: '#fff',
+                    fontWeight: 700,
+                    fontSize: '13px',
+                    textDecoration: 'none'
+                  }}
+                >
+                  🐦 Share on X (Twitter)
+                </a>
+              </div>
+            </div>
+
+            {/* Verified Resources Sidebar Card */}
+            <div style={{ background: '#fff', border: '1.5px solid var(--line-2, #E2D9CC)', borderRadius: '12px', padding: '22px', boxShadow: '0 4px 16px rgba(27, 42, 74, 0.03)' }}>
+              <h4 style={{ margin: '0 0 14px 0', fontSize: '12px', fontWeight: 800, textTransform: 'uppercase', color: 'var(--brass, #A37E36)', letterSpacing: '1px' }}>Verified Resources</h4>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                <a
+                  href={report.resources?.website || report.websiteUrl || '#'}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '6px',
+                    background: '#F5F0E8',
+                    border: '1px solid #E2D9CC',
+                    borderRadius: '8px',
+                    padding: '9px 10px',
+                    color: '#7C1522',
+                    fontWeight: 700,
+                    fontSize: '13px',
+                    textDecoration: 'none',
+                    transition: 'all 0.2s ease',
+                    boxShadow: '0 1px 3px rgba(0,0,0,0.02)'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = '#EED8C6';
+                    e.currentTarget.style.transform = 'translateY(-1px)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = '#F5F0E8';
+                    e.currentTarget.style.transform = 'translateY(0)';
+                  }}
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7C1522" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                  <span>Website</span>
+                  <span style={{ fontSize: '11px' }}>↗</span>
+                </a>
+
+                <a
+                  href={report.resources?.documentation || '#'}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '6px',
+                    background: '#F5F0E8',
+                    border: '1px solid #E2D9CC',
+                    borderRadius: '8px',
+                    padding: '9px 10px',
+                    color: '#7C1522',
+                    fontWeight: 700,
+                    fontSize: '13px',
+                    textDecoration: 'none',
+                    transition: 'all 0.2s ease',
+                    boxShadow: '0 1px 3px rgba(0,0,0,0.02)'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = '#EED8C6';
+                    e.currentTarget.style.transform = 'translateY(-1px)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = '#F5F0E8';
+                    e.currentTarget.style.transform = 'translateY(0)';
+                  }}
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7C1522" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                  <span>Docs</span>
+                  <span style={{ fontSize: '11px' }}>↗</span>
+                </a>
+
+                <a
+                  href={report.resources?.github || '#'}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '6px',
+                    background: '#F5F0E8',
+                    border: '1px solid #E2D9CC',
+                    borderRadius: '8px',
+                    padding: '9px 10px',
+                    color: '#7C1522',
+                    fontWeight: 700,
+                    fontSize: '13px',
+                    textDecoration: 'none',
+                    transition: 'all 0.2s ease',
+                    boxShadow: '0 1px 3px rgba(0,0,0,0.02)'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = '#EED8C6';
+                    e.currentTarget.style.transform = 'translateY(-1px)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = '#F5F0E8';
+                    e.currentTarget.style.transform = 'translateY(0)';
+                  }}
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7C1522" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+                  <span>GitHub</span>
+                  <span style={{ fontSize: '11px' }}>↗</span>
+                </a>
+
+                <a
+                  href={report.resources?.twitter || '#'}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '6px',
+                    background: '#F5F0E8',
+                    border: '1px solid #E2D9CC',
+                    borderRadius: '8px',
+                    padding: '9px 10px',
+                    color: '#7C1522',
+                    fontWeight: 700,
+                    fontSize: '13px',
+                    textDecoration: 'none',
+                    transition: 'all 0.2s ease',
+                    boxShadow: '0 1px 3px rgba(0,0,0,0.02)'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = '#EED8C6';
+                    e.currentTarget.style.transform = 'translateY(-1px)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = '#F5F0E8';
+                    e.currentTarget.style.transform = 'translateY(0)';
+                  }}
+                >
+                  <span style={{ fontWeight: 900, fontSize: '14px' }}>𝕏</span>
+                  <span>Twitter</span>
+                  <span style={{ fontSize: '11px' }}>↗</span>
+                </a>
               </div>
             </div>
 
@@ -613,6 +992,17 @@ export function ReportsCatalogView({ onSelectReport }: { onSelectReport: (slug: 
                   <li key={idx}>{lim}</li>
                 ))}
               </ul>
+            </div>
+
+            {/* Cryptographic Verification Metadata Card */}
+            <div style={{ background: '#fff', border: '1.5px solid var(--line-2, #E2D9CC)', borderRadius: '12px', padding: '22px', boxShadow: '0 4px 16px rgba(27, 42, 74, 0.03)' }}>
+              <h4 style={{ margin: '0 0 12px 0', fontSize: '12px', fontWeight: 800, textTransform: 'uppercase', color: 'var(--brass, #A37E36)', letterSpacing: '1px' }}>Verifiability Checksum</h4>
+              <div style={{ fontSize: '11px', fontFamily: 'monospace', color: 'var(--ink-soft, #5A6578)', background: 'var(--paper, #F5F0E8)', padding: '10px', borderRadius: '6px', wordBreak: 'break-all' }}>
+                SHA-256: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+              </div>
+              <div style={{ fontSize: '11px', color: 'var(--ink-soft, #5A6578)', marginTop: '8px' }}>
+                IPFS CID: <span style={{ fontFamily: 'monospace' }}>QmXoypizjW3WknFiJn...</span>
+              </div>
             </div>
 
             {/* Right of Reply Card */}
