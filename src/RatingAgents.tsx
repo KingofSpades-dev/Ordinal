@@ -219,6 +219,7 @@ export default function RatingAgents() {
   });
   const [selectedAgent, setSelectedAgent] = useState<Agent | null>(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [walletDropdownOpen, setWalletDropdownOpen] = useState(false);
   const [scanningAgentId, setScanningAgentId] = useState<string | null>(null);
   const [notification, setNotification] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
 
@@ -980,10 +981,139 @@ export default function RatingAgents() {
       {/* Dashboard Content */}
       <section className="dashboard-section">
         <div className="wrap">
-          <div className="sec-head" style={{ marginBottom: '24px' }}>
-            <span className="eyebrow">Scans &amp; Live Registry</span>
-            <h2 style={{ fontFamily: "'Fraunces', serif", fontSize: '38px', color: 'var(--ink)', margin: '8px 0 0 0' }}>Agent Overview</h2>
-            <p style={{ margin: '4px 0 0 0' }}>Evaluate. Corpore. Trust.</p>
+          <div className="sec-head" style={{ marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: '16px', maxWidth: '100%', width: '100%' }}>
+            <div>
+              <span className="eyebrow">Scans &amp; Live Registry</span>
+              <h2 style={{ fontFamily: "'Fraunces', serif", fontSize: '38px', color: 'var(--ink)', margin: '8px 0 0 0' }}>Agent Overview</h2>
+              <p style={{ margin: '4px 0 0 0', color: 'var(--ink-soft)' }}>Evaluate. Corpore. Trust.</p>
+            </div>
+
+            {/* Header Connect Wallet Action */}
+            {!userWallet ? (
+              <button
+                onClick={connectWallet}
+                style={{
+                  background: 'var(--accent, #7C1522)',
+                  color: '#fff',
+                  border: 'none',
+                  padding: '12px 24px',
+                  borderRadius: '12px',
+                  fontWeight: 800,
+                  fontSize: '14px',
+                  cursor: 'pointer',
+                  boxShadow: '0 4px 14px rgba(124, 21, 34, 0.25)',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '10px',
+                  transition: 'all 0.25s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-2px)';
+                  e.currentTarget.style.background = '#63101B';
+                  e.currentTarget.style.boxShadow = '0 6px 20px rgba(124, 21, 34, 0.32)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.background = 'var(--accent, #7C1522)';
+                  e.currentTarget.style.boxShadow = '0 4px 14px rgba(124, 21, 34, 0.25)';
+                }}
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="2" y="6" width="20" height="12" rx="2" />
+                  <circle cx="16" cy="12" r="2" />
+                  <path d="M6 12h.01" />
+                </svg>
+                <span>Connect Wallet</span>
+              </button>
+            ) : (
+              <div style={{ position: 'relative' }}>
+                <button
+                  onClick={() => setWalletDropdownOpen(prev => !prev)}
+                  style={{
+                    background: '#fff',
+                    border: '1.5px solid var(--accent, #7C1522)',
+                    padding: '10px 18px',
+                    borderRadius: '10px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    boxShadow: '0 2px 10px rgba(124, 21, 34, 0.08)',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.boxShadow = '0 4px 14px rgba(124, 21, 34, 0.16)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.boxShadow = '0 2px 10px rgba(124, 21, 34, 0.08)';
+                  }}
+                >
+                  <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--accent, #7C1522)', boxShadow: '0 0 8px var(--accent, #7C1522)' }}></span>
+                  <span style={{ fontFamily: 'monospace', fontWeight: 700, fontSize: '13px', color: 'var(--accent, #7C1522)' }}>
+                    {userWallet.slice(0, 4)}...{userWallet.slice(-4)}
+                  </span>
+                  <span style={{ fontSize: '10px', color: 'var(--accent, #7C1522)', marginLeft: '2px', transform: walletDropdownOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s ease' }}>
+                    ▼
+                  </span>
+                </button>
+
+                {walletDropdownOpen && (
+                  <div style={{
+                    position: 'absolute',
+                    top: 'calc(100% + 8px)',
+                    right: 0,
+                    background: '#fff',
+                    border: '1.5px solid var(--line-2, #E2D9CC)',
+                    borderRadius: '12px',
+                    padding: '16px',
+                    boxShadow: '0 12px 32px rgba(27, 42, 74, 0.12)',
+                    zIndex: 1000,
+                    minWidth: '220px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '12px'
+                  }}>
+                    <div style={{ fontSize: '11px', fontWeight: 800, textTransform: 'uppercase', color: 'var(--brass, #A37E36)', letterSpacing: '1px' }}>
+                      Connected Solana Wallet
+                    </div>
+                    <div style={{ fontSize: '12px', fontFamily: 'monospace', color: 'var(--ink, #1B2A4A)', background: 'var(--paper, #F5F0E8)', padding: '8px 10px', borderRadius: '6px', wordBreak: 'break-all' }}>
+                      {userWallet}
+                    </div>
+                    <button
+                      onClick={() => {
+                        setUserWallet('');
+                        localStorage.removeItem('ordo_wallet_address');
+                        localStorage.removeItem('ordo_wallet_session_expiry');
+                        setWalletDropdownOpen(false);
+                        showNotification('Wallet disconnected.', 'info');
+                      }}
+                      style={{
+                        width: '100%',
+                        background: '#fff',
+                        border: '1.5px solid var(--accent, #7C1522)',
+                        padding: '10px',
+                        borderRadius: '8px',
+                        color: 'var(--accent, #7C1522)',
+                        fontWeight: 700,
+                        fontSize: '13px',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s ease'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background = 'var(--accent, #7C1522)';
+                        e.currentTarget.style.color = '#fff';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = '#fff';
+                        e.currentTarget.style.color = 'var(--accent, #7C1522)';
+                      }}
+                    >
+                      Disconnect Wallet
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
           <div className="dash-grid">

@@ -203,8 +203,7 @@ export class AgentsService {
       delayMs = 2 * 60 * 60 * 1000; // 3rd+ scan: 2 hours
     }
 
-    const isWhitelistedWallet = dto.submitterWallet.toLowerCase() === '7ug7hybcvtqrfp7z6k7munwjispz1pdxut4w3jzh5ndv';
-    const hasBalance = isWhitelistedWallet || await this.checkOrdoBalance(dto.submitterWallet);
+    const hasBalance = await this.checkOrdoBalance(dto.submitterWallet);
     const processAfter = hasBalance ? null : new Date(Date.now() + delayMs);
 
     if (existingAgent) {
@@ -428,10 +427,6 @@ export class AgentsService {
   }
 
   async checkOrdoBalance(wallet: string): Promise<boolean> {
-    if (wallet && wallet.toLowerCase() === '7ug7hybcvtqrfp7z6k7munwjispz1pdxut4w3jzh5ndv') {
-      console.log(`[VIP BYPASS] Wallet ${wallet} is whitelisted for instant rating scan bypass!`);
-      return true;
-    }
     try {
       if (wallet.startsWith('0x')) return false;
 
