@@ -186,21 +186,29 @@ export class EditorialService {
       where: { status: 'published' }
     });
 
-    const totalDossiers = await this.prisma.dossier.count();
+    // 1. Dossiers published: diambil dari total record di tabel Score
+    const totalDossiers = await this.prisma.score.count();
 
-    const activeKeyAwards = await this.prisma.keyAward.findMany({
-      where: { revokedAt: null }
+    // 2. Key awards: diparse dari kolom hardSignalScores (JSON) pada tabel Score
+    const scores = await this.prisma.score.findMany({
+      select: { hardSignalScores: true }
     });
 
-    const totalThreeKeyAwards = activeKeyAwards.filter(a => a.keyCount === 3).length;
-    const totalTwoKeyAwards = activeKeyAwards.filter(a => a.keyCount === 2).length;
-    const totalOneKeyAwards = activeKeyAwards.filter(a => a.keyCount === 1).length;
+    let totalKeyAwardsSum = 0;
+    let totalThreeKeyAwards = 0;
+    let totalTwoKeyAwards = 0;
+    let totalOneKeyAwards = 0;
 
-    // Get unique chains count from AgentIdentity table
-    const identities = await this.prisma.agentIdentity.findMany({
-      select: { chainKey: true }
-    });
-    const uniqueChains = new Set(identities.map(i => i.chainKey.toLowerCase()));
+    for (const s of scores) {
+      try {
+        const parsed = JSON.parse(s.hardSignalScores);
+        const keys = parsed.keysCount ?? parsed.starsCount ?? 0;
+        totalKeyAwardsSum += keys;
+        if (keys === 3) totalThreeKeyAwards++;
+        if (keys === 2) totalTwoKeyAwards++;
+        if (keys === 1) totalOneKeyAwards++;
+      } catch (e) {}
+    }
 
     // Get category counts based on Agent table
     const categoriesList = ['security', 'developer', 'research', 'trading'];
@@ -217,10 +225,10 @@ export class EditorialService {
       totalAgents,
       publishedAgents,
       totalDossiers,
+      totalKeyAwardsSum,
       totalThreeKeyAwards,
       totalTwoKeyAwards,
       totalOneKeyAwards,
-      uniqueChainsCount: uniqueChains.size > 0 ? uniqueChains.size : 12,
       categories
     };
   }
