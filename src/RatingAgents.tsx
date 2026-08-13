@@ -25,12 +25,17 @@ interface Agent {
 
 const CountdownScreen = ({ processAfter, onComplete }: { processAfter: string; onComplete: () => void }) => {
   const [timeLeft, setTimeLeft] = useState('');
+  const completedRef = React.useRef(false);
 
   useEffect(() => {
+    completedRef.current = false;
     const calculateTimeLeft = () => {
       const difference = +new Date(processAfter) - +new Date();
       if (difference <= 0) {
-        onComplete();
+        if (!completedRef.current) {
+          completedRef.current = true;
+          onComplete();
+        }
         return '00:00';
       }
 
@@ -207,50 +212,7 @@ export default function RatingAgents() {
   const [scanningAgentId, setScanningAgentId] = useState<string | null>(null);
   const [notification, setNotification] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
 
-  // Phase 4 Community Stars Rating Form state
-  const [ratingWallet, setRatingWallet] = useState('');
-  const [ratingStars, setRatingStars] = useState(5);
-  const [ratingTx, setRatingTx] = useState('');
-  const [ratingSig, setRatingSig] = useState('');
-  const [ratingSubmitting, setRatingSubmitting] = useState(false);
-  const [ratingMsg, setRatingMsg] = useState('');
 
-  const submitCommunityRating = async (agentId: string) => {
-    if (!ratingWallet || !ratingTx || !ratingSig) {
-      showNotification('Please fill in wallet address, usage transaction hash, and voter signature.', 'error');
-      return;
-    }
-    setRatingSubmitting(true);
-    setRatingMsg('');
-    try {
-      const res = await fetch(`${API_URL}/api/v1/agents/rating`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          agentId,
-          walletAddress: ratingWallet,
-          stars: ratingStars,
-          usageProofTx: ratingTx,
-          signature: ratingSig,
-        }),
-      });
-      const data = await res.json();
-      if (res.ok) {
-        setRatingMsg('✅ Community Star Rating submitted & verified!');
-        showNotification('Community Star Rating submitted & verified on-chain!', 'success');
-        setRatingTx('');
-        setRatingSig('');
-      } else {
-        setRatingMsg(`❌ Error: ${data.message || 'Submission failed'}`);
-        showNotification(data.message || 'Rating submission failed.', 'error');
-      }
-    } catch (err: any) {
-      setRatingMsg(`❌ Error: ${err.message}`);
-      showNotification('Network error submitting rating.', 'error');
-    } finally {
-      setRatingSubmitting(false);
-    }
-  };
 
   const showNotification = (message: string, type: 'success' | 'error' | 'info') => {
     setNotification({ message, type });
@@ -306,8 +268,9 @@ export default function RatingAgents() {
 
   const fetchAgents = async (wallet?: string) => {
     try {
-      const url = wallet 
-        ? `${API_URL}/api/v1/agents?walletAddress=${encodeURIComponent(wallet)}`
+      const activeWallet = wallet !== undefined ? wallet : userWallet;
+      const url = activeWallet 
+        ? `${API_URL}/api/v1/agents?walletAddress=${encodeURIComponent(activeWallet)}`
         : `${API_URL}/api/v1/agents`;
       const res = await fetch(url);
       if (res.ok) {
@@ -1254,7 +1217,10 @@ export default function RatingAgents() {
                   return (
                     <CountdownScreen
                       processAfter={selectedAgent.processAfter!}
-                      onComplete={() => fetchAgents()}
+                      onComplete={() => {
+                        setScanningAgentId(selectedAgent.id);
+                        fetchAgents(userWallet);
+                      }}
                     />
                   );
                 }
@@ -1556,98 +1522,6 @@ export default function RatingAgents() {
                           <div className="desc">Key Structure</div>
                         </div>
                       </div>
-                    </div>
-
-                    {/* Phase 4: Community Stars Rating Form (On-Chain Proof) */}
-                    <div style={{ padding: '20px', border: '1.5px solid var(--line-2)', borderRadius: '8px', background: '#fafafa', marginBottom: '24px' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-                        <div>
-                          <h4 style={{ margin: 0, fontSize: '14px', fontWeight: 800 }}>Rate This Agent (Community Stars)</h4>
-                          <span style={{ fontSize: '12px', color: 'var(--ink-soft)' }}>Submit on-chain usage proof to cast your community star rating.</span>
-                        </div>
-                        <div style={{ fontSize: '18px', fontWeight: 800, color: '#e5b938' }}>
-                          ⭐ {ratingStars} / 5
-                        </div>
-                      </div>
-
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '12px' }}>
-                        <div>
-                          <label style={{ fontSize: '11px', fontWeight: 700, display: 'block', marginBottom: '4px' }}>Voter Wallet Address</label>
-                          <input
-                            type="text"
-                            placeholder="0x..."
-                            value={ratingWallet}
-                            onChange={(e) => setRatingWallet(e.target.value)}
-                            style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc', fontSize: '12px' }}
-                          />
-                        </div>
-                        <div>
-                          <label style={{ fontSize: '11px', fontWeight: 700, display: 'block', marginBottom: '4px' }}>Usage Proof TX Hash</label>
-                          <input
-                            type="text"
-                            placeholder="0x... or Tx signature"
-                            value={ratingTx}
-                            onChange={(e) => setRatingTx(e.target.value)}
-                            style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc', fontSize: '12px' }}
-                          />
-                        </div>
-                      </div>
-
-                      <div style={{ marginBottom: '12px' }}>
-                        <label style={{ fontSize: '11px', fontWeight: 700, display: 'block', marginBottom: '4px' }}>Voter Signature</label>
-                        <input
-                          type="text"
-                          placeholder="0x... (Wallet message signature)"
-                          value={ratingSig}
-                          onChange={(e) => setRatingSig(e.target.value)}
-                          style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc', fontSize: '12px' }}
-                        />
-                      </div>
-
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <div style={{ display: 'flex', gap: '6px' }}>
-                          {[1, 2, 3, 4, 5].map((star) => (
-                            <button
-                              key={star}
-                              type="button"
-                              onClick={() => setRatingStars(star)}
-                              style={{
-                                background: ratingStars >= star ? '#e5b938' : '#e5e5e5',
-                                border: 'none',
-                                padding: '4px 8px',
-                                borderRadius: '4px',
-                                cursor: 'pointer',
-                                fontWeight: 700,
-                                fontSize: '12px',
-                              }}
-                            >
-                              ★ {star}
-                            </button>
-                          ))}
-                        </div>
-
-                        <button
-                          type="button"
-                          onClick={() => submitCommunityRating(selectedAgent.id)}
-                          disabled={ratingSubmitting}
-                          style={{
-                            background: '#111418',
-                            color: '#fff',
-                            border: 'none',
-                            padding: '8px 16px',
-                            borderRadius: '6px',
-                            fontWeight: 700,
-                            fontSize: '12px',
-                            cursor: 'pointer',
-                          }}
-                        >
-                          {ratingSubmitting ? 'Verifying...' : 'Submit Rating →'}
-                        </button>
-                      </div>
-
-                      {ratingMsg && (
-                        <div style={{ marginTop: '12px', fontSize: '12px', fontWeight: 600 }}>{ratingMsg}</div>
-                      )}
                     </div>
 
                     {/* Selection Rationale and Limitations */}
