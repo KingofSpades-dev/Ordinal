@@ -451,9 +451,9 @@ function App() {
           <Reveal delay={400}>
             <div className="hero-meta">
               <div className="stat"><div className="n mono">{stats?.categories ? Object.keys(stats.categories).length : 4}</div><div className="l">Curated categories</div></div>
-              <div className="stat"><div className="n mono">12</div><div className="l">Chains covered</div></div>
-              <div className="stat"><div className="n mono">{stats?.totalDossiers !== undefined ? stats.totalDossiers : '162'}</div><div className="l">Dossiers published</div></div>
-              <div className="stat"><div className="n mono">{stats ? (stats.totalThreeKeyAwards + stats.totalTwoKeyAwards + stats.totalOneKeyAwards) : '2'}</div><div className="l">Key awards</div></div>
+              <div className="stat"><div className="n mono">{stats?.uniqueChainsCount !== undefined ? stats.uniqueChainsCount : 12}</div><div className="l">Chains covered</div></div>
+              <div className="stat"><div className="n mono">{stats?.totalDossiers !== undefined ? stats.totalDossiers : 0}</div><div className="l">Dossiers published</div></div>
+              <div className="stat"><div className="n mono">{stats ? (stats.totalThreeKeyAwards + stats.totalTwoKeyAwards + stats.totalOneKeyAwards) : 0}</div><div className="l">Key awards</div></div>
             </div>
           </Reveal>
         </div>

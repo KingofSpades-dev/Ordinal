@@ -24,7 +24,7 @@ export class AgentsService {
     private readonly washFilterService: X402WashFilterService,
     private readonly erc8004Service: Erc8004ResolverService,
     @InjectQueue('verify') private readonly verifyQueue: Queue,
-  ) {}
+  ) { }
 
   async getErc8004Identity(slug: string) {
     const agent = await this.prisma.agent.findUnique({ where: { slug } });
@@ -42,14 +42,14 @@ export class AgentsService {
 
   async findAll(walletAddress?: string) {
     const trimmedWallet = walletAddress?.trim();
-    
+
     const whereClause = trimmedWallet
       ? {
-          OR: [
-            { submittedBy: { equals: trimmedWallet } },
-            { submittedBy: { equals: trimmedWallet, mode: 'insensitive' as any } }
-          ]
-        }
+        OR: [
+          { submittedBy: { equals: trimmedWallet } },
+          { submittedBy: { equals: trimmedWallet, mode: 'insensitive' as any } }
+        ]
+      }
       : { status: 'published' };
 
     const agents = await this.prisma.agent.findMany({
@@ -172,7 +172,7 @@ export class AgentsService {
       const distance = this.getLevenshteinDistance(newNameClean, otherNameClean);
       const maxLength = Math.max(newNameClean.length, otherNameClean.length);
       const similarity = maxLength === 0 ? 1 : 1 - distance / maxLength;
-      
+
       if (similarity >= 0.85) {
         throw new ConflictException(`Agent name "${dto.name}" is too similar to existing agent "${other.name}". Impersonation is not permitted.`);
       }
@@ -226,7 +226,7 @@ export class AgentsService {
           scanIndex: scanCount,
         }
       });
-      
+
       await this.syncAgentIdentitiesAndLinks(updatedAgent.id, dto);
 
       // Delete old snapshots and scores to clean up history for a fresh scan
@@ -242,7 +242,7 @@ export class AgentsService {
             new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), 1000))
           ]);
           queued = true;
-        } catch (e) {}
+        } catch (e) { }
       }
       if (!queued) {
         this.runSyncVerificationInDev(updatedAgent.id).catch(err => console.error(err));
@@ -308,7 +308,7 @@ export class AgentsService {
 
   async runSyncVerificationInDev(agentId: string) {
     console.log(`[DEV MODE] Starting synchronous fallback assessment for agent ID: ${agentId}`);
-    
+
     // 1. Run Verification Processor
     const verifyProcessor = new VerifyProcessor(this.prisma);
     await verifyProcessor.process({ data: { agentId } } as any);
@@ -326,7 +326,7 @@ export class AgentsService {
         // 3. Run scoring calculation automatically
         const scoringService = new ScoringService(this.prisma);
         await scoringService.calculateAgentScore(agentId, 'v1');
-        
+
         // Auto-approve and publish in dev mode to make it visible on the UI instantly!
         await this.prisma.agent.update({
           where: { id: agentId },
@@ -377,7 +377,7 @@ export class AgentsService {
         if (!tx) {
           throw new BadRequestException('Transaction hash not found on-chain');
         }
-        
+
         // Check sender matches voter
         if (tx.from.toLowerCase() !== dto.walletAddress.toLowerCase()) {
           throw new BadRequestException('Transaction sender does not match voter wallet address');
@@ -387,7 +387,7 @@ export class AgentsService {
         const matchesContract = agent.contractAddresses.split(',')
           .map(c => c.trim().toLowerCase())
           .includes((tx.to || '').toLowerCase());
-          
+
         if (!matchesContract) {
           throw new BadRequestException('Transaction recipient does not match any contract address of this agent');
         }

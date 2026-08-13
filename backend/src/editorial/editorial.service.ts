@@ -8,7 +8,7 @@ export class EditorialService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly scoringService: ScoringService,
-  ) {}
+  ) { }
 
   // 1. Create or update a Dossier Draft
   async createOrUpdateDossier(editorId: string, dto: CreateDossierDto) {
@@ -119,7 +119,7 @@ export class EditorialService {
     let hardScores: any = {};
     try {
       hardScores = typeof scoreRecord.hardSignalScores === 'string' ? JSON.parse(scoreRecord.hardSignalScores) : scoreRecord.hardSignalScores;
-    } catch (e) {}
+    } catch (e) { }
 
     const maxAllowedKeys = hardScores.keysCount ?? hardScores.starsCount ?? 0;
     if (dto.keyCount > maxAllowedKeys) {
@@ -181,7 +181,8 @@ export class EditorialService {
   }
 
   async getStats() {
-    const totalAgents = await this.prisma.agent.count({
+    const totalAgents = await this.prisma.agent.count();
+    const publishedAgents = await this.prisma.agent.count({
       where: { status: 'published' }
     });
 
@@ -195,25 +196,31 @@ export class EditorialService {
     const totalTwoKeyAwards = activeKeyAwards.filter(a => a.keyCount === 2).length;
     const totalOneKeyAwards = activeKeyAwards.filter(a => a.keyCount === 1).length;
 
-    // Get category counts based on dossiers
+    // Get unique chains count from AgentIdentity table
+    const identities = await this.prisma.agentIdentity.findMany({
+      select: { chainKey: true }
+    });
+    const uniqueChains = new Set(identities.map(i => i.chainKey.toLowerCase()));
+
+    // Get category counts based on Agent table
     const categoriesList = ['security', 'developer', 'research', 'trading'];
     const categories: Record<string, number> = {};
     for (const cat of categoriesList) {
-      categories[cat] = await this.prisma.dossier.count({
+      categories[cat] = await this.prisma.agent.count({
         where: {
-          agent: {
-            category: { equals: cat, mode: 'insensitive' }
-          }
+          category: { equals: cat, mode: 'insensitive' }
         }
       });
     }
 
     return {
       totalAgents,
+      publishedAgents,
       totalDossiers,
       totalThreeKeyAwards,
       totalTwoKeyAwards,
       totalOneKeyAwards,
+      uniqueChainsCount: uniqueChains.size > 0 ? uniqueChains.size : 12,
       categories
     };
   }
