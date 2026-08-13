@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
+import { OrdoNavbar } from './components/OrdoNavbar'
 
 const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:3001').replace(/\/+$/, '');
 
@@ -332,97 +333,8 @@ function App() {
         </div>
       </div>
 
-      {/* Nav */}
-      <nav>
-        <div className="wrap nav-inner">
-          <div className="brand">
-            <svg className="brand-mark" viewBox="0 0 100 100" fill="currentColor">
-              <g transform="translate(50, 38)">
-                {Array.from({ length: 12 }).map((_, i) => (
-                  <rect
-                    key={i}
-                    x="-3"
-                    y="-24"
-                    width="6"
-                    height="12"
-                    rx="3"
-                    transform={`rotate(${i * 30})`}
-                  />
-                ))}
-                <circle cx="0" cy="0" r="9" />
-                <circle cx="0" cy="0" r="3.5" fill="var(--paper, #F5F0E8)" />
-              </g>
-              <rect x="47" y="38" width="6" height="42" rx="1.5" />
-              <path d="M 53 62 h 12 v 6 h -6 v 4 h 6 v 6 h -12 Z" />
-            </svg>
-            <span className="brand-name">O<b>rdo</b></span>
-          </div>
-          <div className="nav-right">
-            <div className="nav-links">
-              <a href="/">Home</a>
-              <a
-                href="/reports"
-                onClick={(e) => {
-                  e.preventDefault();
-                  window.history.pushState({}, '', '/reports');
-                  window.dispatchEvent(new PopStateEvent('popstate'));
-                }}
-              >
-                Reports
-              </a>
-              <a href="#rankings">Ratings</a>
-              <a href="#method">Methodology</a>
-              <a
-                href="/guide/2026"
-                onClick={(e) => {
-                  e.preventDefault();
-                  window.history.pushState({}, '', '/guide/2026');
-                  window.dispatchEvent(new PopStateEvent('popstate'));
-                }}
-              >
-                Guide
-              </a>
-              <a
-                href="/record/2026-08"
-                onClick={(e) => {
-                  e.preventDefault();
-                  window.history.pushState({}, '', '/record/2026-08');
-                  window.dispatchEvent(new PopStateEvent('popstate'));
-                }}
-              >
-                Record
-              </a>
-              <a
-                href="/corrections"
-                onClick={(e) => {
-                  e.preventDefault();
-                  window.history.pushState({}, '', '/corrections');
-                  window.dispatchEvent(new PopStateEvent('popstate'));
-                }}
-              >
-                Corrections
-              </a>
-              <a href="https://x.com/OrdoKeyRank" target="_blank" rel="noopener noreferrer" aria-label="X (Twitter)" style={{ display: 'inline-flex', alignItems: 'center' }}>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-                </svg>
-              </a>
-              <a href="https://github.com/KingofSpades-dev/OrdoKey" target="_blank" rel="noopener noreferrer">GitHub</a>
-            </div>
-            <a
-              href="/ratingagents"
-              onClick={(e) => {
-                e.preventDefault();
-                window.history.pushState({}, '', '/ratingagents');
-                window.dispatchEvent(new PopStateEvent('popstate'));
-              }}
-              className="nav-cta"
-            >
-              Launch App ↗
-            </a>
-          </div>
-        </div>
-      </nav>
+      {/* Reusable Ordo Navbar */}
+      <OrdoNavbar currentPath="/" />
 
       {/* Hero */}
       <header className="hero-section">
@@ -585,14 +497,27 @@ function App() {
             </Reveal>
           </div>
 
-          {/* Dynamic Rankings Grid */}
+          {/* Dynamic Rankings Grid - Sorted by Score Descending */}
           <div style={{ marginTop: '30px' }}>
             <div style={{
               display: 'grid',
               gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
               gap: '24px'
             }}>
-              {agentsList.map((agent) => {
+              {[...agentsList].sort((a, b) => {
+                const getScore = (ag: any) => {
+                  const scoreObj = ag.scores && ag.scores.length > 0
+                    ? JSON.parse(ag.scores[0].hardSignalScores)
+                    : null;
+                  const editorialScore = ag.scores?.[0]?.editorialScore ?? 0;
+                  return scoreObj
+                    ? (typeof scoreObj.finalScore === 'number'
+                      ? Math.round(editorialScore + scoreObj.finalScore)
+                      : Math.round(editorialScore + (scoreObj.verifiabilityScore + scoreObj.activityScore + scoreObj.maintenanceScore + scoreObj.securityScore - (scoreObj.adminPenalty || 0))))
+                    : 0;
+                };
+                return getScore(b) - getScore(a);
+              }).map((agent) => {
                 const scoreObj = agent.scores && agent.scores.length > 0
                   ? JSON.parse(agent.scores[0].hardSignalScores)
                   : null;

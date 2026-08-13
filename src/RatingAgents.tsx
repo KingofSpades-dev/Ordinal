@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import { OrdoNavbar } from './components/OrdoNavbar'
 
 interface Agent {
   id: string;
@@ -431,11 +432,6 @@ export default function RatingAgents() {
     } finally {
       setSubmitting(false);
     }
-  };
-
-  const navigateToHome = () => {
-    window.history.pushState({}, '', '/');
-    window.dispatchEvent(new PopStateEvent('popstate'));
   };
 
   const chains = [
@@ -978,51 +974,8 @@ export default function RatingAgents() {
         }
       `}</style>
 
-      {/* Nav */}
-      <nav>
-        <div className="wrap nav-inner">
-          <div className="brand" style={{ cursor: 'pointer' }} onClick={navigateToHome}>
-            <svg className="brand-mark" viewBox="0 0 100 100" fill="currentColor">
-              <g transform="translate(50, 38)">
-                {Array.from({ length: 12 }).map((_, i) => (
-                  <rect
-                    key={i}
-                    x="-3"
-                    y="-24"
-                    width="6"
-                    height="12"
-                    rx="3"
-                    transform={`rotate(${i * 30})`}
-                  />
-                ))}
-                <circle cx="0" cy="0" r="9" />
-                <circle cx="0" cy="0" r="3.5" fill="var(--paper, #F5F0E8)" />
-              </g>
-              <rect x="47" y="38" width="6" height="42" rx="1.5" />
-              <path d="M 53 62 h 12 v 6 h -6 v 4 h 6 v 6 h -12 Z" />
-            </svg>
-            <span className="brand-name">O<b>rdo</b></span>
-          </div>
-          <div className="nav-right">
-            <div className="nav-links">
-              <a href="#" onClick={(e) => { e.preventDefault(); navigateToHome(); }}>← Back to Home</a>
-              <a href="https://x.com/OrdoKeyRank" target="_blank" rel="noopener noreferrer" aria-label="X (Twitter)" style={{ display: 'inline-flex', alignItems: 'center' }}>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-                </svg>
-              </a>
-              <a href="https://github.com/KingofSpades-dev/OrdoKey" target="_blank" rel="noopener noreferrer">GitHub</a>
-            </div>
-            <button
-              onClick={connectWallet}
-              className="nav-cta"
-              style={{ border: 'none', cursor: 'pointer', background: 'var(--brass)', color: '#fff', fontWeight: 600, padding: '10px 20px', borderRadius: '8px' }}
-            >
-              {userWallet ? `${userWallet.slice(0, 6)}...${userWallet.slice(-4)}` : 'Connect Wallet'}
-            </button>
-          </div>
-        </div>
-      </nav>
+      {/* Reusable Ordo Navbar */}
+      <OrdoNavbar currentPath="/ratingagents" />
 
       {/* Dashboard Content */}
       <section className="dashboard-section">
