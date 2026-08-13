@@ -104,9 +104,9 @@ const CountdownScreen = ({ processAfter, onComplete }: { processAfter: string; o
 };
 
 const OrdoKeyIcon = ({ size = 24 }: { size?: number }) => (
-  <svg 
-    viewBox="0 0 100 100" 
-    fill="currentColor" 
+  <svg
+    viewBox="0 0 100 100"
+    fill="currentColor"
     style={{ width: `${size}px`, height: `${size}px`, color: 'var(--accent)' }}
   >
     <g transform="translate(50, 38)">
@@ -131,7 +131,7 @@ const OrdoKeyIcon = ({ size = 24 }: { size?: number }) => (
 
 function AgentFavicon({ websiteUrl, name, size = 48, className = '', borderRadius = '11px', fallback }: { websiteUrl?: string; name: string; size?: number; className?: string; borderRadius?: string; fallback?: React.ReactNode }) {
   const [imgError, setImgError] = useState(false);
-  
+
   const containerStyle: React.CSSProperties = {
     width: `${size}px`,
     height: `${size}px`,
@@ -153,10 +153,10 @@ function AgentFavicon({ websiteUrl, name, size = 48, className = '', borderRadiu
       );
     }
     return (
-      <div 
-        className={className} 
-        style={{ 
-          ...containerStyle, 
+      <div
+        className={className}
+        style={{
+          ...containerStyle,
           background: 'var(--paper)',
           border: '1.5px solid var(--line-2)'
         }}
@@ -176,22 +176,22 @@ function AgentFavicon({ websiteUrl, name, size = 48, className = '', borderRadiu
     const faviconUrl = `https://www.google.com/s2/favicons?sz=64&domain=${domain}&default=404`;
 
     return (
-      <div 
-        className={className} 
-        style={{ 
-          ...containerStyle, 
+      <div
+        className={className}
+        style={{
+          ...containerStyle,
           background: 'transparent'
         }}
       >
-        <img 
-          src={faviconUrl} 
-          alt={`${name} favicon`} 
+        <img
+          src={faviconUrl}
+          alt={`${name} favicon`}
           onError={() => setImgError(true)}
-          style={{ 
-            width: '100%', 
-            height: '100%', 
+          style={{
+            width: '100%',
+            height: '100%',
             objectFit: 'contain'
-          }} 
+          }}
         />
       </div>
     );
@@ -279,7 +279,7 @@ export default function RatingAgents() {
   const fetchAgents = async (wallet?: string) => {
     try {
       const activeWallet = wallet !== undefined ? wallet : userWallet;
-      let url = activeWallet 
+      let url = activeWallet
         ? `${API_URL}/api/v1/agents?walletAddress=${encodeURIComponent(activeWallet)}`
         : `${API_URL}/api/v1/agents/public-rankings`;
       let res = await fetch(url);
@@ -315,7 +315,7 @@ export default function RatingAgents() {
 
     const interval = setInterval(async () => {
       try {
-        const url = userWallet 
+        const url = userWallet
           ? `${API_URL}/api/v1/agents?walletAddress=${encodeURIComponent(userWallet)}`
           : `${API_URL}/api/v1/agents`;
         const res = await fetch(url);
@@ -408,7 +408,7 @@ export default function RatingAgents() {
 
         // Fetch list and select the newly registered agent immediately
         try {
-          const url = submitterWallet 
+          const url = submitterWallet
             ? `${API_URL}/api/v1/agents?walletAddress=${encodeURIComponent(submitterWallet)}`
             : `${API_URL}/api/v1/agents`;
           const fetchRes = await fetch(url);
@@ -1284,12 +1284,12 @@ export default function RatingAgents() {
                     <div className="main-card">
                       <div className="mc-left">
                         <div className="mc-header">
-                          <AgentFavicon 
-                            websiteUrl={selectedAgent.website} 
-                            name={selectedAgent.name} 
-                            size={64} 
-                            className="mc-logo-wrapper" 
-                            borderRadius="50%" 
+                          <AgentFavicon
+                            websiteUrl={selectedAgent.website}
+                            name={selectedAgent.name}
+                            size={64}
+                            className="mc-logo-wrapper"
+                            borderRadius="50%"
                             fallback={
                               <svg fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" style={{ width: '32px', height: '32px', color: 'var(--brass)' }}>
                                 <circle cx="12" cy="12" r="10" />
@@ -1306,8 +1306,8 @@ export default function RatingAgents() {
                             {(() => {
                               const primaryIdentity = selectedAgent.identities?.find((id: any) => id.isPrimary) || selectedAgent.identities?.[0] || null;
                               const contractAddress = primaryIdentity?.contractAddress || selectedAgent.contractAddresses.split(',')[0].trim();
-                              const displayAddr = contractAddress 
-                                ? `${contractAddress.slice(0, 6)}...${contractAddress.slice(-6)}` 
+                              const displayAddr = contractAddress
+                                ? `${contractAddress.slice(0, 6)}...${contractAddress.slice(-6)}`
                                 : 'N/A';
                               const verificationTier = primaryIdentity?.verificationTier || 'unverified';
                               const explorerUrl = primaryIdentity?.explorerUrl || '';
@@ -1318,14 +1318,14 @@ export default function RatingAgents() {
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginTop: '4px' }}>
                                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
                                     {explorerUrl ? (
-                                      <a 
-                                        href={explorerUrl} 
-                                        target="_blank" 
+                                      <a
+                                        href={explorerUrl}
+                                        target="_blank"
                                         rel="noopener noreferrer"
-                                        style={{ 
-                                          fontFamily: 'monospace', 
-                                          fontSize: '13px', 
-                                          color: 'var(--brass)', 
+                                        style={{
+                                          fontFamily: 'monospace',
+                                          fontSize: '13px',
+                                          color: 'var(--brass)',
                                           textDecoration: 'underline',
                                           fontWeight: 600
                                         }}
@@ -1364,30 +1364,29 @@ export default function RatingAgents() {
                                     >
                                       📋
                                     </button>
-                                    <span 
+                                    <span
                                       style={{
                                         fontSize: '10px',
                                         fontWeight: 700,
                                         textTransform: 'uppercase',
                                         padding: '2px 6px',
                                         borderRadius: '4px',
-                                        background: verificationTier === 'ownership_verified' 
-                                          ? 'var(--brass-soft)' 
-                                          : verificationTier === 'verified' 
-                                            ? '#e2ece9' 
+                                        background: verificationTier === 'ownership_verified'
+                                          ? 'var(--brass-soft)'
+                                          : verificationTier === 'verified'
+                                            ? '#e2ece9'
                                             : '#fdeded',
-                                        color: verificationTier === 'ownership_verified' 
-                                          ? 'var(--brass)' 
-                                          : verificationTier === 'verified' 
-                                            ? '#2d6a4f' 
+                                        color: verificationTier === 'ownership_verified'
+                                          ? 'var(--brass)'
+                                          : verificationTier === 'verified'
+                                            ? '#2d6a4f'
                                             : '#d32f2f',
-                                        border: `1px solid ${
-                                          verificationTier === 'ownership_verified' 
-                                            ? 'var(--brass)' 
-                                            : verificationTier === 'verified' 
-                                              ? '#2d6a4f' 
+                                        border: `1px solid ${verificationTier === 'ownership_verified'
+                                            ? 'var(--brass)'
+                                            : verificationTier === 'verified'
+                                              ? '#2d6a4f'
                                               : '#d32f2f'
-                                        }`
+                                          }`
                                       }}
                                     >
                                       {verificationTier === 'ownership_verified' ? '✓ OWNER VERIFIED' : verificationTier === 'verified' ? '✓ VERIFIED' : 'UNVERIFIED'}
@@ -1495,6 +1494,12 @@ export default function RatingAgents() {
                               <span className="lbl">Security Posture</span>
                               <span className="val">{scoreObj ? scoreObj.securityScore : 0} / 25</span>
                             </div>
+                            <div className="score-row-item" style={{ color: (scoreObj?.adminPenalty || 0) > 0 ? '#A61D2D' : 'inherit' }}>
+                              <span className="lbl" style={{ color: (scoreObj?.adminPenalty || 0) > 0 ? '#A61D2D' : 'inherit', fontWeight: (scoreObj?.adminPenalty || 0) > 0 ? 600 : 400 }}>Admin Control Penalty</span>
+                              <span className="val" style={{ color: (scoreObj?.adminPenalty || 0) > 0 ? '#A61D2D' : 'inherit', fontWeight: 700 }}>
+                                {(scoreObj?.adminPenalty || 0) > 0 ? `-${scoreObj.adminPenalty} pt` : '0 pt'}
+                              </span>
+                            </div>
                           </>
                         )}
                         <div className="last-updated-text" style={{ marginTop: '16px' }}>
@@ -1539,7 +1544,7 @@ export default function RatingAgents() {
                       <div style={{ padding: '20px', border: '1px solid var(--line-2)', borderRadius: '8px', background: '#fff' }}>
                         <h4 style={{ margin: '0 0 8px 0', fontSize: '14px' }}>Selection Rationale</h4>
                         <p style={{ fontSize: '13px', color: 'var(--ink-soft)', lineHeight: 1.5, margin: 0 }}>
-                          {selectedAgent.selectionRationale || 'Autonomous Web3 AI agent seeded in the cohort.'}
+                          {selectedAgent.selectionRationale || (selectedAgent as any).keyRationale || (selectedAgent as any).dossiers?.[0]?.title || `${selectedAgent.name} is an autonomous agent operating under the ${selectedAgent.category} category, monitored on-chain on ${selectedAgent.chains.toUpperCase()} for verifiability, telemetry, and security posture.`}
                         </p>
                       </div>
 

@@ -704,7 +704,7 @@ function App() {
                         textOverflow: 'ellipsis',
                         minHeight: '40px'
                       }}>
-                        {agent.selectionRationale || 'Autonomous AI agent.'}
+                        {agent.selectionRationale || (agent.dossiers?.[0]?.title) || (agent.keyRationale) || `${agent.name} is an autonomous ${agent.category} agent monitored on-chain on ${agent.chains.toUpperCase()}.`}
                       </div>
                     </div>
                     <div className="vc-split" style={{ marginTop: '16px', borderTop: '1px solid var(--line)', paddingTop: '12px' }}>
@@ -1370,6 +1370,10 @@ function App() {
                         <span>Security Posture (Audit, Keys)</span>
                         <b>{scoreObj.securityScore} / 25</b>
                       </div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', color: (scoreObj.adminPenalty || 0) > 0 ? '#A61D2D' : 'inherit' }}>
+                        <span style={{ fontWeight: (scoreObj.adminPenalty || 0) > 0 ? 600 : 400 }}>Admin Control Penalty</span>
+                        <b>{(scoreObj.adminPenalty || 0) > 0 ? `-${scoreObj.adminPenalty} pt` : '0 pt'}</b>
+                      </div>
                     </div>
                   ) : (
                     <p style={{ fontSize: '13px', color: 'var(--ink-soft)' }}>
@@ -1385,7 +1389,7 @@ function App() {
                   {dossier ? dossier.title : 'Cohort Selection Overview'}
                 </h3>
                 <p style={{ lineHeight: 1.6, color: 'var(--ink-soft)', whiteSpace: 'pre-wrap' }}>
-                  {dossier ? dossier.body : `Selection Rationale: ${selectedAgent.selectionRationale}`}
+                  {dossier ? dossier.body : (selectedAgent.selectionRationale || selectedAgent.keyRationale || `${selectedAgent.name} is an autonomous agent operating under the ${selectedAgent.category} category, monitored on-chain on ${selectedAgent.chains.toUpperCase()} for verifiability, telemetry, and security posture.`)}
                 </p>
                 {dossier && (
                   <div style={{

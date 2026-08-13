@@ -30,6 +30,7 @@ export interface ReportData {
     maintenanceReason: string;
     securityScore: number;
     securityReason: string;
+    adminPenalty?: number;
   };
   riskRegister: {
     auditStatus: string;
@@ -372,6 +373,14 @@ export function ReportDetailView({ report, onBack }: { report: ReportData; onBac
           <div style={{ border: '1px solid #eee', padding: '14px', borderRadius: '6px' }}>
             <div style={{ fontWeight: 700, fontSize: '13px' }}>Security Posture: {report.rubric.securityScore} / 25</div>
             <div style={{ fontSize: '12px', color: '#555', marginTop: '4px' }}>{report.rubric.securityReason}</div>
+          </div>
+          <div style={{ border: '1px solid #eee', padding: '14px', borderRadius: '6px', background: (report.rubric.adminPenalty || 0) > 0 ? '#fff5f5' : '#fff' }}>
+            <div style={{ fontWeight: 700, fontSize: '13px', color: (report.rubric.adminPenalty || 0) > 0 ? '#A61D2D' : '#333' }}>
+              Admin Control Penalty: {(report.rubric.adminPenalty || 0) > 0 ? `-${report.rubric.adminPenalty} pt` : '0 pt'}
+            </div>
+            <div style={{ fontSize: '12px', color: '#555', marginTop: '4px' }}>
+              {(report.rubric.adminPenalty || 0) > 0 ? 'Penalty applied for centralized or unverified admin keys.' : 'No centralized admin key penalty.'}
+            </div>
           </div>
         </div>
       </section>

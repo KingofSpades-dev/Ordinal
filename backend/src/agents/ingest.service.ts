@@ -4,14 +4,15 @@ import { Injectable } from '@nestjs/common';
 export class IngestService {
   // 1. Fetch Github telemetries
   async fetchGithubSignals(githubUrl: string) {
-    if (!githubUrl) return { commits: 0, contributors: 0, stars: 0 };
+    if (!githubUrl || githubUrl === 'N/A') return { commits: 0, contributors: 0, stars: 0 };
     
-    // Parse owner and repo from URL
-    const match = githubUrl.match(/github\.com\/([^\/]+)\/([^\/]+)/);
+    // Parse owner and optional repo from URL
+    const cleanUrl = githubUrl.trim().replace(/\/+$/, '');
+    const match = cleanUrl.match(/github\.com\/([^\/]+)(?:\/([^\/]+))?/);
     if (!match) return { commits: 0, contributors: 0, stars: 0 };
     
-    const [, owner, repo] = match;
-    const cleanRepo = repo.replace(/\.git$/, '');
+    let owner = match[1];
+    let cleanRepo = match[2] ? match[2].replace(/\.git$/, '') : '';
 
     try {
       const headers: Record<string, string> = {
@@ -22,8 +23,26 @@ export class IngestService {
 
       if (token) {
         headers['Authorization'] = token.startsWith('github_pat_') || token.startsWith('ghp_') ? `Bearer ${token}` : `token ${token}`;
-      } else {
-        console.warn(`[INGEST WARNING] Neither GITHUB_PAT nor GITHUB_TOKEN set in environment. GitHub API calls will be unauthenticated (60 req/hr limit).`);
+      }
+
+      // If only organization URL was provided, auto-detect the most active repository
+      if (!cleanRepo) {
+        console.log(`[GITHUB INGEST] Org URL detected ("${owner}"). Auto-detecting top active repository...`);
+        let orgRes = await fetch(`https://api.github.com/orgs/${owner}/repos?sort=pushed&per_page=1`, { headers });
+        if (!orgRes.ok) {
+          orgRes = await fetch(`https://api.github.com/users/${owner}/repos?sort=pushed&per_page=1`, { headers });
+        }
+        if (orgRes.ok) {
+          const repos = await orgRes.json();
+          if (Array.isArray(repos) && repos.length > 0) {
+            cleanRepo = repos[0].name;
+            console.log(`[GITHUB INGEST] Auto-detected active repo for ${owner}: "${cleanRepo}"`);
+          }
+        }
+      }
+
+      if (!cleanRepo) {
+        return { commits: 0, contributors: 0, stars: 0 };
       }
 
       // Fetch repo details
