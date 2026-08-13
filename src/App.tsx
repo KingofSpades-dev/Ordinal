@@ -843,38 +843,55 @@ function App() {
       </section>
 
       {/* Methodology */}
-      <section className="method" id="method">
-        <div className="wrap">
+      <section className="method" id="method" style={{ padding: '80px 0', background: 'var(--paper-2, #FAF6F0)' }}>
+        <div className="wrap" style={{ maxWidth: '1140px', margin: '0 auto', padding: '0 24px' }}>
+          {/* Top Row: Title & Badge Illustration */}
           <Reveal>
-            <div className="sec-head">
-              <span className="eyebrow">Trust over popularity</span>
-              <h2>Every score is reproducible, and public.</h2>
-              <p>The fastest way to earn authority in a low-trust industry is to be auditable. Here is how an Ordo rating is built.</p>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '48px', alignItems: 'center', marginBottom: '56px' }}>
+              <div>
+                <span className="eyebrow" style={{ fontSize: '11.5px', fontWeight: 800, letterSpacing: '2px', color: 'var(--brass, #A37E36)', textTransform: 'uppercase' }}>
+                  Trust over popularity
+                </span>
+                <h2 style={{ fontFamily: "'Fraunces', serif", fontSize: '42px', fontWeight: 700, margin: '12px 0 16px 0', color: 'var(--ink, #1B2A4A)', letterSpacing: '-0.02em', lineHeight: 1.15 }}>
+                  Every score is reproducible, and public.
+                </h2>
+                <p style={{ fontSize: '17px', color: 'var(--ink-soft, #5A6578)', lineHeight: 1.6, margin: 0, maxWidth: '520px' }}>
+                  The fastest way to earn authority in a low-trust industry is to be auditable. Here is how an Ordo rating is built.
+                </p>
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                <img
+                  src="/images/methodology-badge.png"
+                  alt="Ordo Score 92/100 Methodology Audit Seal"
+                  style={{
+                    maxHeight: '320px',
+                    width: 'auto',
+                    objectFit: 'contain',
+                    filter: 'drop-shadow(0 12px 28px rgba(27, 42, 74, 0.08))',
+                    borderRadius: '16px'
+                  }}
+                />
+              </div>
             </div>
           </Reveal>
-          <div className="method-grid">
-            <Reveal delay={50}>
-              <div className="method-cell">
-                <div className="idx">01</div>
-                <h4>A hard signal spine</h4>
-                <p>Audits, on-chain activity, uptime, integration counts, commit history: reproducible facts anyone can verify. No opinion enters here.</p>
-              </div>
-            </Reveal>
-            <Reveal delay={150}>
-              <div className="method-cell">
-                <div className="idx">02</div>
-                <h4>A named editorial layer</h4>
-                <p>Editors assign judgment on top of the data, with disclosed conflicts and a firewall between anyone who talks to a project and anyone who scores it.</p>
-              </div>
-            </Reveal>
-            <Reveal delay={250}>
-              <div className="method-cell">
-                <div className="idx">03</div>
-                <h4>A versioned changelog</h4>
-                <p>Exact weights, exact sources, and a public record every time the method changes. When we can't rate something yet, we say so.</p>
-              </div>
-            </Reveal>
-          </div>
+
+          {/* Bottom Row: Steps Roadmap Diagram */}
+          <Reveal delay={150}>
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+              <img
+                src="/images/methodology-steps.png"
+                alt="Ordo Rating Steps Roadmap Diagram: Step 1 Hard Signal Spine, Step 2 Named Editorial Layer, Step 3 Versioned Changelog"
+                style={{
+                  width: '100%',
+                  maxWidth: '960px',
+                  height: 'auto',
+                  borderRadius: '16px',
+                  display: 'block'
+                }}
+              />
+            </div>
+          </Reveal>
         </div>
       </section>
 
