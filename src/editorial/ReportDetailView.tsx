@@ -998,10 +998,10 @@ export function ReportDetailView({ report, onBack }: { report: ReportData; onBac
             <div style={{ background: '#fff', border: '1.5px solid var(--line-2, #E2D9CC)', borderRadius: '12px', padding: '22px', boxShadow: '0 4px 16px rgba(27, 42, 74, 0.03)' }}>
               <h4 style={{ margin: '0 0 12px 0', fontSize: '12px', fontWeight: 800, textTransform: 'uppercase', color: 'var(--brass, #A37E36)', letterSpacing: '1px' }}>Verifiability Checksum</h4>
               <div style={{ fontSize: '11px', fontFamily: 'monospace', color: 'var(--ink-soft, #5A6578)', background: 'var(--paper, #F5F0E8)', padding: '10px', borderRadius: '6px', wordBreak: 'break-all' }}>
-                SHA-256: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+                SHA-256: — (PENDING LIVE EVIDENCE HASHING)
               </div>
               <div style={{ fontSize: '11px', color: 'var(--ink-soft, #5A6578)', marginTop: '8px' }}>
-                IPFS CID: <span style={{ fontFamily: 'monospace' }}>QmXoypizjW3WknFiJn...</span>
+                IPFS CID: <span style={{ fontFamily: 'monospace' }}>—</span>
               </div>
             </div>
 

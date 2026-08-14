@@ -4,6 +4,8 @@ import './index.css'
 import App from './App.tsx'
 import RatingAgents from './RatingAgents.tsx'
 import { ReportDetailView, ReportsCatalogView, SAMPLE_REPORTS } from './editorial/ReportDetailView.tsx'
+import { QualifiedNoticeView } from './views/QualifiedNoticeView.tsx'
+import { BuildLogView } from './views/BuildLogView.tsx'
 
 function MainRouter() {
   const [currentPath, setCurrentPath] = useState(window.location.pathname);
@@ -16,10 +18,43 @@ function MainRouter() {
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
+  useEffect(() => {
+    let title = 'ORDO — Institutional Evaluation of Web3 AI Agents';
+    let metaDesc = 'Independent security ratings, telemetry verification, and risk metrics for autonomous Web3 AI agents.';
+
+    if (currentPath === '/qualified' || currentPath === '/qualified/') {
+      title = 'Qualified Volume — In Development | ORDO';
+      metaDesc = 'Notice Page: Qualified Volume filter engine assessing Web3 AI agent liquidity and execution metrics.';
+    } else if (currentPath === '/log' || currentPath === '/log/') {
+      title = 'Public Build Log | ORDO';
+      metaDesc = 'Append-only chronological record of system deployments, recalibrations, and structural corrections.';
+    } else if (currentPath === '/reports' || currentPath === '/reports/') {
+      title = 'Dossier Reports Catalog | ORDO';
+      metaDesc = 'Comprehensive evaluation dossiers and deep-dive risk reports for Web3 AI agents.';
+    }
+
+    document.title = title;
+    let meta = document.querySelector('meta[name="description"]');
+    if (!meta) {
+      meta = document.createElement('meta');
+      meta.setAttribute('name', 'description');
+      document.head.appendChild(meta);
+    }
+    meta.setAttribute('content', metaDesc);
+  }, [currentPath]);
+
   const navigate = (path: string) => {
     window.history.pushState({}, '', path);
     window.dispatchEvent(new PopStateEvent('popstate'));
   };
+
+  if (currentPath === '/qualified' || currentPath === '/qualified/') {
+    return <QualifiedNoticeView onNavigate={navigate} />;
+  }
+
+  if (currentPath === '/log' || currentPath === '/log/') {
+    return <BuildLogView onNavigate={navigate} />;
+  }
 
   if (currentPath === '/ratingagents') {
     return <RatingAgents />;

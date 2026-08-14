@@ -20,12 +20,17 @@ export const OrdoKeyIcon = ({ size = 20, color = 'var(--brass, #A37E36)' }: { si
 
 interface OrdoNavbarProps {
   currentPath?: string;
+  onNavigate?: (path: string) => void;
 }
 
-export const OrdoNavbar: React.FC<OrdoNavbarProps> = ({ currentPath }) => {
+export const OrdoNavbar: React.FC<OrdoNavbarProps> = ({ currentPath, onNavigate }) => {
   const activePath = currentPath || (typeof window !== 'undefined' ? window.location.pathname : '/');
 
   const navigateTo = (path: string) => {
+    if (onNavigate) {
+      onNavigate(path);
+      return;
+    }
     if (typeof window !== 'undefined') {
       window.history.pushState({}, '', path);
       window.dispatchEvent(new PopStateEvent('popstate'));
@@ -82,6 +87,8 @@ export const OrdoNavbar: React.FC<OrdoNavbarProps> = ({ currentPath }) => {
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '22px', fontSize: '13.5px' }}>
           <a href="/" onClick={(e) => { e.preventDefault(); navigateTo('/'); }} style={getLinkStyle('/')}>Home</a>
+          <a href="/qualified" onClick={(e) => { e.preventDefault(); navigateTo('/qualified'); }} style={getLinkStyle('/qualified')}>Qualified</a>
+          <a href="/log" onClick={(e) => { e.preventDefault(); navigateTo('/log'); }} style={getLinkStyle('/log')}>Build Log</a>
           <a href="/reports" onClick={(e) => { e.preventDefault(); navigateTo('/reports'); }} style={getLinkStyle('/reports')}>Reports</a>
           <a href="/#rankings" onClick={(e) => { e.preventDefault(); scrollToSection('rankings'); }} style={{ color: 'var(--ink-soft, #5A6578)', fontWeight: 600, textDecoration: 'none' }}>Ratings</a>
           <a href="/#method" onClick={(e) => { e.preventDefault(); scrollToSection('method'); }} style={{ color: 'var(--ink-soft, #5A6578)', fontWeight: 600, textDecoration: 'none' }}>Methodology</a>
