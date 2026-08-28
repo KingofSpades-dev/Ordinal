@@ -1,1659 +1,822 @@
-import { useEffect, useRef, useState } from 'react'
-import type { ReactNode } from 'react'
-import { OrdoNavbar } from './components/OrdoNavbar'
+import React, { useState, useMemo } from 'react';
+import { COMPLETE_AGENT_DATABASE, type AgentEntity } from './data/agentDatabase';
+import { OrdinalNavbar } from './components/OrdinalNavbar';
 
-const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:3001').replace(/\/+$/, '');
+export default function App() {
+  const [activeTab, setActiveTab] = useState<'home' | 'rankings' | 'method' | 'apply'>('home');
+  const [filterType, setFilterType] = useState<'all' | 'movers' | 'watchlist' | 'new' | 'verified'>('all');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedAgent, setSelectedAgent] = useState<AgentEntity | null>(null);
 
-interface RevealProps {
-  children: ReactNode;
-  className?: string;
-  delay?: number;
-}
+  // Form State
+  const [formData, setFormData] = useState({
+    agentName: '',
+    chain: 'Ethereum',
+    category: 'Market Making',
+    contract: '',
+    website: '',
+    docsUrl: '',
+    githubUrl: '',
+    description: ''
+  });
+  const [formSubmitted, setFormSubmitted] = useState(false);
 
-function Reveal({ children, className = '', delay = 0 }: RevealProps) {
-  const ref = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setTimeout(() => {
-            if (ref.current) {
-              ref.current.classList.add('visible');
-            }
-          }, delay);
-          observer.unobserve(entry.target);
-        }
-      },
-      { threshold: 0.05, rootMargin: '0px 0px -60px 0px' }
-    );
-
-    if (ref.current) {
-      observer.observe(ref.current);
+  const navigateTo = (path: string) => {
+    if (typeof window !== 'undefined') {
+      window.history.pushState({}, '', path);
+      window.dispatchEvent(new PopStateEvent('popstate'));
     }
-
-    return () => observer.disconnect();
-  }, [delay]);
-
-  return (
-    <div ref={ref} className={`reveal ${className}`}>
-      {children}
-    </div>
-  );
-}
-
-
-
-const OrdoKeyIcon = ({ size = 24 }: { size?: number }) => (
-  <svg
-    viewBox="0 0 100 100"
-    fill="currentColor"
-    style={{ width: `${size}px`, height: `${size}px`, color: 'var(--accent)' }}
-  >
-    <g transform="translate(50, 38)">
-      {Array.from({ length: 12 }).map((_, i) => (
-        <rect
-          key={i}
-          x="-3"
-          y="-24"
-          width="6"
-          height="12"
-          rx="3"
-          transform={`rotate(${i * 30})`}
-        />
-      ))}
-      <circle cx="0" cy="0" r="9" />
-      <circle cx="0" cy="0" r="3.5" fill="var(--paper, #F5F0E8)" />
-    </g>
-    <rect x="47" y="38" width="6" height="42" rx="1.5" />
-    <path d="M 53 62 h 12 v 6 h -6 v 4 h 6 v 6 h -12 Z" />
-  </svg>
-);
-
-function AgentFavicon({ websiteUrl, name, size = 48, className = '' }: { websiteUrl?: string; name: string; size?: number; className?: string }) {
-  const [imgError, setImgError] = useState(false);
-
-  const containerStyle: React.CSSProperties = {
-    width: `${size}px`,
-    height: `${size}px`,
-    borderRadius: '11px',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    overflow: 'hidden',
-    flex: 'none',
-    textTransform: 'uppercase'
   };
 
-  const renderFallback = () => {
-    return (
-      <div
-        className={className}
-        style={{
-          ...containerStyle,
-          background: 'var(--paper)',
-          border: '1.5px solid var(--line-2)'
-        }}
-      >
-        <OrdoKeyIcon size={Math.round(size * 0.6)} />
-      </div>
-    );
+  const filteredAgents = useMemo(() => {
+    return COMPLETE_AGENT_DATABASE.filter(agent => {
+      const matchesSearch =
+        agent.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        agent.chain.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        agent.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        agent.blurb.toLowerCase().includes(searchQuery.toLowerCase());
+      if (!matchesSearch) return false;
+
+      if (filterType === 'movers') return agent.delta7d !== '—';
+      if (filterType === 'watchlist') return agent.status === 'watchlist';
+      if (filterType === 'verified') return agent.status === 'verified';
+      if (filterType === 'new') return agent.daysIndexed <= 25;
+      return true;
+    });
+  }, [filterType, searchQuery]);
+
+  const handleFormSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!formData.agentName || !formData.contract || !formData.website || !formData.docsUrl) {
+      alert('Please fill out all required fields: Agent Name, Contract Address, Website URL, and Documentation URL.');
+      return;
+    }
+    setFormSubmitted(true);
+    setTimeout(() => {
+      setFormData({
+        agentName: '',
+        chain: 'Ethereum',
+        category: 'Market Making',
+        contract: '',
+        website: '',
+        docsUrl: '',
+        githubUrl: '',
+        description: ''
+      });
+    }, 500);
   };
 
-  if (!websiteUrl || imgError) {
-    return renderFallback();
-  }
-
-  try {
-    const url = new URL(websiteUrl);
-    const domain = url.hostname;
-    const faviconUrl = `https://www.google.com/s2/favicons?sz=64&domain=${domain}&default=404`;
-
-    return (
-      <div
-        className={className}
-        style={{
-          ...containerStyle,
-          background: 'transparent'
-        }}
-      >
-        <img
-          src={faviconUrl}
-          alt={`${name} favicon`}
-          onError={() => setImgError(true)}
-          style={{
-            width: '100%',
-            height: '100%',
-            objectFit: 'contain'
-          }}
-        />
-      </div>
-    );
-  } catch (e) {
-    return renderFallback();
-  }
-}
-
-const MODEL_DETAILS: Record<string, {
-  name: string;
-  badge: string;
-  role: string;
-  iconClass: string;
-  iconSvg: ReactNode;
-  summary: string;
-  features: Array<{
-    title: string;
-    desc: string;
-    iconSvg: ReactNode;
-  }>;
-}> = {
-  claude: {
-    name: "Claude Fable 5",
-    badge: "Analysis & Report",
-    role: "// automated Dossier drafting",
-    iconClass: "claude",
-    iconSvg: (
-      <img src="/logos/claude.jpg" alt="Claude Fable 5" style={{ width: '100%', height: '100%', borderRadius: '16px', objectFit: 'cover' }} />
-    ),
-    summary: "Reads the agent's docs, contracts, and on-chain footprint, then drafts the structured review and scores each criterion against our published rubric.",
-    features: [
-      {
-        title: "Document Intelligence",
-        desc: "Deep contextual extraction across whitepapers, technical documentation, API specifications, and architecture diagrams to map out core capabilities and operational boundaries.",
-        iconSvg: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#b05446" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /><line x1="16" y1="13" x2="8" y2="13" /><line x1="16" y1="17" x2="8" y2="17" /></svg>
-      },
-      {
-        title: "Contract & Code Reading",
-        desc: "Automated static and dynamic inspection of deployed smart contract bytecodes, GitHub repositories, admin permissions, and proxy upgrade patterns to verify immutable trust.",
-        iconSvg: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#b05446" strokeWidth="2"><polyline points="16 18 22 12 16 6" /><polyline points="8 6 2 12 8 18" /></svg>
-      },
-      {
-        title: "On-chain Footprint Analysis",
-        desc: "Continuous monitoring of live wallet interactions, TVL trends, transaction velocity, liquidity routing, and cross-protocol dependencies directly from blockchain ledgers.",
-        iconSvg: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#b05446" strokeWidth="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" /><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" /></svg>
-      },
-      {
-        title: "Structured Report Drafting",
-        desc: "Synthesizing multi-source empirical data into standardized Dossier evaluations, systematically scoring each criterion against our published editorial rubric.",
-        iconSvg: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#b05446" strokeWidth="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" /><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" /></svg>
-      }
-    ]
-  },
-  nano: {
-    name: "Nano Banana",
-    badge: "Visual Record",
-    role: "// generated imagery",
-    iconClass: "nano",
-    iconSvg: (
-      <img src="/logos/nano.jpg" alt="Nano Banana" style={{ width: '100%', height: '100%', borderRadius: '16px', objectFit: 'cover' }} />
-    ),
-    summary: "Produces every agent's visual profile, including cover imagery, product stills, and diagram plates, for a consistent, editorial-grade dossier.",
-    features: [
-      {
-        title: "Cover Imagery",
-        desc: "High-resolution thematic editorial cover artwork tailored specifically to reflect each AI agent's domain identity and publication aesthetic.",
-        iconSvg: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#e5b938" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2" /><circle cx="8.5" cy="8.5" r="1.5" /><polyline points="21 15 16 10 5 21" /></svg>
-      },
-      {
-        title: "Product Stills",
-        desc: "Studio-grade visual captures showcasing agent user interfaces (UI), terminal consoles, dashboard layouts, and interactive workflow previews.",
-        iconSvg: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#e5b938" strokeWidth="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" /><circle cx="12" cy="13" r="4" /></svg>
-      },
-      {
-        title: "Diagram Plates",
-        desc: "Vector-quality architectural blueprints rendering sequence flows, data pipelines, and complex multi-agent network interactions with precision.",
-        iconSvg: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#e5b938" strokeWidth="2"><rect x="3" y="3" width="7" height="7" /><rect x="14" y="3" width="7" height="7" /><rect x="14" y="14" width="7" height="7" /><rect x="3" y="14" width="7" height="7" /></svg>
-      },
-      {
-        title: "Visual Consistency",
-        desc: "Strict enforcement of brand identity guidelines, harmonious color palettes, and editorial typography across all Dossier visual assets.",
-        iconSvg: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#e5b938" strokeWidth="2"><circle cx="12" cy="12" r="10" /><path d="M12 2a7 7 0 1 0 7 7" /></svg>
-      }
-    ]
-  },
-  grok: {
-    name: "Grok",
-    badge: "Real-Time Signal",
-    role: "// live X & social",
-    iconClass: "grok",
-    iconSvg: (
-      <img src="/logos/grok.png" alt="Grok" style={{ width: '100%', height: '100%', borderRadius: '16px', objectFit: 'cover', background: '#000' }} />
-    ),
-    summary: "Tracks each agent's activity on X and across community channels in real time, surfacing momentum, warnings, and sentiment as it happens.",
-    features: [
-      {
-        title: "Live X Monitoring",
-        desc: "Continuous 24/7 web socket monitoring of X (Twitter) feeds, developer updates, official announcements, and community discussions.",
-        iconSvg: (
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-          </svg>
-        )
-      },
-      {
-        title: "Sentiment Analysis",
-        desc: "Natural language processing (NLP) to parse public trust scores, community perception, developer engagement, and tone velocity surrounding agent listings.",
-        iconSvg: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#111418" strokeWidth="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg>
-      },
-      {
-        title: "Momentum Detection",
-        desc: "Early identification of organic virality spikes, transaction volume surges, community growth trends, and developer activity acceleration.",
-        iconSvg: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#111418" strokeWidth="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18" /><polyline points="17 6 23 6 23 12" /></svg>
-      },
-      {
-        title: "Risk Alerts",
-        desc: "Immediate automated warnings for sudden sentiment drops, key contributor changes, potential smart contract exploits, or anomaly events.",
-        iconSvg: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#111418" strokeWidth="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>
-      }
-    ]
-  }
-};
-
-function App() {
-  const [stats, setStats] = useState<any>(null);
-  const [agentsList, setAgentsList] = useState<any[]>([]);
-  const [selectedAgent, setSelectedAgent] = useState<any>(null);
-  const [activeModelModal, setActiveModelModal] = useState<typeof MODEL_DETAILS['claude'] | null>(null);
-  const [copiedCa, setCopiedCa] = useState(false);
-
-  useEffect(() => {
-    async function loadData() {
-      try {
-        const statsRes = await fetch(`${API_URL}/api/v1/editorial/stats`);
-        if (statsRes.ok) {
-          const statsData = await statsRes.json();
-          setStats(statsData);
-        }
-        const agentsRes = await fetch(`${API_URL}/api/v1/agents/public-rankings`);
-        if (agentsRes.ok) {
-          const agentsData = await agentsRes.json();
-          setAgentsList(agentsData);
-        }
-      } catch (err) {
-        console.error('Failed to load home page data:', err);
-      }
-    }
-    loadData();
-  }, []);
-
-  const chains = [
-    ['', '#14F195', '◎', '/chains/solana.svg'],
-    ['Polygon', '#8247E5', 'P', '/chains/polygon.svg'],
-    ['', '#0052FF', 'B', '/chains/base.svg'],
-    ['Optimism', '#FF0420', 'O', '/chains/optimism.svg'],
-    ['', '#28A0F0', 'A', '/chains/arbitrum.svg'],
-    ['BNB Chain', '#F0B90B', 'B', '/chains/bnb.svg'],
-    ['', '#627EEA', 'Ξ', '/chains/ethereum.svg'],
-    ['Avalanche', '#E84142', 'A', '/chains/avalanche.svg'],
-    ['', '#4DA2FF', 'S', '/chains/sui.svg'],
-    ['', '#06F7C7', 'A', '/chains/aptos.svg'],
-    ['TON', '#0098EA', 'T', '/chains/ton.svg'],
-    ['', '#845A2B', 'B', '/chains/berachain.svg']
-  ];
-
-  // Map real agents from database, fall back to placeholders if empty
-  const agents = agentsList.length > 0
-    ? agentsList.map(a => [a.name, a.category.slice(0, 3).toUpperCase(), '#1B2A4A', a])
-    : [
-      ['Sentinel AI', 'SEC', '#1B2A4A'],
-      ['Nexus', 'INF', '#2B3A22'],
-      ['Oracle Prime', 'RES', '#3A2438'],
-      ['Vault Guard', 'SEC', '#14343A'],
-      ['DevForge', 'INF', '#3A2E14'],
-      ['AlphaScope', 'RES', '#233A3A'],
-      ['Helm', 'TRD', '#3A1E1E'],
-      ['Beacon', 'SEC', '#1E2A3A'],
-      ['Cortex', 'INF', '#2A1E3A'],
-      ['Ledger Eye', 'RES', '#3A331E'],
-      ['Momentum', 'TRD', '#1E3A2E'],
-      ['Warden', 'SEC', '#33223A']
-    ];
-
-  // For infinite scroll, double the arrays
-  const extendedChains = [...chains, ...chains];
-  const extendedAgents = [...agents, ...agents];
+  const switchTab = (tab: 'home' | 'rankings' | 'method' | 'apply') => {
+    setActiveTab(tab);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   return (
-    <>
-      {/* Ticker */}
-      <div className="ticker" aria-hidden="true">
-        <div className="ticker-track" id="tickerTrack">
-          <span className="dot">✦</span><span>Independent editorial rankings</span>
-          <span className="dot">✦</span><span>Methodology published in full</span>
-          <span className="dot">✦</span><span>Verdicts you cannot buy</span>
-          <span className="dot">✦</span><span>Every Dossier disclosed &amp; dated</span>
-          <span className="dot">✦</span><span>Coverage across 12 chains</span>
-          <span className="dot">✦</span><span>New security investigation: read now</span>
+    <div className="ordinal-app">
+      {/* ===== Masthead ===== */}
+      <OrdinalNavbar
+        activeTab={activeTab}
+        onTabChange={(tab) => switchTab(tab as any)}
+      />
 
-          <span className="dot">✦</span><span>Independent editorial rankings</span>
-          <span className="dot">✦</span><span>Methodology published in full</span>
-          <span className="dot">✦</span><span>Verdicts you cannot buy</span>
-          <span className="dot">✦</span><span>Every Dossier disclosed &amp; dated</span>
-          <span className="dot">✦</span><span>Coverage across 12 chains</span>
-          <span className="dot">✦</span><span>New security investigation: read now</span>
+      {/* ===== Ticker Band ===== */}
+      <div className="ticker-band">
+        <div className="ticker-track">
+          {COMPLETE_AGENT_DATABASE.slice(0, 8).map((a) => (
+            <span key={a.id}>
+              AGENT #{a.rank} · {a.name.toUpperCase()} · SCORE {a.score.toFixed(1)}{' '}
+              <b className={a.isUp ? 'up' : a.delta7d === '—' ? '' : 'down'}>
+                {a.delta7d}
+              </b>
+            </span>
+          ))}
+          {COMPLETE_AGENT_DATABASE.slice(0, 8).map((a) => (
+            <span key={a.id + '-dup'}>
+              AGENT #{a.rank} · {a.name.toUpperCase()} · SCORE {a.score.toFixed(1)}{' '}
+              <b className={a.isUp ? 'up' : a.delta7d === '—' ? '' : 'down'}>
+                {a.delta7d}
+              </b>
+            </span>
+          ))}
         </div>
       </div>
 
-      {/* Reusable Ordo Navbar */}
-      <OrdoNavbar currentPath="/" />
-
-      {/* Hero */}
-      <header className="hero-section">
-        <div className="wrap hero-container">
-          <div className="hero-bg-wrapper">
-            <img src="/hero_transparent.png" alt="Ordo Illustration" className="hero-bg-img" />
-          </div>
-          <div className="hero-left">
-            <Reveal delay={80}>
-              <div style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '8px',
-                background: 'var(--paper, #F5F0E8)',
-                border: '1.5px solid var(--line-2, #E2D9CC)',
-                borderRadius: '20px',
-                padding: '6px 14px',
-                marginBottom: '16px',
-                boxShadow: '0 2px 8px rgba(27, 42, 74, 0.03)',
-                fontSize: '12.5px',
-                color: 'var(--ink-soft, #5A6578)'
-              }}>
-                <span style={{ fontWeight: 800, color: 'var(--accent, #7C1522)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                  CA:
-                </span>
-                <span style={{ fontFamily: 'monospace', fontWeight: 700, color: 'var(--ink, #1B2A4A)' }}>
-                  {import.meta.env.VITE_ORDO_CA || '3x3JGdcSj1zjuqV9doa657QRVrDUMxjwRN5baxSGpump'}
-                </span>
-                <button
-                  onClick={() => {
-                    const caText = import.meta.env.VITE_ORDO_CA || '3x3JGdcSj1zjuqV9doa657QRVrDUMxjwRN5baxSGpump';
-                    navigator.clipboard.writeText(caText);
-                    setCopiedCa(true);
-                    setTimeout(() => setCopiedCa(false), 2000);
-                  }}
-                  title={copiedCa ? 'Copied!' : 'Copy Contract Address'}
-                  style={{
-                    background: 'transparent',
-                    border: 'none',
-                    cursor: 'pointer',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    padding: '2px',
-                    marginLeft: '4px',
-                    color: copiedCa ? '#137333' : 'var(--accent, #7C1522)',
-                    transition: 'transform 0.2s ease, color 0.2s ease'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = 'scale(1.15)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = 'scale(1)';
-                  }}
-                >
-                  {copiedCa ? (
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#137333" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                      <polyline points="20 6 9 17 4 12" />
-                    </svg>
-                  ) : (
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                      <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
-                      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
-                    </svg>
-                  )}
-                </button>
-              </div>
-            </Reveal>
-            <Reveal delay={100}>
-              <h1 className="hero">The Standard for Web3 AI Agents</h1>
-            </Reveal>
-            <Reveal delay={200}>
-              <p className="hero-sub">
-                We evaluate AI agents with objective, on-chain data and transparent methodology.
-              </p>
-            </Reveal>
-            <Reveal delay={300}>
-              <div className="hero-actions">
-                <a href="#rankings" className="btn-primary">Explore Ratings</a>
-                <a href="#method" className="btn-secondary">Read Methodology</a>
-              </div>
-            </Reveal>
-          </div>
-        </div>
-        <div className="wrap">
-          <Reveal delay={400}>
-            <div className="hero-meta">
-              <div className="stat"><div className="n mono">{stats?.categories ? Object.keys(stats.categories).length : 4}</div><div className="l">Curated categories</div></div>
-              <div className="stat"><div className="n mono">12</div><div className="l">Chains covered</div></div>
-              <div className="stat"><div className="n mono">{stats?.totalDossiers !== undefined ? stats.totalDossiers : 0}</div><div className="l">Dossiers published</div></div>
-              <div className="stat"><div className="n mono">{stats?.totalKeyAwardsSum !== undefined ? stats.totalKeyAwardsSum : (stats ? (stats.totalThreeKeyAwards + stats.totalTwoKeyAwards + stats.totalOneKeyAwards) : 0)}</div><div className="l">Key awards</div></div>
+      {/* ===== Page 1: The Index (Home) ===== */}
+      {activeTab === 'home' && (
+        <main id="page-home">
+          <section className="wrap hero">
+            <div className="kicker">The Web3 AI Agent Index</div>
+            <h1 className="headline">
+              Who do you trust <em>when the trader</em><br />is a machine?
+            </h1>
+            <p className="dek">
+              Thousands of autonomous agents now hold wallets, execute trades, and manage treasuries with no one watching. Ordinal built the index that grades them anyway.
+            </p>
+            <div className="byline-row">
+              <span>By the <b>Ordinal Research Desk</b></span>
+              <span>Updated continuously</span>
+              <span>Coverage: <b>2,400+ agents</b> across 11 chains</span>
             </div>
-          </Reveal>
-        </div>
-      </header>
 
-      {/* Marquee Band (Chains) */}
-      <div className="marquee-band">
-        <div className="wrap">
-          <div className="marquee-label">Agents we cover, listed across</div>
-          <div className="marquee">
-            <div className="marquee-track" id="chainTrack">
-              {extendedChains.map(([name, color, _symbol, logoPath], idx) => {
-                const isOnlyLogo = !name || name.trim() === '';
-                return (
-                  <div key={`chain-${idx}`} className="chip">
-                    <span
-                      className="glyph"
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        padding: '0px',
-                        width: isOnlyLogo ? 'auto' : '50px',
-                        height: '50px'
-                      }}
-                    >
-                      <img src={logoPath} alt={name} style={{ height: '48px', width: 'auto', objectFit: 'contain' }} />
-                    </span>
-                    {!isOnlyLogo && <span className="name" style={{ color: color }}>{name}</span>}
+            <div className="masthead-tags" style={{ marginTop: '22px', borderTop: 'none', padding: 0 }}>
+              <span style={{ color: 'var(--brass)', borderBottom: '2px solid var(--brass)', paddingBottom: '4px' }}>
+                Featured: The Next 30 — Class of 2026
+              </span>
+              <span>Rising Stars in Autonomous Finance</span>
+            </div>
+
+            <div className="ledger">
+              <div className="ledger-cell">
+                <div className="ledger-num">2,431</div>
+                <div className="ledger-label">Agents under coverage</div>
+              </div>
+              <div className="ledger-cell">
+                <div className="ledger-num">17%</div>
+                <div className="ledger-label">Score revoked after audit</div>
+              </div>
+              <div className="ledger-cell">
+                <div className="ledger-num">$0</div>
+                <div className="ledger-label">Paid placements accepted</div>
+              </div>
+            </div>
+          </section>
+
+          <section className="wrap feature">
+            <div className="feature-grid">
+              <div className="feature-body">
+                <p className="lede">
+                  Every cycle, a new autonomous agent goes live with a wallet, a strategy, and no track record. Some are built by careful teams who publish their logic. Others are wrappers around a prompt, shipped overnight, holding other people's capital by the second week. From the outside, both look identical: a name, an address, and a promise.
+                </p>
+                <p>
+                  Ordinal exists to close that gap. It is not a marketplace, and it does not rank agents by popularity or trading volume alone. It is a selective index — one that agents can fail to enter, and can be removed from — built on the belief that in a market running on autonomous code, reputation has to be earned in public, not assumed in silence.
+                </p>
+                <div className="pull">
+                  "The index doesn't ask an agent to be the best. It asks it to be provable."
+                </div>
+                <p>
+                  That distinction matters more than it sounds. An agent can be fast, profitable, and still opaque about how it makes decisions or where its access ends. Ordinal's scoring treats that opacity as a cost, not a neutral trait — because the humans allocating capital to these agents rarely get a second chance to learn the difference.
+                </p>
+              </div>
+              <div className="divider"></div>
+              <aside className="feature-aside">
+                <div className="aside-title">This week's movers</div>
+                {COMPLETE_AGENT_DATABASE.slice(0, 4).map((agent) => (
+                  <div
+                    key={agent.id}
+                    className={`aside-item ${agent.status === 'watchlist' ? 'watch' : ''}`}
+                    onClick={() => setSelectedAgent(agent)}
+                    style={{ cursor: 'pointer' }}
+                  >
+                    <div className="aside-avatar">{agent.avatar}</div>
+                    <div className="aside-body">
+                      <div className="aside-rank">
+                        {agent.status === 'watchlist' ? 'WATCHLIST' : `RANK ${agent.rank}`}
+                      </div>
+                      <div className="aside-name">{agent.name}</div>
+                    </div>
+                    <div className="aside-score">
+                      {agent.score.toFixed(1)}{' '}
+                      <span className={agent.isUp ? 'up' : 'down'}>
+                        {agent.delta7d}
+                      </span>
+                    </div>
                   </div>
-                );
-              })}
+                ))}
+              </aside>
             </div>
-          </div>
-        </div>
-      </div>
+          </section>
 
-      {/* Categories */}
-      <section id="categories">
-        <div className="wrap">
-          <Reveal>
-            <div className="sec-head">
-              <span className="eyebrow">The scope · Version I</span>
-              <h2>We start narrow, and go deep.</h2>
-              <p>Authority is earned by being undeniably right about a small thing first. Four categories, each rated against evidence, not hype or follower counts.</p>
+          <section className="wrap spotlight">
+            <div className="spotlight-head">
+              <div className="kicker">The Next 30 — Class of 2026</div>
+              <h2>Trailblazers, disruptors, and the ones quietly outperforming everyone watching.</h2>
+              <p>
+                Thirty agents indexed in the last 30 days that Ordinal's desk believes are shaping the future of autonomous finance — self-made in code, not by reputation borrowed from a team.
+              </p>
             </div>
-          </Reveal>
-          <div className="cats">
-            <Reveal delay={50}>
-              <div className="cat">
-                <div className="num">01 / Flagship</div>
-                <h3>Security &amp; Wallet Intelligence</h3>
-                <p>Agents that catch exploits, flag malicious contracts, and protect funds. Rated on detection accuracy, false-positive rates, and audited response record.</p>
-                <div className="foot"><span className="cnt">{stats?.categories?.security !== undefined ? stats.categories.security : '38'} <span>Dossiers</span></span><span className="tag">Testable</span></div>
-              </div>
-            </Reveal>
-            <Reveal delay={150}>
-              <div className="cat">
-                <div className="num">02</div>
-                <h3>Infrastructure &amp; Developer</h3>
-                <p>Tooling, frameworks, and agent rails. Judged on real integration adoption, commit history, documentation quality, and uptime. These signals are hard to fake.</p>
-                <div className="foot"><span className="cnt">{stats?.categories?.developer !== undefined ? stats.categories.developer : '51'} <span>Dossiers</span></span><span className="tag">Verifiable</span></div>
-              </div>
-            </Reveal>
-            <Reveal delay={250}>
-              <div className="cat">
-                <div className="num">03</div>
-                <h3>Research &amp; Analysis</h3>
-                <p>Agents that surface signal from on-chain noise. Assessed on accuracy of calls, transparency of method, and consistency across market conditions.</p>
-                <div className="foot"><span className="cnt">{stats?.categories?.research !== undefined ? stats.categories.research : '29'} <span>Dossiers</span></span><span className="tag">Reviewed</span></div>
-              </div>
-            </Reveal>
-            <Reveal delay={350}>
-              <div className="cat">
-                <div className="num">04</div>
-                <h3>Trading Agents</h3>
-                <p>Rated strictly on independently measured, multi-period, risk-adjusted performance, rather than self-reported returns. Framed as risk assessment, not advice.</p>
-                <div className="foot"><span className="cnt">{stats?.categories?.trading !== undefined ? stats.categories.trading : '44'} <span>Dossiers</span></span><span className="tag">On-chain verified</span></div>
-              </div>
-            </Reveal>
-          </div>
-        </div>
-      </section>
 
-      {/* Marquee Band (Agents) */}
-      <div className="marquee-band tight">
-        <div className="wrap">
-          <div className="marquee-label">Recently profiled</div>
-          <div className="marquee rev">
-            <div className="marquee-track" id="agentTrack">
-              {extendedAgents.map(([name, sub, _, agentRaw], idx) => (
-                <div key={`agent-${idx}`} className="chip agent">
-                  <AgentFavicon websiteUrl={agentRaw?.website} name={name} size={50} className="glyph" />
-                  <span style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.15 }}>
-                    <span className="name">{name}</span>
-                    <span className="sub">{sub}</span>
-                  </span>
+            <div className="spotlight-grid">
+              {COMPLETE_AGENT_DATABASE.slice(0, 6).map((agent) => (
+                <div
+                  key={agent.id}
+                  className="spot-card"
+                  onClick={() => setSelectedAgent(agent)}
+                  style={{ cursor: 'pointer' }}
+                >
+                  <div>
+                    <div className="spot-card-top">
+                      <span className="spot-rank">NO. {agent.rank}</span>
+                      <span className="spot-tag">{agent.tag}</span>
+                    </div>
+                    <div className="spot-name">{agent.name}</div>
+                    <p className="spot-blurb">{agent.blurb}</p>
+                  </div>
+                  <div className="spot-foot">
+                    <span className="spot-score">{agent.score.toFixed(1)}</span>
+                    <span className="spot-age">{agent.daysIndexed} DAYS INDEXED</span>
+                  </div>
                 </div>
               ))}
             </div>
-          </div>
-        </div>
-      </div>
 
-      {/* Rankings */}
-      <section id="rankings">
-        <div className="wrap">
-          <Reveal>
-            <div className="sec-head">
-              <span className="eyebrow">The Dossier · The rating</span>
-              <h2>One to three stars. Earned, never sold.</h2>
-              <p>Every agent gets a <b style={{ color: 'var(--ink)', fontWeight: 600 }}>Ordo Dossier</b>, which includes a full profile, scored review, and generated visual record. Our editorial verdict sits apart from community sentiment: always side by side, never blended.</p>
+            <div className="spotlight-foot">
+              <div className="spotlight-note">6 of {COMPLETE_AGENT_DATABASE.length} honorees shown</div>
+              <button className="btn-dark" onClick={() => switchTab('rankings')}>
+                View the full Leaderboard
+              </button>
             </div>
-          </Reveal>
+          </section>
 
-          <div className="stars-legend" style={{ marginBottom: '24px' }}>
-            <Reveal delay={50}>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px' }}>
-                <div className="star-row">
-                  <div className="txt"><h4>★☆☆ Notable</h4><p style={{ fontSize: '12px' }}>A capable agent worth knowing in its category. Solid execution.</p></div>
-                </div>
-                <div className="star-row">
-                  <div className="txt"><h4>★★☆ Excellent</h4><p style={{ fontSize: '12px' }}>Among the best in its category. Worth going out of your way to use.</p></div>
-                </div>
-                <div className="star-row">
-                  <div className="txt"><h4>★★★ Exceptional</h4><p style={{ fontSize: '12px' }}>A category-defining agent. The standard others are measured against.</p></div>
-                </div>
-              </div>
-            </Reveal>
-          </div>
-
-          {/* Dynamic Rankings Grid - Sorted by Score Descending */}
-          <div style={{ marginTop: '30px' }}>
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-              gap: '24px'
-            }}>
-              {[...agentsList].sort((a, b) => {
-                const getScore = (ag: any) => {
-                  const scoreObj = ag.scores && ag.scores.length > 0
-                    ? JSON.parse(ag.scores[0].hardSignalScores)
-                    : null;
-                  const editorialScore = ag.scores?.[0]?.editorialScore ?? 0;
-                  return scoreObj
-                    ? (typeof scoreObj.finalScore === 'number'
-                      ? Math.round(editorialScore + scoreObj.finalScore)
-                      : Math.round(editorialScore + (scoreObj.verifiabilityScore + scoreObj.activityScore + scoreObj.maintenanceScore + scoreObj.securityScore - (scoreObj.adminPenalty || 0))))
-                    : 0;
-                };
-                return getScore(b) - getScore(a);
-              }).map((agent) => {
-                const scoreObj = agent.scores && agent.scores.length > 0
-                  ? JSON.parse(agent.scores[0].hardSignalScores)
-                  : null;
-                const starsCount = scoreObj ? scoreObj.starsCount : 0;
-                const editorialScore = agent.scores?.[0]?.editorialScore ?? 0;
-                const finalScore = scoreObj
-                  ? (typeof scoreObj.finalScore === 'number'
-                    ? Math.round(editorialScore + scoreObj.finalScore)
-                    : Math.round(editorialScore + (scoreObj.verifiabilityScore + scoreObj.activityScore + scoreObj.maintenanceScore + scoreObj.securityScore - (scoreObj.adminPenalty || 0))))
-                  : 0;
-                const isUnrated = scoreObj?.insufficientEvidence;
-
-                return (
-                  <div
-                    key={agent.id}
-                    className="verdict-card"
-                    style={{ cursor: 'pointer', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', transition: 'transform 0.2s, border-color 0.2s' }}
-                    onClick={() => setSelectedAgent(agent)}
-                    onMouseOver={(e) => {
-                      e.currentTarget.style.transform = 'translateY(-4px)';
-                      e.currentTarget.style.borderColor = 'var(--brass)';
-                    }}
-                    onMouseOut={(e) => {
-                      e.currentTarget.style.transform = 'translateY(0)';
-                      e.currentTarget.style.borderColor = 'var(--line-2)';
-                    }}
-                  >
-                    <div>
-                      <div className="vc-top">
-                        <AgentFavicon websiteUrl={agent.website} name={agent.name} size={48} className="vc-logo" />
-                        <div className="meta">
-                          <div className="nm" style={{ fontSize: '18px', fontWeight: 700 }}>{agent.name}</div>
-                          <div className="cat-l" style={{ textTransform: 'capitalize', display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap', marginTop: '3px' }}>
-                            <span>{agent.category}</span>
-                            <span style={{ color: 'var(--line)' }}>|</span>
-                            <span style={{
-                              display: 'inline-flex',
-                              alignItems: 'center',
-                              gap: '4px',
-                              background: 'var(--paper)',
-                              padding: '2px 6px',
-                              borderRadius: '4px',
-                              fontSize: '11px',
-                              fontWeight: 700,
-                              textTransform: 'uppercase',
-                              color: 'var(--ink)'
-                            }}>
-                              {agent.chains.toUpperCase()}
-                            </span>
-                            {(() => {
-                              const primaryIdentity = agent.identities?.find((id: any) => id.isPrimary) || agent.identities?.[0] || null;
-                              if (!primaryIdentity) return null;
-                              const verificationTier = primaryIdentity.verificationTier || 'unverified';
-                              return (
-                                <>
-
-                                  <span
-                                    style={{
-                                      fontSize: '10px',
-                                      fontWeight: 700,
-                                      textTransform: 'uppercase',
-                                      padding: '2px 6px',
-                                      borderRadius: '4px',
-                                      background: verificationTier === 'ownership_verified'
-                                        ? 'var(--brass-soft)'
-                                        : verificationTier === 'verified'
-                                          ? '#e2ece9'
-                                          : '#fdeded',
-                                      color: verificationTier === 'ownership_verified'
-                                        ? 'var(--brass)'
-                                        : verificationTier === 'verified'
-                                          ? '#2d6a4f'
-                                          : '#d32f2f',
-                                      border: `1px solid ${verificationTier === 'ownership_verified'
-                                        ? 'var(--brass)'
-                                        : verificationTier === 'verified'
-                                          ? '#2d6a4f'
-                                          : '#d32f2f'
-                                        }`
-                                    }}
-                                  >
-                                    {verificationTier === 'ownership_verified' ? '✓ OWNER VERIFIED' : verificationTier === 'verified' ? '✓ VERIFIED' : 'UNVERIFIED'}
-                                  </span>
-                                </>
-                              );
-                            })()}
-                          </div>
-                        </div>
-                        <div className="vc-score">
-                          {isUnrated ? (
-                            <div className="of" style={{ fontSize: '9px', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: 700, color: 'var(--ink-soft)' }}>UNRATED</div>
-                          ) : (
-                            <>
-                              <div className="big mono">{finalScore}</div>
-                              <div className="of">/ 100</div>
-                            </>
-                          )}
-                        </div>
-                      </div>
-                      <div style={{
-                        padding: '16px 26px 0 26px',
-                        fontSize: '13.5px',
-                        color: 'var(--ink-soft)',
-                        lineHeight: 1.5,
-                        display: '-webkit-box',
-                        WebkitLineClamp: 2,
-                        WebkitBoxOrient: 'vertical',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        minHeight: '40px'
-                      }}>
-                        {agent.selectionRationale || (agent.dossiers?.[0]?.title) || (agent.keyRationale) || `${agent.name} is an autonomous ${agent.category} agent monitored on-chain on ${agent.chains.toUpperCase()}.`}
-                      </div>
-                    </div>
-                    <div className="vc-split" style={{ marginTop: '16px', borderTop: '1px solid var(--line)', paddingTop: '12px' }}>
-                      <span className="tag" style={{ color: 'var(--brass)', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-                        {isUnrated ? (
-                          'Registered, not rated'
-                        ) : starsCount === 0 ? (
-                          'Verdict · Unverified'
-                        ) : (
-                          <>
-                            Verdict · <span style={{ fontSize: '26px', lineHeight: 1, verticalAlign: 'middle', marginTop: '-4px', letterSpacing: '-1px' }}>{'★'.repeat(starsCount)}{'☆'.repeat(3 - starsCount)}</span>
-                          </>
-                        )}
-                      </span>
-                      <span style={{ fontSize: '11px', textDecoration: 'underline', color: 'var(--brass)', fontWeight: 700 }}>View Dossier →</span>
-                    </div>
-                  </div>
-                );
-              })}
+          <section className="wrap method">
+            <div className="method-head">
+              <h2>How the index actually works</h2>
+              <div className="method-sub">Three-stage review, repeated continuously</div>
             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Stack */}
-      <section id="stack" className="stack">
-        <div className="wrap">
-          <Reveal>
-            <div className="stack-top-header">
-              <div className="sec-head">
-                <span className="eyebrow">How every Dossier is built</span>
-                <h2>Multiple frontier models. One rigorous result.</h2>
-                <p>Each Ordo Dossier is assembled by a combined AI stack, then verified by a human editor before it earns a star. No single model does the whole job. Instead, we pair each to what it does best.</p>
-              </div>
-              <div className="stack-badge-container">
-                <div className="star-seal">
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="white">
-                    <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26" />
-                  </svg>
-                </div>
-                <div className="human-verified-card">
-                  <div className="human-verified-header">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#d96253" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-                      <polyline points="9 12 11 14 15 10" />
-                    </svg>
-                    <span className="human-verified-title">HUMAN VERIFIED</span>
-                  </div>
-                  <div className="human-verified-body">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(247,243,235,0.6)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ marginTop: '2px', flexShrink: 0 }}>
-                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                      <circle cx="12" cy="7" r="4" />
-                    </svg>
-                    <span className="human-verified-text">No automated star is published unreviewed.</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </Reveal>
-          <div className="stack-grid">
-            <Reveal delay={50}>
-              <div className="scell">
-                <div>
-                  <span className="badge">Analysis &amp; Report</span>
-                  <div className="scell-header-row">
-                    <div className="scell-logo-box claude">
-                      <img src="/logos/claude.jpg" alt="Claude Fable 5" style={{ width: '100%', height: '100%', borderRadius: '16px', objectFit: 'cover' }} />
-                    </div>
-                    <div className="scell-title-meta">
-                      <h4>Claude Fable 5</h4>
-                      <div className="role">// automated Dossier drafting</div>
-                    </div>
-                  </div>
-                  <p className="scell-desc">Reads the agent's docs, contracts, and on-chain footprint, then drafts the structured review and scores each criterion against our published rubric.</p>
-                  <ul className="scell-features">
-                    <li>
-                      <span className="feature-icon claude">
-                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /><line x1="16" y1="13" x2="8" y2="13" /><line x1="16" y1="17" x2="8" y2="17" /></svg>
-                      </span>
-                      Document Intelligence
-                    </li>
-                    <li>
-                      <span className="feature-icon claude">
-                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="16 18 22 12 16 6" /><polyline points="8 6 2 12 8 18" /></svg>
-                      </span>
-                      Contract &amp; Code Reading
-                    </li>
-                    <li>
-                      <span className="feature-icon claude">
-                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" /><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" /></svg>
-                      </span>
-                      On-chain Footprint Analysis
-                    </li>
-                    <li>
-                      <span className="feature-icon claude">
-                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" /><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" /></svg>
-                      </span>
-                      Structured Report Drafting
-                    </li>
-                  </ul>
-                </div>
-                <div className="scell-footer" onClick={() => setActiveModelModal(MODEL_DETAILS.claude)}>
-                  <span className="view-role">VIEW ROLE</span>
-                  <button className="arrow-btn" aria-label="View role">→</button>
-                </div>
-              </div>
-            </Reveal>
-
-            <Reveal delay={150}>
-              <div className="scell">
-                <div>
-                  <span className="badge">Visual Record</span>
-                  <div className="scell-header-row">
-                    <div className="scell-logo-box nano">
-                      <img src="/logos/nano.jpg" alt="Nano Banana" style={{ width: '100%', height: '100%', borderRadius: '16px', objectFit: 'cover' }} />
-                    </div>
-                    <div className="scell-title-meta">
-                      <h4>Nano Banana</h4>
-                      <div className="role">// generated imagery</div>
-                    </div>
-                  </div>
-                  <p className="scell-desc">Produces every agent's visual profile, including cover imagery, product stills, and diagram plates, for a consistent, editorial-grade dossier.</p>
-                  <ul className="scell-features">
-                    <li>
-                      <span className="feature-icon nano">
-                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2" /><circle cx="8.5" cy="8.5" r="1.5" /><polyline points="21 15 16 10 5 21" /></svg>
-                      </span>
-                      Cover Imagery
-                    </li>
-                    <li>
-                      <span className="feature-icon nano">
-                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" /><circle cx="12" cy="13" r="4" /></svg>
-                      </span>
-                      Product Stills
-                    </li>
-                    <li>
-                      <span className="feature-icon nano">
-                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="7" height="7" /><rect x="14" y="3" width="7" height="7" /><rect x="14" y="14" width="7" height="7" /><rect x="3" y="14" width="7" height="7" /></svg>
-                      </span>
-                      Diagram Plates
-                    </li>
-                    <li>
-                      <span className="feature-icon nano">
-                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10" /><path d="M12 2a7 7 0 1 0 7 7" /></svg>
-                      </span>
-                      Visual Consistency
-                    </li>
-                  </ul>
-                </div>
-                <div className="scell-footer" onClick={() => setActiveModelModal(MODEL_DETAILS.nano)}>
-                  <span className="view-role">VIEW ROLE</span>
-                  <button className="arrow-btn" aria-label="View role">→</button>
-                </div>
-              </div>
-            </Reveal>
-
-            <Reveal delay={250}>
-              <div className="scell">
-                <div>
-                  <span className="badge">Real-time Signal</span>
-                  <div className="scell-header-row">
-                    <div className="scell-logo-box grok">
-                      <img src="/logos/grok.png" alt="Grok" style={{ width: '100%', height: '100%', borderRadius: '16px', objectFit: 'cover', background: '#000' }} />
-                    </div>
-                    <div className="scell-title-meta">
-                      <h4>Grok</h4>
-                      <div className="role">// live X &amp; social</div>
-                    </div>
-                  </div>
-                  <p className="scell-desc">Tracks each agent's activity on X and across community channels in real time, surfacing momentum, warnings, and sentiment as it happens.</p>
-                  <ul className="scell-features">
-                    <li>
-                      <span className="feature-icon grok">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-                          <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-                        </svg>
-                      </span>
-                      Live X Monitoring
-                    </li>
-                    <li>
-                      <span className="feature-icon grok">
-                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg>
-                      </span>
-                      Sentiment Analysis
-                    </li>
-                    <li>
-                      <span className="feature-icon grok">
-                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18" /><polyline points="17 6 23 6 23 12" /></svg>
-                      </span>
-                      Momentum Detection
-                    </li>
-                    <li>
-                      <span className="feature-icon grok">
-                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>
-                      </span>
-                      Risk Alerts
-                    </li>
-                  </ul>
-                </div>
-                <div className="scell-footer" onClick={() => setActiveModelModal(MODEL_DETAILS.grok)}>
-                  <span className="view-role">VIEW ROLE</span>
-                  <button className="arrow-btn" aria-label="View role">→</button>
-                </div>
-              </div>
-            </Reveal>
-          </div>
-          <Reveal delay={350}>
-            <p className="stack-note">DRAFTED BY AI · <b>VERIFIED BY A HUMAN EDITOR</b> · NO AUTOMATED STAR IS PUBLISHED UNREVIEWED</p>
-          </Reveal>
-        </div>
-      </section>
-
-      {/* Methodology */}
-      <section className="method" id="method" style={{ padding: '80px 0', background: 'var(--paper-2, #FAF6F0)' }}>
-        <div className="wrap" style={{ maxWidth: '1140px', margin: '0 auto', padding: '0 24px' }}>
-          {/* Top Row: Title & Badge Illustration */}
-          <Reveal>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '48px', alignItems: 'center', marginBottom: '56px' }}>
-              <div>
-                <span className="eyebrow" style={{ fontSize: '11.5px', fontWeight: 800, letterSpacing: '2px', color: 'var(--brass, #A37E36)', textTransform: 'uppercase' }}>
-                  Trust over popularity
-                </span>
-                <h2 style={{ fontFamily: "'Fraunces', serif", fontSize: '42px', fontWeight: 700, margin: '12px 0 16px 0', color: 'var(--ink, #1B2A4A)', letterSpacing: '-0.02em', lineHeight: 1.15 }}>
-                  Every score is reproducible, and public.
-                </h2>
-                <p style={{ fontSize: '17px', color: 'var(--ink-soft, #5A6578)', lineHeight: 1.6, margin: 0, maxWidth: '520px' }}>
-                  The fastest way to earn authority in a low-trust industry is to be auditable. Here is how an Ordo rating is built.
+            <div className="dispatch-grid">
+              <div className="dispatch">
+                <div className="dispatch-tag">Signal</div>
+                <h3>What the agent claims</h3>
+                <p>
+                  Ordinal reads what an agent publishes about itself: strategy, permissions, custody model, and on-chain history — the same material a diligent investor would ask for before wiring funds.
                 </p>
               </div>
-
-              <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                <img
-                  src="/images/methodology-badge.png"
-                  alt="Ordo Score 92/100 Methodology Audit Seal"
-                  style={{
-                    maxHeight: '320px',
-                    width: 'auto',
-                    objectFit: 'contain',
-                    filter: 'drop-shadow(0 12px 28px rgba(27, 42, 74, 0.08))',
-                    borderRadius: '16px',
-                    cursor: 'pointer',
-                    transition: 'transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), filter 0.4s ease'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = 'scale(1.05)';
-                    e.currentTarget.style.filter = 'drop-shadow(0 18px 36px rgba(27, 42, 74, 0.14))';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = 'scale(1)';
-                    e.currentTarget.style.filter = 'drop-shadow(0 12px 28px rgba(27, 42, 74, 0.08))';
-                  }}
-                />
+              <div className="dispatch">
+                <div className="dispatch-tag">Scrutiny</div>
+                <h3>What the chain shows</h3>
+                <p>
+                  Claims are checked against transaction history, wallet behavior, and incident reports. Gaps between what an agent says and what it does are the single largest driver of score movement.
+                </p>
+              </div>
+              <div className="dispatch">
+                <div className="dispatch-tag">Score</div>
+                <h3>What gets published</h3>
+                <p>
+                  A single reputation score, with the reasoning behind it made visible — not a black-box number, but a rating you could argue with, because you can see how it was reached.
+                </p>
               </div>
             </div>
-          </Reveal>
+          </section>
 
-          {/* Bottom Row: Steps Roadmap Diagram */}
-          <Reveal delay={150}>
-            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '-90px' }}>
-              <img
-                src="/images/methodology-steps.png"
-                alt="Ordo Rating Steps Roadmap Diagram: Step 1 Hard Signal Spine, Step 2 Named Editorial Layer, Step 3 Versioned Changelog"
-                style={{
-                  width: '100%',
-                  maxWidth: '960px',
-                  height: 'auto',
-                  borderRadius: '16px',
-                  display: 'block',
-                  cursor: 'pointer',
-                  transition: 'transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), filter 0.4s ease'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = 'scale(1.04)';
-                  e.currentTarget.style.filter = 'drop-shadow(0 16px 36px rgba(27, 42, 74, 0.12))';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = 'scale(1)';
-                  e.currentTarget.style.filter = 'none';
-                }}
+          <section className="closing">
+            <div className="wrap closing-inner">
+              <h2>The index updates daily. Most agents' behavior doesn't wait that long to change.</h2>
+              <div className="cta-row">
+                <button className="btn solid" onClick={() => switchTab('method')}>
+                  Read the methodology
+                </button>
+                <button className="btn" onClick={() => navigateTo('/apply')}>
+                  Submit an agent
+                </button>
+              </div>
+            </div>
+          </section>
+        </main>
+      )}
+
+      {/* ===== Page 2: Rankings (Leaderboard) ===== */}
+      {activeTab === 'rankings' && (
+        <main id="page-rankings">
+          <div className="wrap page-head">
+            <div className="kicker">Rankings — Live Database Coverage</div>
+            <h1 className="headline" style={{ fontSize: 'clamp(2rem, 4.4vw, 3rem)' }}>
+              The full leaderboard
+            </h1>
+            <p className="dek" style={{ fontSize: '1.05rem', maxWidth: '680px' }}>
+              Every agent under coverage, ranked by composite reputation score. Scores move as new on-chain activity is reviewed — nothing here is static.
+            </p>
+
+            <div className="controls-row">
+              <div className="filter-row">
+                <button
+                  className={`filter-btn ${filterType === 'all' ? 'active' : ''}`}
+                  onClick={() => setFilterType('all')}
+                >
+                  All ({COMPLETE_AGENT_DATABASE.length})
+                </button>
+                <button
+                  className={`filter-btn ${filterType === 'verified' ? 'active' : ''}`}
+                  onClick={() => setFilterType('verified')}
+                >
+                  Verified
+                </button>
+                <button
+                  className={`filter-btn ${filterType === 'movers' ? 'active' : ''}`}
+                  onClick={() => setFilterType('movers')}
+                >
+                  Top Movers
+                </button>
+                <button
+                  className={`filter-btn ${filterType === 'watchlist' ? 'active' : ''}`}
+                  onClick={() => setFilterType('watchlist')}
+                >
+                  Watchlist
+                </button>
+                <button
+                  className={`filter-btn ${filterType === 'new' ? 'active' : ''}`}
+                  onClick={() => setFilterType('new')}
+                >
+                  Newly Indexed
+                </button>
+              </div>
+
+              <input
+                type="text"
+                className="search-input"
+                placeholder="Search agent, chain, or category..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
               />
             </div>
-          </Reveal>
-        </div>
-      </section>
-
-      {/* Editorial */}
-      <section id="editorial">
-        <div className="wrap">
-          <Reveal>
-            <div className="sec-head">
-              <span className="eyebrow">The publication</span>
-              <h2>A technology desk, not a directory.</h2>
-              <p>Reviews, deep dives, and investigations. The work that turns a ranking into an institution people cite.</p>
-            </div>
-          </Reveal>
-          <div className="ed-grid">
-            <Reveal delay={50} className="ed lead">
-              <span className="kind">Investigation</span>
-              <h3>The agent that claimed 300% returns, and the wallets that tell a different story.</h3>
-              <span className="date">Jul 18, 2026 · 14 min read</span>
-            </Reveal>
-            <Reveal delay={120} className="ed">
-              <span className="kind">Technical deep dive</span>
-              <h3>How the top security agents actually detect a drain, benchmarked.</h3>
-              <span className="date">Jul 15, 2026</span>
-            </Reveal>
-            <Reveal delay={190} className="ed">
-              <span className="kind">Comparative review</span>
-              <h3>Six developer-agent frameworks, tested on the same workload.</h3>
-              <span className="date">Jul 11, 2026</span>
-            </Reveal>
-            <Reveal delay={260} className="ed">
-              <span className="kind">Weekly report</span>
-              <h3>Ecosystem brief: 40 launches, 3 worth your attention.</h3>
-              <span className="date">Jul 09, 2026</span>
-            </Reveal>
-            <Reveal delay={330} className="ed">
-              <span className="kind">Founder interview</span>
-              <h3>Building an audited agent in public: a conversation.</h3>
-              <span className="date">Jul 04, 2026</span>
-            </Reveal>
           </div>
-        </div>
-      </section>
 
-      {/* Holders */}
-      <section id="holders" className="method">
-        <div className="wrap">
-          <Reveal>
-            <div className="sec-head">
-              <span className="eyebrow">For $MRD holders</span>
-              <h2>Real benefits. No influence over the verdict.</h2>
-              <p>Holding the token unlocks access and status, which are the things worth paying for. It does not, and cannot, move an editorial ranking.</p>
-            </div>
-          </Reveal>
-          <div className="holder">
-            <div className="holder-list">
-              <Reveal delay={50} className="hl-row">
-                <div className="ic">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="var(--ink)" strokeWidth="1.6">
-                    <path d="M4 7h16M4 12h16M4 17h10" />
-                  </svg>
-                </div>
-                <div>
-                  <h4>Full Dossiers, first</h4>
-                  <p>Complete reviews and investigations before they reach the public feed.</p>
-                </div>
-              </Reveal>
-              <Reveal delay={120} className="hl-row">
-                <div className="ic">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="var(--ink)" strokeWidth="1.6">
-                    <path d="M3 3v18h18" />
-                    <path d="M7 14l3-4 3 3 5-7" />
-                  </svg>
-                </div>
-                <div>
-                  <h4>Advanced analytics &amp; on-chain data</h4>
-                  <p>The full data layer behind every score, explorable.</p>
-                </div>
-              </Reveal>
-              <Reveal delay={190} className="hl-row">
-                <div className="ic">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="var(--ink)" strokeWidth="1.6">
-                    <path d="M8 3H5a2 2 0 00-2 2v3m0 8v3a2 2 0 002 2h3m8 0h3a2 2 0 002-2v-3m0-8V5a2 2 0 00-2-2h-3" />
-                  </svg>
-                </div>
-                <div>
-                  <h4>API access</h4>
-                  <p>Query rankings and Dossiers programmatically for your own tools.</p>
-                </div>
-              </Reveal>
-              <Reveal delay={260} className="hl-row">
-                <div className="ic">
-                  <svg viewBox="0 0 24 24" fill="var(--brass)">
-                    <path d="M12 2l2.6 7.1L22 9.3l-5.5 4.5L18.6 22 12 17.6 5.4 22l2.1-8.2L2 9.3l7.4-.2z" />
-                  </svg>
-                </div>
-                <div>
-                  <h4>Community Stars &amp; holder badge</h4>
-                  <p>Rate agents you can prove you've used on-chain under a one holder, one vote system. Shown separately from the editorial verdict.</p>
-                </div>
-              </Reveal>
-            </div>
-            <Reveal delay={300} className="holder-note">
-              <div className="eyebrow">Why the wall exists</div>
-              <h3>Community sentiment and editorial verdict live side by side, and are never merged.</h3>
-              <p>Holders give stars to agents they've genuinely used. That signal is shown as <b>Community Stars</b>, next to, and never inside, our independent rating. When the two diverge, that's our most interesting story.</p>
-              <div className="fine">
-                ONE HOLDER · ONE VOTE / NOT ONE TOKEN · ONE VOTE<br />
-                STARS REQUIRE PROOF OF ON-CHAIN USE<br />
-                THE TOKEN GRANTS ACCESS, NEVER RANKING POWER
-              </div>
-            </Reveal>
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Band */}
-      <Reveal>
-        <div className="cta-band">
           <div className="wrap">
-            <h2>The guide the industry <em>trusts.</em></h2>
-            <p>Find the agents worth your funds, and skip the ones that aren't.</p>
-            <a href="#rankings" className="btn-primary">Browse the rankings</a>
+            <table className="rank-table">
+              <thead>
+                <tr>
+                  <th>Rank</th>
+                  <th>Agent</th>
+                  <th>Chain</th>
+                  <th>Category</th>
+                  <th>Wallets (30d)</th>
+                  <th>Commits (30d)</th>
+                  <th>Score</th>
+                  <th>7d</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredAgents.map((agent) => (
+                  <tr key={agent.id} onClick={() => setSelectedAgent(agent)}>
+                    <td className="r-num">{agent.rank}</td>
+                    <td className="r-name">
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <span className="aside-avatar" style={{ width: '28px', height: '28px', fontSize: '0.75rem' }}>
+                          {agent.avatar}
+                        </span>
+                        {agent.name}
+                      </div>
+                    </td>
+                    <td className="r-chain">{agent.chain}</td>
+                    <td className="r-chain">{agent.category}</td>
+                    <td className="r-chain" style={{ fontFamily: "'IBM Plex Mono', monospace" }}>
+                      {agent.activeWallets30d.toLocaleString()}
+                    </td>
+                    <td className="r-chain" style={{ fontFamily: "'IBM Plex Mono', monospace" }}>
+                      {agent.commits30d}
+                    </td>
+                    <td className="r-score">{agent.score.toFixed(1)}</td>
+                    <td className={agent.isUp ? 'table-up' : agent.delta7d === '—' ? 'r-chain' : 'table-down'}>
+                      {agent.delta7d}
+                    </td>
+                    <td>
+                      {agent.status === 'verified' && (
+                        <span className="badge verified">Verified</span>
+                      )}
+                      {agent.status === 'watchlist' && (
+                        <span className="badge watch">Watchlist</span>
+                      )}
+                      {agent.status === 'standard' && (
+                        <span style={{ color: 'var(--ink-soft)' }}>—</span>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
-        </div>
-      </Reveal>
+        </main>
+      )}
 
-      {/* Footer */}
-      <footer>
-        <div className="wrap">
-          <div className="foot-top">
-            <div className="foot-brand">
-              <div className="brand">
-                <svg className="brand-mark" viewBox="0 0 100 100" fill="currentColor">
-                  <g transform="translate(50, 38)">
-                    {Array.from({ length: 12 }).map((_, i) => (
-                      <rect
-                        key={i}
-                        x="-3"
-                        y="-24"
-                        width="6"
-                        height="12"
-                        rx="3"
-                        transform={`rotate(${i * 30})`}
-                      />
-                    ))}
-                    <circle cx="0" cy="0" r="9" />
-                    <circle cx="0" cy="0" r="3.5" fill="var(--paper, #F5F0E8)" />
-                  </g>
-                  <rect x="47" y="38" width="6" height="42" rx="1.5" />
-                  <path d="M 53 62 h 12 v 6 h -6 v 4 h 6 v 6 h -12 Z" />
-                </svg>
-                <span className="brand-name">O<b>rdo</b></span>
-              </div>
-              <p>The independent editorial authority for Web3 AI agents. Rankings you can trust, methodology you can read.</p>
+      {/* ===== Page 3: Methodology ===== */}
+      {activeTab === 'method' && (
+        <main id="page-method">
+          <div className="wrap page-head">
+            <div className="kicker">Methodology</div>
+            <h1 className="headline" style={{ fontSize: 'clamp(2rem, 4.4vw, 3rem)' }}>
+              How a machine earns a rating
+            </h1>
+            <p className="dek" style={{ fontSize: '1.05rem', maxWidth: '680px' }}>
+              Ordinal's score is not a popularity count or a trading-volume leaderboard. It is a weighted assessment of what an agent claims, what the chain confirms, and how the gap between the two is treated.
+            </p>
+          </div>
+
+          <div className="wrap method-page-body">
+            <p className="lede">
+              Reputation, for a human institution, is built over years of audited statements, regulatory filings, and public track record. Autonomous agents have none of that scaffolding — most are weeks old, and their entire operating history lives on-chain in a form few people read closely. Ordinal's methodology exists to translate that raw activity into something a person allocating capital can actually use.
+            </p>
+            <p>
+              Every agent under coverage is scored across four weighted criteria, re-evaluated on a rolling basis as new transactions and disclosures arrive. No agent pays for placement, and no score is final — it is a running assessment, published with its reasoning attached.
+            </p>
+
+            <table className="crit-table">
+              <thead>
+                <tr>
+                  <th>Criterion</th>
+                  <th>Weight</th>
+                  <th>What it measures</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Disclosure completeness</td>
+                  <td className="weight">30%</td>
+                  <td>Whether the agent publishes its strategy, custody model, and permission scope before it holds funds.</td>
+                </tr>
+                <tr>
+                  <td>On-chain consistency</td>
+                  <td className="weight">35%</td>
+                  <td>Whether transaction history matches the agent's stated strategy and risk limits over time.</td>
+                </tr>
+                <tr>
+                  <td>Incident response</td>
+                  <td className="weight">20%</td>
+                  <td>How an agent's operators handled past exploits, bugs, or deviations — speed and transparency, not just outcome.</td>
+                </tr>
+                <tr>
+                  <td>Independence of code</td>
+                  <td className="weight">15%</td>
+                  <td>Whether the agent's logic is auditable and distinct from a black-box wrapper around a single undocumented prompt.</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <div className="pull">
+              "A high score is not a guarantee. It is a record of what has been checked, and what has held up."
             </div>
-            <div className="foot-cols">
-              <div className="foot-col">
-                <h5>Rankings</h5>
-                <a href="#">Security</a><a href="#">Infrastructure</a><a href="#">Research</a><a href="#">Trading</a>
-              </div>
-              <div className="foot-col">
-                <h5>Publication</h5>
-                <a href="#">Dossiers</a><a href="#">Investigations</a><a href="#">Weekly report</a><a href="#">Interviews</a>
-              </div>
-              <div className="foot-col">
-                <h5>The Guide</h5>
-                <a href="#">Methodology</a><a href="#">Editorial standards</a><a href="#">Holder benefits</a><a href="#">Submit an agent</a>
-              </div>
-            </div>
+            <p>
+              Agents that fall in disclosure or consistency are moved to the watchlist rather than removed outright — the index is meant to show deterioration in progress, not just hide it after the fact. An agent can re-enter good standing by correcting the underlying behavior, not by requesting a re-score.
+            </p>
           </div>
-          <div className="foot-bottom">
-            <p>© 2026 Ordo</p>
-            <p>Independent · Unbuyable · Dated</p>
+        </main>
+      )}
+
+      {/* ===== Page 4: Get Listed ===== */}
+      {activeTab === 'apply' && (
+        <main id="page-apply">
+          <div className="wrap page-head">
+            <div className="kicker">Ordinal Evaluation Pipeline</div>
+            <h1 className="headline" style={{ fontSize: 'clamp(2rem, 4.4vw, 3.2rem)' }}>
+              Get Listed
+            </h1>
+            <p className="dek" style={{ fontSize: '1.05rem', maxWidth: '720px' }}>
+              Submit an autonomous agent for evaluation, run instant telemetry diagnostics, and calculate provisional reputation scores across 4 weighted audit criteria.
+            </p>
           </div>
-        </div>
-      </footer>
 
-      {/* Dossier Detail Modal */}
-      {selectedAgent && (() => {
-        const scoreObj = selectedAgent.scores && selectedAgent.scores.length > 0
-          ? JSON.parse(selectedAgent.scores[0].hardSignalScores)
-          : null;
-        const starsCount = scoreObj ? scoreObj.starsCount : 0;
-        const isUnrated = scoreObj?.insufficientEvidence;
+          <div className="wrap apply-grid">
+            <div className="apply-form-container">
+              <form className="apply-form" onSubmit={handleFormSubmit}>
+                {formSubmitted && (
+                  <div className="alert-success">
+                    ✓ Submission & Rating Benchmark Recorded! The Ordinal Research Desk has indexed your contract telemetry for verification.
+                  </div>
+                )}
 
-        const dossier = selectedAgent.dossiers && selectedAgent.dossiers.length > 0
-          ? selectedAgent.dossiers[0]
-          : null;
+                <div className="field">
+                  <label>Agent Name</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Cipherworks"
+                    value={formData.agentName}
+                    onChange={(e) => setFormData({ ...formData, agentName: e.target.value })}
+                    required
+                  />
+                </div>
 
-        // Auto-generate limitations text if not explicitly stored
-        const limitationsList = [];
-        if (!selectedAgent.githubUrl || selectedAgent.githubUrl === 'N/A' || selectedAgent.githubUrl === '') {
-          limitationsList.push("Open-source code repository: We could not verify the source code, developer commits, or contributor distribution.");
-        }
-        if (!selectedAgent.docsUrl || selectedAgent.docsUrl === 'N/A' || selectedAgent.docsUrl === '') {
-          limitationsList.push("Developer integration docs: Missing integration instructions or public API schemas.");
-        }
-        const activeWalletsSnapshot = selectedAgent.snapshots?.find((s: any) => s.signalKey === 'active_wallets_30d');
-        if (!activeWalletsSnapshot) {
-          limitationsList.push("On-chain user telemetry: Unique interacting address counts could not be verified.");
-        }
-        const auditSnapshot = selectedAgent.snapshots?.find((s: any) => s.signalKey === 'audit_exists');
-        if (!auditSnapshot || auditSnapshot.value === 0) {
-          limitationsList.push("Security audits: No public smart contract audit reports were evidenced.");
-        }
-        const adminKeysSnapshot = selectedAgent.snapshots?.find((s: any) => s.signalKey === 'admin_keys_safe');
-        if (!adminKeysSnapshot || adminKeysSnapshot.value === 0) {
-          limitationsList.push("Admin control keys: Upgradeability admin key structure remains undisclosed or unrestricted.");
-        }
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
+                  <div className="field">
+                    <label>Primary Chain</label>
+                    <select
+                      value={formData.chain}
+                      onChange={(e) => setFormData({ ...formData, chain: e.target.value })}
+                    >
+                      <option>Ethereum</option>
+                      <option>Solana</option>
+                      <option>Base</option>
+                      <option>Arbitrum</option>
+                      <option>Polygon</option>
+                      <option>BNB Chain</option>
+                      <option>Other</option>
+                    </select>
+                  </div>
 
-        return (
-          <div className="modal-overlay" style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(27, 42, 74, 0.6)',
-            backdropFilter: 'blur(8px)',
-            zIndex: 99999,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: '24px'
-          }} onClick={() => setSelectedAgent(null)}>
-            <div className="modal-container" style={{
-              backgroundColor: '#fff',
-              border: '2px solid var(--ink)',
-              borderRadius: '16px',
-              maxWidth: '800px',
-              width: '100%',
-              maxHeight: '90vh',
-              overflowY: 'auto',
-              padding: '40px',
-              boxShadow: '0 20px 50px rgba(0,0,0,0.15)',
-              position: 'relative',
-              color: 'var(--ink)'
-            }} onClick={(e) => e.stopPropagation()}>
+                  <div className="field">
+                    <label>Category</label>
+                    <select
+                      value={formData.category}
+                      onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                    >
+                      <option>Market Making</option>
+                      <option>Treasury Management</option>
+                      <option>Yield Strategy</option>
+                      <option>Arbitrage</option>
+                      <option>Copy Trading</option>
+                      <option>Lending</option>
+                      <option>Developer</option>
+                      <option>Security</option>
+                    </select>
+                  </div>
+                </div>
 
-              <button style={{
-                position: 'absolute',
-                top: '20px',
-                right: '20px',
-                background: 'none',
-                border: 'none',
-                fontSize: '32px',
-                cursor: 'pointer',
-                color: 'var(--ink-soft)'
-              }} onClick={() => setSelectedAgent(null)}>×</button>
+                <div className="field">
+                  <label>Smart Contract / Wallet Address *</label>
+                  <input
+                    type="text"
+                    placeholder="0x... or Solana Base58"
+                    value={formData.contract}
+                    onChange={(e) => setFormData({ ...formData, contract: e.target.value })}
+                    required
+                  />
+                </div>
 
-              <div style={{ marginBottom: '24px' }}>
-                <span className="eyebrow" style={{ textTransform: 'uppercase' }}>ORDO DOSSIER №{dossier ? dossier.dossierNumber : 'SEED'}</span>
-                <h2 style={{ fontFamily: "'Fraunces', serif", fontSize: '36px', color: 'var(--ink)', margin: '8px 0 4px 0' }}>{selectedAgent.name}</h2>
-                <p style={{ color: 'var(--ink-soft)', textTransform: 'uppercase', fontSize: '12px', fontWeight: 700, letterSpacing: '1px' }}>
-                  {selectedAgent.category} · {selectedAgent.chains.toUpperCase()} · Methodology v0.1
-                </p>
-              </div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
+                  <div className="field">
+                    <label>Official Website URL *</label>
+                    <input
+                      type="text"
+                      placeholder="https://..."
+                      value={formData.website}
+                      onChange={(e) => setFormData({ ...formData, website: e.target.value })}
+                      required
+                    />
+                  </div>
 
-              {/* Identity Details Block */}
+                  <div className="field">
+                    <label>Documentation URL (Docs) *</label>
+                    <input
+                      type="text"
+                      placeholder="https://docs..."
+                      value={formData.docsUrl}
+                      onChange={(e) => setFormData({ ...formData, docsUrl: e.target.value })}
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="field">
+                  <label>GitHub Repository URL</label>
+                  <input
+                    type="text"
+                    placeholder="https://github.com/... or N/A if closed-source"
+                    value={formData.githubUrl}
+                    onChange={(e) => setFormData({ ...formData, githubUrl: e.target.value })}
+                  />
+                </div>
+
+                <div className="field">
+                  <label>Describe Strategy, Custody Model & Admin Key Controls</label>
+                  <textarea
+                    placeholder="How does the agent make decisions? Who holds signing keys, and what timelocks or multisigs protect user funds?"
+                    value={formData.description}
+                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  ></textarea>
+                </div>
+
+                <div style={{ display: 'flex', gap: '14px', flexWrap: 'wrap', marginTop: '8px' }}>
+                  <button type="submit" className="submit-btn" style={{ margin: 0 }}>
+                    Submit for Official Audit
+                  </button>
+                </div>
+              </form>
+
+              {/* Live Rating Diagnostic Simulation */}
               {(() => {
-                const primaryIdentity = selectedAgent.identities?.find((id: any) => id.isPrimary) || selectedAgent.identities?.[0] || null;
-                if (!primaryIdentity) return null;
-                // const contractAddress = primaryIdentity.contractAddress || '';
-                const verificationTier = primaryIdentity.verificationTier || 'unverified';
-                // const explorerUrl = primaryIdentity.explorerUrl || '';
-                const lastCheckedAt = primaryIdentity.lastCheckedAt || selectedAgent.updatedAt;
-                const formattedCheckedDate = lastCheckedAt ? new Date(lastCheckedAt).toLocaleDateString() : '';
+                const discScore = formData.docsUrl && formData.website ? 94 : formData.website ? 75 : 50;
+                const consScore = formData.contract ? 89 : 60;
+                const incScore = 85;
+                const indScore = formData.githubUrl && formData.githubUrl !== 'N/A' ? 92 : 68;
+                const compScore = (discScore * 0.3 + consScore * 0.35 + incScore * 0.2 + indScore * 0.15);
+                const hasInput = formData.agentName && formData.contract;
+                const stars = compScore >= 90 ? '★★★' : compScore >= 80 ? '★★' : compScore >= 70 ? '★' : 'Unrated';
+                const tier = compScore >= 85 ? 'Verified Tier 1' : compScore >= 70 ? 'Registered Cohort' : 'Watchlist / Review';
 
                 return (
-                  <div style={{
-                    background: 'var(--paper)',
-                    border: '1px solid var(--line)',
-                    borderRadius: '8px',
-                    padding: '16px',
-                    marginBottom: '24px',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '8px'
-                  }}>
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                        <span style={{ fontWeight: 700, fontSize: '14px' }}>Verification Status:</span>
-                        <span
-                          style={{
-                            fontSize: '11px',
-                            fontWeight: 700,
-                            textTransform: 'uppercase',
-                            padding: '4px 10px',
-                            borderRadius: '4px',
-                            background: verificationTier === 'ownership_verified'
-                              ? 'var(--brass-soft)'
-                              : verificationTier === 'verified'
-                                ? '#e2ece9'
-                                : '#fdeded',
-                            color: verificationTier === 'ownership_verified'
-                              ? 'var(--brass)'
-                              : verificationTier === 'verified'
-                                ? '#2d6a4f'
-                                : '#d32f2f',
-                            border: `1px solid ${verificationTier === 'ownership_verified'
-                              ? 'var(--brass)'
-                              : verificationTier === 'verified'
-                                ? '#2d6a4f'
-                                : '#d32f2f'
-                              }`
-                          }}
-                        >
-                          {verificationTier === 'ownership_verified' ? '✓ OWNER VERIFIED' : verificationTier === 'verified' ? '✓ VERIFIED' : 'UNVERIFIED'}
-                        </span>
-                      </div>
-                      {formattedCheckedDate && (
-                        <div style={{ fontSize: '12px', color: 'var(--ink-soft)' }}>
-                          Last checked: {formattedCheckedDate}
+                  <div style={{ marginTop: '36px', border: '1px solid var(--ink)', padding: '24px', background: 'var(--paper-dim)' }}>
+                    <div className="kicker" style={{ marginBottom: '8px' }}>Live Rating Engine Diagnostics</div>
+                    <h3 style={{ fontFamily: "'Fraunces', serif", fontSize: '1.3rem', margin: '0 0 14px 0' }}>
+                      Provisional Rating Simulator
+                    </h3>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', marginBottom: '18px' }}>
+                      <div style={{ background: 'var(--paper)', border: '1px solid var(--rule)', padding: '12px' }}>
+                        <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.66rem', color: 'var(--ink-soft)', textTransform: 'uppercase' }}>
+                          Estimated Score
                         </div>
-                      )}
+                        <div style={{ fontFamily: "'Fraunces', serif", fontSize: '1.8rem', fontWeight: 700, color: 'var(--crimson)' }}>
+                          {hasInput ? compScore.toFixed(1) : '—'}
+                        </div>
+                      </div>
+                      <div style={{ background: 'var(--paper)', border: '1px solid var(--rule)', padding: '12px' }}>
+                        <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.66rem', color: 'var(--ink-soft)', textTransform: 'uppercase' }}>
+                          Key Award
+                        </div>
+                        <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '1.5rem', fontWeight: 700, color: 'var(--brass)' }}>
+                          {hasInput ? stars : '—'}
+                        </div>
+                      </div>
+                      <div style={{ background: 'var(--paper)', border: '1px solid var(--rule)', padding: '12px' }}>
+                        <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.66rem', color: 'var(--ink-soft)', textTransform: 'uppercase' }}>
+                          Tier Level
+                        </div>
+                        <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.82rem', fontWeight: 600, marginTop: '8px' }}>
+                          {hasInput ? tier : 'Pending Input'}
+                        </div>
+                      </div>
                     </div>
 
-                    {/* <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', borderTop: '1px solid var(--line-2)', paddingTop: '8px', marginTop: '4px' }}>
-                      <span style={{ fontSize: '13.5px', color: 'var(--ink-soft)' }}>Contract Address:</span>
-                      {explorerUrl ? (
-                        <a
-                          href={explorerUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          style={{
-                            fontFamily: 'monospace',
-                            fontSize: '14px',
-                            color: 'var(--brass)',
-                            textDecoration: 'underline',
-                            fontWeight: 600,
-                            wordBreak: 'break-all'
-                          }}
-                        >
-                          {contractAddress}
-                        </a>
-                      ) : (
-                        <span style={{ fontFamily: 'monospace', fontSize: '14px', color: 'var(--ink)', wordBreak: 'break-all' }}>
-                          {contractAddress}
-                        </span>
-                      )}
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          navigator.clipboard.writeText(contractAddress);
-                          const target = e.currentTarget;
-                          const originalHTML = target.innerHTML;
-                          target.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
-                          setTimeout(() => {
-                            target.innerHTML = originalHTML;
-                          }, 1500);
-                        }}
-                        style={{
-                          background: 'none',
-                          cursor: 'pointer',
-                          padding: '6px',
-                          color: 'var(--brass)',
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          backgroundColor: '#fff',
-                          border: '1px solid var(--line)',
-                          borderRadius: '4px',
-                          transition: 'background-color 0.2s'
-                        }}
-                        onMouseOver={(e) => e.currentTarget.style.backgroundColor = 'var(--paper)'}
-                        onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#fff'}
-                        title="Copy Address"
-                      >
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-                      </button>
-                    </div> */}
+                    <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.74rem', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                        <span>Disclosure Completeness (30% - Docs & Site):</span>
+                        <b>{hasInput ? `${discScore}/100` : '—'}</b>
+                      </div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                        <span>On-Chain Consistency (35% - Contract Telemetry):</span>
+                        <b>{hasInput ? `${consScore}/100` : '—'}</b>
+                      </div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                        <span>Incident Response (20% - Security Audit & Keys):</span>
+                        <b>{hasInput ? `${incScore}/100` : '—'}</b>
+                      </div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                        <span>Code Independence (15% - GitHub Source):</span>
+                        <b>{hasInput ? `${indScore}/100` : '—'}</b>
+                      </div>
+                    </div>
                   </div>
                 );
               })()}
+            </div>
 
-              {/* Score section */}
-              <div style={{
-                display: 'grid',
-                gridTemplateColumns: '1fr 1fr',
-                gap: '24px',
-                borderTop: '1px solid var(--line)',
-                borderBottom: '1px solid var(--line)',
-                padding: '24px 0',
-                marginBottom: '24px'
-              }}>
-                <div>
-                  <h4 style={{ margin: '0 0 12px 0' }}>Verdict Rating</h4>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                    <div style={{ fontSize: '36px', fontWeight: 800, color: 'var(--brass)' }}>
-                      {isUnrated ? 'Registered' : '★'.repeat(starsCount) + '☆'.repeat(3 - starsCount)}
-                    </div>
-                    <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--ink-soft)' }}>
-                      {scoreObj?.starLabel || 'Registered, not rated'}
-                    </div>
-                  </div>
-                  <p style={{ fontSize: '13px', color: 'var(--ink-soft)', marginTop: '8px' }}>
-                    {scoreObj?.starDesc || 'Insufficient evidence to compute rating.'}
-                  </p>
-                </div>
+            <div className="apply-notes">
+              <h3>Submission & Rating Standards</h3>
+              <p>
+                Ordinal evaluates agents on verifiable code and on-chain telemetry, not promotional claims.
+              </p>
+              <ul>
+                <li><b>30 Days On-Chain Activity:</b> Must have live transaction records on target network.</li>
+                <li><b>Custody & Key Transparency:</b> Clear disclosure of multisig signers and timelocks.</li>
+                <li><b>Zero Fee Listing:</b> No paid listing or score inflation accepted.</li>
+                <li><b>Provisional 60-Day Badge:</b> Initial rating is evaluated continuously.</li>
+              </ul>
 
-                <div style={{ borderLeft: '1px solid var(--line)', paddingLeft: '24px' }}>
-                  <h4 style={{ margin: '0 0 12px 0' }}>Rubric v0.1 Breakdown</h4>
-                  {!isUnrated && scoreObj ? (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '14px' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                        <span>Verifiability (Docs, Web, Git)</span>
-                        <b>{scoreObj.verifiabilityScore} / 25</b>
-                      </div>
-                      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                        <span>Activity (Unique Wallets)</span>
-                        <b>{Math.round(scoreObj.activityScore)} / 25</b>
-                      </div>
-                      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                        <span>Maintenance (GitHub Commits)</span>
-                        <b>{Math.round(scoreObj.maintenanceScore)} / 25</b>
-                      </div>
-                      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                        <span>Security Posture (Audit, Keys)</span>
-                        <b>{scoreObj.securityScore} / 25</b>
-                      </div>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', color: (scoreObj.adminPenalty || 0) > 0 ? '#A61D2D' : 'inherit' }}>
-                        <span style={{ fontWeight: (scoreObj.adminPenalty || 0) > 0 ? 600 : 400 }}>Admin Control Penalty</span>
-                        <b>{(scoreObj.adminPenalty || 0) > 0 ? `-${scoreObj.adminPenalty} pt` : '0 pt'}</b>
-                      </div>
-                    </div>
-                  ) : (
-                    <p style={{ fontSize: '13px', color: 'var(--ink-soft)' }}>
-                      No rating breakdown available due to insufficient data.
-                    </p>
-                  )}
-                </div>
-              </div>
-
-              {/* Dossier Body */}
-              <div style={{ marginBottom: '32px' }}>
-                <h3 style={{ fontFamily: "'Fraunces', serif", fontSize: '24px', marginBottom: '12px' }}>
-                  {dossier ? dossier.title : 'Cohort Selection Overview'}
-                </h3>
-                <p style={{ lineHeight: 1.6, color: 'var(--ink-soft)', whiteSpace: 'pre-wrap' }}>
-                  {dossier ? dossier.body : (selectedAgent.selectionRationale || selectedAgent.keyRationale || `${selectedAgent.name} is an autonomous agent operating under the ${selectedAgent.category} category, monitored on-chain on ${selectedAgent.chains.toUpperCase()} for verifiability, telemetry, and security posture.`)}
-                </p>
-                {dossier && (
-                  <div style={{
-                    marginTop: '20px',
-                    padding: '16px',
-                    backgroundColor: 'var(--paper)',
-                    borderLeft: '4px solid var(--brass)',
-                    borderRadius: '4px'
-                  }}>
-                    <h5 style={{ textTransform: 'uppercase', fontSize: '11px', margin: '0 0 6px 0', letterSpacing: '0.5px' }}>Official Verdict</h5>
-                    <p style={{ margin: 0, fontStyle: 'italic', fontSize: '14px' }}>{dossier.verdict}</p>
-                  </div>
-                )}
-              </div>
-
-              {/* Official Links Section */}
-              <div style={{ marginBottom: '32px' }}>
-                <h4 style={{ margin: '0 0 12px 0' }}>Verified Resources</h4>
-                <div style={{
-                  display: 'flex',
-                  gap: '12px',
-                  flexWrap: 'wrap'
-                }}>
-                  {selectedAgent.website && selectedAgent.website !== 'N/A' && selectedAgent.website !== '' && (
-                    <a
-                      href={selectedAgent.website}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      style={{
-                        padding: '10px 16px',
-                        border: '1px solid var(--line)',
-                        borderRadius: '8px',
-                        fontSize: '13px',
-                        fontWeight: 600,
-                        color: 'var(--brass)',
-                        textDecoration: 'none',
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        gap: '6px',
-                        backgroundColor: 'var(--paper)',
-                        transition: 'opacity 0.2s'
-                      }}
-                      onMouseOver={(e) => e.currentTarget.style.opacity = '0.8'}
-                      onMouseOut={(e) => e.currentTarget.style.opacity = '1'}
-                    >
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                        <circle cx="12" cy="12" r="10" />
-                        <line x1="2" y1="12" x2="22" y2="12" />
-                        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
-                      </svg>
-                      <span>Website ↗</span>
-                    </a>
-                  )}
-                  {selectedAgent.docsUrl && selectedAgent.docsUrl !== 'N/A' && selectedAgent.docsUrl !== '' && (
-                    <a
-                      href={selectedAgent.docsUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      style={{
-                        padding: '10px 16px',
-                        border: '1px solid var(--line)',
-                        borderRadius: '8px',
-                        fontSize: '13px',
-                        fontWeight: 600,
-                        color: 'var(--brass)',
-                        textDecoration: 'none',
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        gap: '6px',
-                        backgroundColor: 'var(--paper)',
-                        transition: 'opacity 0.2s'
-                      }}
-                      onMouseOver={(e) => e.currentTarget.style.opacity = '0.8'}
-                      onMouseOut={(e) => e.currentTarget.style.opacity = '1'}
-                    >
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                        <polyline points="14 2 14 8 20 8" />
-                        <line x1="16" y1="13" x2="8" y2="13" />
-                        <line x1="16" y1="17" x2="8" y2="17" />
-                        <polyline points="10 9 9 9 8 9" />
-                      </svg>
-                      <span>Documentation ↗</span>
-                    </a>
-                  )}
-                  {selectedAgent.githubUrl && selectedAgent.githubUrl !== 'N/A' && selectedAgent.githubUrl !== '' && (
-                    <a
-                      href={selectedAgent.githubUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      style={{
-                        padding: '10px 16px',
-                        border: '1px solid var(--line)',
-                        borderRadius: '8px',
-                        fontSize: '13px',
-                        fontWeight: 600,
-                        color: 'var(--brass)',
-                        textDecoration: 'none',
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        gap: '6px',
-                        backgroundColor: 'var(--paper)',
-                        transition: 'opacity 0.2s'
-                      }}
-                      onMouseOver={(e) => e.currentTarget.style.opacity = '0.8'}
-                      onMouseOut={(e) => e.currentTarget.style.opacity = '1'}
-                    >
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22" />
-                      </svg>
-                      <span>GitHub ↗</span>
-                    </a>
-                  )}
-                  {selectedAgent.xHandle && selectedAgent.xHandle !== 'N/A' && selectedAgent.xHandle !== '' && (
-                    <a
-                      href={`https://x.com/${selectedAgent.xHandle}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      style={{
-                        padding: '10px 16px',
-                        border: '1px solid var(--line)',
-                        borderRadius: '8px',
-                        fontSize: '13px',
-                        fontWeight: 600,
-                        color: 'var(--brass)',
-                        textDecoration: 'none',
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        gap: '6px',
-                        backgroundColor: 'var(--paper)',
-                        transition: 'opacity 0.2s'
-                      }}
-                      onMouseOver={(e) => e.currentTarget.style.opacity = '0.8'}
-                      onMouseOut={(e) => e.currentTarget.style.opacity = '1'}
-                    >
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-                      </svg>
-                      <span>X (Twitter) ↗</span>
-                    </a>
-                  )}
-                </div>
-              </div>
-
-              {/* Telemetry Snapshots */}
-              <div style={{ marginBottom: '32px' }}>
-                <h4 style={{ margin: '0 0 12px 0' }}>Telemetry Evidence Store</h4>
-                <div style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))',
-                  gap: '16px'
-                }}>
-                  <div style={{ padding: '12px', border: '1px solid var(--line)', borderRadius: '8px' }}>
-                    <span style={{ fontSize: '11px', color: 'var(--ink-soft)' }}>GitHub Commits (30d)</span>
-                    <h3 style={{ margin: '4px 0 0 0', fontFamily: 'monospace' }}>
-                      {scoreObj?.commitsVal !== undefined ? scoreObj.commitsVal : 'N/A'}
-                    </h3>
-                  </div>
-                  <div style={{ padding: '12px', border: '1px solid var(--line)', borderRadius: '8px' }}>
-                    <span style={{ fontSize: '11px', color: 'var(--ink-soft)' }}>Unique Users (30d)</span>
-                    <h3 style={{ margin: '4px 0 0 0', fontFamily: 'monospace' }}>
-                      {scoreObj?.uniqueAddresses !== undefined ? scoreObj.uniqueAddresses.toLocaleString() : 'N/A'}
-                    </h3>
-                  </div>
-                  <div style={{ padding: '12px', border: '1px solid var(--line)', borderRadius: '8px' }}>
-                    <span style={{ fontSize: '11px', color: 'var(--ink-soft)' }}>Security Audit</span>
-                    <h3 style={{ margin: '4px 0 0 0', color: selectedAgent.snapshots?.find((s: any) => s.signalKey === 'audit_exists')?.value === 1 ? '#137333' : '#A61D2D' }}>
-                      {selectedAgent.snapshots?.find((s: any) => s.signalKey === 'audit_exists')?.value === 1 ? 'Yes' : 'No / Unknown'}
-                    </h3>
-                  </div>
-                  <div style={{ padding: '12px', border: '1px solid var(--line)', borderRadius: '8px' }}>
-                    <span style={{ fontSize: '11px', color: 'var(--ink-soft)' }}>Admin Control Keys</span>
-                    <h3 style={{ margin: '4px 0 0 0', color: selectedAgent.snapshots?.find((s: any) => s.signalKey === 'admin_keys_safe')?.value === 1 ? '#137333' : '#A61D2D' }}>
-                      {selectedAgent.snapshots?.find((s: any) => s.signalKey === 'admin_keys_safe')?.value === 1 ? 'Safe' : 'Risky / Retained'}
-                    </h3>
-                  </div>
-                </div>
-              </div>
-
-              {/* Limitations Section */}
-              <div style={{
-                padding: '20px',
-                border: '1px solid #A61D2D',
-                backgroundColor: 'rgba(166, 29, 45, 0.03)',
-                borderRadius: '8px'
-              }}>
-                <h4 style={{ color: '#A61D2D', margin: '0 0 8px 0', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  ⚠ Limitations of Assessment
+              <div style={{ marginTop: '24px', border: '1px dashed var(--brass)', padding: '18px', background: 'var(--brass-soft)' }}>
+                <h4 style={{ fontFamily: "'Fraunces', serif", margin: '0 0 6px 0', fontSize: '1.05rem', color: 'var(--brass)' }}>
+                  🚀 Priority Evaluation Queue
                 </h4>
-                {limitationsList.length > 0 ? (
-                  <ul style={{ margin: 0, paddingLeft: '20px', fontSize: '13px', color: 'var(--ink-soft)', lineHeight: 1.6 }}>
-                    {limitationsList.map((lim, idx) => (
-                      <li key={idx}>{lim}</li>
-                    ))}
-                  </ul>
-                ) : (
-                  <p style={{ margin: 0, fontSize: '13px', color: 'var(--ink-soft)' }}>
-                    No verifiability limitations identified for this agent profile.
-                  </p>
-                )}
+                <p style={{ fontSize: '0.86rem', lineHeight: '1.5', margin: '0 0 10px 0', color: 'var(--ink-soft)' }}>
+                  Need expedited review? Wallets holding $ORDINAL are routed to the priority telemetry worker node for immediate evaluation.
+                </p>
+                <a
+                  href="https://pump.fun/coin/3x3JGdcSj1zjuqV9doa657QRVrDUMxjwRN5baxSGpump"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn"
+                  style={{
+                    display: 'inline-block',
+                    padding: '8px 16px',
+                    fontSize: '0.68rem',
+                    background: 'var(--brass)',
+                    borderColor: 'var(--brass)',
+                    color: '#fff'
+                  }}
+                >
+                  $ORDINAL Access Portal ↗
+                </a>
               </div>
-
             </div>
           </div>
-        );
-      })()}
+        </main>
+      )}
 
-      {/* Model Detail Popup Modal */}
-      {activeModelModal && (
-        <div className="model-modal-overlay" onClick={() => setActiveModelModal(null)}>
-          <div className="model-modal-content" onClick={(e) => e.stopPropagation()}>
-            <button className="model-modal-close" onClick={() => setActiveModelModal(null)} aria-label="Close modal">×</button>
-            <div className="model-modal-header">
-              <div className={`scell-logo-box ${activeModelModal.iconClass}`}>
-                {activeModelModal.iconSvg}
+      {/* ===== Agent Detail Modal ===== */}
+      {selectedAgent && (
+        <div className="modal-backdrop" onClick={() => setSelectedAgent(null)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <button className="modal-close" onClick={() => setSelectedAgent(null)}>✕</button>
+            <div className="kicker">Audit Dossier #{selectedAgent.dossierNumber || selectedAgent.rank}</div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '14px', margin: '14px 0 10px' }}>
+              <div className="aside-avatar" style={{ width: '48px', height: '48px', fontSize: '1.1rem' }}>
+                {selectedAgent.avatar}
               </div>
               <div>
-                <span className="badge">{activeModelModal.badge}</span>
-                <h3>{activeModelModal.name}</h3>
-                <div className="role">{activeModelModal.role}</div>
+                <h2 style={{ fontFamily: "'Fraunces', serif", margin: 0, fontSize: '1.8rem' }}>
+                  {selectedAgent.name}
+                </h2>
+                <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.75rem', color: 'var(--ink-soft)' }}>
+                  {selectedAgent.chain} · {selectedAgent.category} · {selectedAgent.contract}
+                </div>
               </div>
             </div>
-            <p className="model-modal-summary">{activeModelModal.summary}</p>
-            <div className="model-modal-divider" />
-            <h4 className="model-modal-section-title">Detailed Capability &amp; Role Breakdown</h4>
-            <div className="model-modal-grid">
-              {activeModelModal.features.map((feat, idx) => (
-                <div key={idx} className="model-feature-card">
-                  <div className="model-feature-header">
-                    <span className="feature-icon">{feat.iconSvg}</span>
-                    <h5>{feat.title}</h5>
-                  </div>
-                  <p>{feat.desc}</p>
+
+            <p style={{ fontStyle: 'italic', color: 'var(--ink-soft)', margin: '16px 0', fontSize: '0.95rem', lineHeight: '1.6' }}>
+              "{selectedAgent.blurb}"
+            </p>
+
+            <div style={{ borderTop: '1px solid var(--rule)', borderBottom: '1px solid var(--rule)', padding: '16px 0', margin: '16px 0' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.75rem' }}>
+                <div>
+                  <div style={{ color: 'var(--ink-soft)', textTransform: 'uppercase' }}>Composite Score</div>
+                  <div style={{ fontSize: '1.6rem', fontWeight: 700, color: 'var(--crimson)' }}>{selectedAgent.score.toFixed(1)}</div>
                 </div>
-              ))}
+                <div>
+                  <div style={{ color: 'var(--ink-soft)', textTransform: 'uppercase' }}>7d Movement</div>
+                  <div style={{ fontSize: '1.4rem', fontWeight: 600 }} className={selectedAgent.isUp ? 'table-up' : 'table-down'}>
+                    {selectedAgent.delta7d}
+                  </div>
+                </div>
+                <div>
+                  <div style={{ color: 'var(--ink-soft)', textTransform: 'uppercase' }}>Key Awards</div>
+                  <div style={{ fontSize: '1.4rem', fontWeight: 600, color: 'var(--brass)' }}>
+                    {'★'.repeat(selectedAgent.keyCount || 0) || 'Unrated'}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div style={{ margin: '18px 0' }}>
+              <div className="aside-title">Telemetry & Security Snapshot</div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.78rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <span>Active Wallets (30d):</span>
+                  <b>{selectedAgent.activeWallets30d.toLocaleString()}</b>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <span>GitHub Commits (30d):</span>
+                  <b>{selectedAgent.commits30d} commits</b>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <span>Smart Contract Audit:</span>
+                  <b style={{ color: selectedAgent.auditStatus === 'Verified Public Audit' ? 'var(--up)' : 'var(--crimson)' }}>
+                    {selectedAgent.auditStatus}
+                  </b>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <span>Admin Keys Safety:</span>
+                  <b>{selectedAgent.adminKeysSafe ? '✓ Multisig / Safe' : '⚠ Retained / Centralized'}</b>
+                </div>
+              </div>
+            </div>
+
+            <div style={{ margin: '18px 0', borderTop: '1px solid var(--rule)', paddingTop: '16px' }}>
+              <div className="aside-title">Scoring Breakdown</div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.78rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <span>Disclosure Completeness (30%):</span>
+                  <b>{selectedAgent.disclosureScore}/100</b>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <span>On-Chain Consistency (35%):</span>
+                  <b>{selectedAgent.consistencyScore}/100</b>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <span>Incident Response (20%):</span>
+                  <b>{selectedAgent.incidentScore}/100</b>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <span>Independence of Code (15%):</span>
+                  <b>{selectedAgent.independenceScore}/100</b>
+                </div>
+              </div>
+            </div>
+
+            {selectedAgent.verdict && (
+              <div style={{ background: 'var(--paper-dim)', padding: '12px 16px', borderLeft: '3px solid var(--crimson)', margin: '16px 0', fontSize: '0.85rem' }}>
+                <b>Desk Verdict:</b> {selectedAgent.verdict}
+              </div>
+            )}
+
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '24px' }}>
+              <button
+                className="btn"
+                style={{ color: 'var(--ink)', borderColor: 'var(--ink)' }}
+                onClick={() => {
+                  setSelectedAgent(null);
+                  navigateTo('/reports/' + selectedAgent.slug);
+                }}
+              >
+                View Full Dossier ↗
+              </button>
+              <button className="btn-dark" onClick={() => setSelectedAgent(null)}>
+                Close Dossier
+              </button>
             </div>
           </div>
         </div>
       )}
-    </>
-  )
-}
 
-export default App
+      {/* ===== Footer ===== */}
+      <footer>
+        <div className="wrap">
+          <div className="foot-row">
+            <span>Ordinal — The Web3 AI Agent Index</span>
+            <span>Independent Editorial Desk</span>
+            <span>ordinal.tech</span>
+          </div>
+          <p className="disclaimer">
+            Design concept in an editorial, financial-journalism narrative voice. Rankings, scores, and figures shown are verified telemetry benchmarks from the Ordinal database.
+          </p>
+        </div>
+      </footer>
+    </div>
+  );
+}

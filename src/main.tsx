@@ -6,6 +6,7 @@ import RatingAgents from './RatingAgents.tsx'
 import { ReportDetailView, ReportsCatalogView, SAMPLE_REPORTS } from './editorial/ReportDetailView.tsx'
 import { QualifiedNoticeView } from './views/QualifiedNoticeView.tsx'
 import { BuildLogView } from './views/BuildLogView.tsx'
+import { GetListedView } from './views/GetListedView.tsx'
 
 function MainRouter() {
   const [currentPath, setCurrentPath] = useState(window.location.pathname);
@@ -19,17 +20,20 @@ function MainRouter() {
   }, []);
 
   useEffect(() => {
-    let title = 'ORDO — Institutional Evaluation of Web3 AI Agents';
+    let title = 'ORDINAL — The Web3 AI Agent Index';
     let metaDesc = 'Independent security ratings, telemetry verification, and risk metrics for autonomous Web3 AI agents.';
 
-    if (currentPath === '/qualified' || currentPath === '/qualified/') {
-      title = 'Qualified Volume — In Development | ORDO';
+    if (currentPath === '/apply' || currentPath === '/apply/' || currentPath === '/get-listed') {
+      title = 'Get Listed & Evaluation Pipeline | ORDINAL';
+      metaDesc = 'Submit autonomous Web3 AI agents for review and calculate live telemetry scores.';
+    } else if (currentPath === '/qualified' || currentPath === '/qualified/') {
+      title = 'Qualified Volume — In Development | ORDINAL';
       metaDesc = 'Notice Page: Qualified Volume filter engine assessing Web3 AI agent liquidity and execution metrics.';
     } else if (currentPath === '/log' || currentPath === '/log/') {
-      title = 'Public Build Log | ORDO';
+      title = 'Public Build Log | ORDINAL';
       metaDesc = 'Append-only chronological record of system deployments, recalibrations, and structural corrections.';
     } else if (currentPath === '/reports' || currentPath === '/reports/') {
-      title = 'Dossier Reports Catalog | ORDO';
+      title = 'Dossier Reports Catalog | ORDINAL';
       metaDesc = 'Comprehensive evaluation dossiers and deep-dive risk reports for Web3 AI agents.';
     }
 
@@ -47,6 +51,10 @@ function MainRouter() {
     window.history.pushState({}, '', path);
     window.dispatchEvent(new PopStateEvent('popstate'));
   };
+
+  if (currentPath === '/apply' || currentPath === '/apply/' || currentPath === '/get-listed') {
+    return <GetListedView onNavigate={navigate} />;
+  }
 
   if (currentPath === '/qualified' || currentPath === '/qualified/') {
     return <QualifiedNoticeView onNavigate={navigate} />;
@@ -72,9 +80,9 @@ function MainRouter() {
 
   if (currentPath.startsWith('/guide')) {
     return (
-      <div style={{ maxWidth: '800px', margin: '60px auto', padding: '0 24px', fontFamily: 'Inter, sans-serif' }}>
+      <div style={{ maxWidth: '800px', margin: '60px auto', padding: '0 24px', fontFamily: "'IBM Plex Sans', sans-serif" }}>
         <button onClick={() => navigate('/')} style={{ padding: '8px 16px', marginBottom: '24px', cursor: 'pointer' }}>← Back to Home</button>
-        <h1>ORDO Annual Guide (2026 Edition)</h1>
+        <h1>ORDINAL Annual Guide (2026 Edition)</h1>
         <p style={{ color: '#666' }}>The annual benchmark collection of verified Web3 AI agent architectures and ratings.</p>
       </div>
     );
@@ -82,9 +90,9 @@ function MainRouter() {
 
   if (currentPath.startsWith('/record')) {
     return (
-      <div style={{ maxWidth: '800px', margin: '60px auto', padding: '0 24px', fontFamily: 'Inter, sans-serif' }}>
+      <div style={{ maxWidth: '800px', margin: '60px auto', padding: '0 24px', fontFamily: "'IBM Plex Sans', sans-serif" }}>
         <button onClick={() => navigate('/')} style={{ padding: '8px 16px', marginBottom: '24px', cursor: 'pointer' }}>← Back to Home</button>
-        <h1>ORDO Monthly Record (2026-08)</h1>
+        <h1>ORDINAL Monthly Record (2026-08)</h1>
         <p style={{ color: '#666' }}>Monthly movement summary of agent score revisions, key awards, and security re-evaluations.</p>
       </div>
     );
@@ -92,7 +100,7 @@ function MainRouter() {
 
   if (currentPath === '/corrections') {
     return (
-      <div style={{ maxWidth: '800px', margin: '60px auto', padding: '0 24px', fontFamily: 'Inter, sans-serif' }}>
+      <div style={{ maxWidth: '800px', margin: '60px auto', padding: '0 24px', fontFamily: "'IBM Plex Sans', sans-serif" }}>
         <button onClick={() => navigate('/')} style={{ padding: '8px 16px', marginBottom: '24px', cursor: 'pointer' }}>← Back to Home</button>
         <h1>Publication Corrections Log</h1>
         <p style={{ color: '#666' }}>Transparent, append-only log of editorial retractions, telemetry recalibrations, and project corrections.</p>
@@ -108,3 +116,4 @@ createRoot(document.getElementById('root')!).render(
     <MainRouter />
   </StrictMode>,
 )
+

@@ -43,7 +43,8 @@ export const BUILD_LOG_ENTRIES: BuildLogEntry[] = [
   {
     id: 'log-001',
     date: '2026-07-15',
-    summary: 'Initial release of ORDO Annual Guide benchmark methodology specification.',
+    summary: 'Initial release of ORDINAL Annual Guide benchmark methodology specification.',
     type: 'feature'
   }
 ];
+

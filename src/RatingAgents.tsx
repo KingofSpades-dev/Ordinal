@@ -71,13 +71,13 @@ const CountdownScreen = ({ processAfter, onComplete }: { processAfter: string; o
       </div>
 
       <p style={{ color: 'var(--ink-soft)', maxWidth: '520px', fontSize: '15px', lineHeight: 1.6, margin: 0 }}>
-        Ordo nodes are compiling off-chain reputation snapshots and validating smart contract telemetry. Your final rating and secure badge will be unlocked when the verification cooldown expires.
+        Ordinal nodes are compiling off-chain reputation snapshots and validating smart contract telemetry. Your final rating and secure badge will be unlocked when the verification cooldown expires.
       </p>
 
       <div style={{ background: 'rgba(226, 193, 124, 0.1)', border: '1px dashed var(--brass)', borderRadius: '8px', padding: '16px 24px', maxWidth: '500px', marginTop: '12px' }}>
         <h4 style={{ color: 'var(--brass)', fontSize: '14px', fontWeight: 900, margin: '0 0 6px 0', textTransform: 'uppercase', letterSpacing: '0.5px' }}>🚀 Speed Up Rating Queue</h4>
         <p style={{ color: 'var(--ink-soft)', fontSize: '13px', lineHeight: 1.5, margin: '0 0 12px 0' }}>
-          Want to skip the queue? Hold at least <b>50,000 $ORDO</b> in your wallet for <b>instant rating</b>!
+          Want to skip the queue? Hold at least <b>50,000 $ORDINAL</b> in your wallet for <b>instant rating</b>!
         </p>
         <a
           href="https://pump.fun/coin/3x3JGdcSj1zjuqV9doa657QRVrDUMxjwRN5baxSGpump"
@@ -97,7 +97,7 @@ const CountdownScreen = ({ processAfter, onComplete }: { processAfter: string; o
           onMouseOver={(e) => e.currentTarget.style.opacity = '0.9'}
           onMouseOut={(e) => e.currentTarget.style.opacity = '1'}
         >
-          Buy $ORDO ↗
+          Buy $ORDINAL ↗
         </a>
       </div>
     </div>
