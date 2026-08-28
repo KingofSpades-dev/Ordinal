@@ -14,14 +14,22 @@ export const OrdinalNavbar: React.FC<OrdinalNavbarProps> = ({
   onTabChange,
 }) => {
   const navigateTo = (path: string, tab?: string) => {
-    if (tab && onTabChange) {
+    // If it's an internal tab switch on home page ('home', 'rankings', 'method')
+    if (tab && onTabChange && (path === '/' || !path.startsWith('/'))) {
+      if (typeof window !== 'undefined' && window.location.pathname !== '/') {
+        window.history.pushState({}, '', '/');
+        window.dispatchEvent(new PopStateEvent('popstate'));
+      }
       onTabChange(tab);
       return;
     }
+
+    // Direct page route navigation (e.g. /apply, /reports, /log, /qualified)
     if (onNavigate) {
       onNavigate(path);
       return;
     }
+
     if (typeof window !== 'undefined') {
       window.history.pushState({}, '', path);
       window.dispatchEvent(new PopStateEvent('popstate'));
@@ -29,13 +37,25 @@ export const OrdinalNavbar: React.FC<OrdinalNavbarProps> = ({
   };
 
   const isCurrent = (path: string, tab?: string) => {
-    if (tab && activeTab) {
+    if (path === '/apply') {
+      return currentPath === '/apply' || currentPath === '/apply/' || currentPath === '/get-listed';
+    }
+    if (path === '/reports') {
+      return currentPath.startsWith('/reports');
+    }
+    if (path === '/log') {
+      return currentPath === '/log' || currentPath === '/log/';
+    }
+    if (path === '/qualified') {
+      return currentPath === '/qualified' || currentPath === '/qualified/';
+    }
+    if (tab && activeTab && currentPath === '/') {
       return activeTab === tab;
     }
     if (path === '/' && (currentPath === '/' || !currentPath)) {
-      return true;
+      return !activeTab || activeTab === 'home';
     }
-    return currentPath === path || (path !== '/' && currentPath.startsWith(path));
+    return currentPath === path;
   };
 
   return (
@@ -54,7 +74,7 @@ export const OrdinalNavbar: React.FC<OrdinalNavbarProps> = ({
         <div className="masthead-meta">
           <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
             <span className="live-dot"></span>
-            Vol. I — 2026
+            Vol. I 2026
           </span>
           <span>Web3 Intelligence Desk</span>
           <a
@@ -63,7 +83,7 @@ export const OrdinalNavbar: React.FC<OrdinalNavbarProps> = ({
             rel="noopener noreferrer"
             style={{ color: 'var(--ink-soft)', textDecoration: 'none' }}
           >
-            GitHub ↗
+            GitHub
           </a>
         </div>
       </div>
@@ -106,8 +126,8 @@ export const OrdinalNavbar: React.FC<OrdinalNavbarProps> = ({
           Methodology
         </span>
         <span
-          className={`nav-link ${isCurrent('/apply', 'apply') || isCurrent('/ratingagents') ? 'active' : ''}`}
-          onClick={() => navigateTo('/apply', 'apply')}
+          className={`nav-link ${isCurrent('/apply') ? 'active' : ''}`}
+          onClick={() => navigateTo('/apply')}
         >
           Get Listed
         </span>

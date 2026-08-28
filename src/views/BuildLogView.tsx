@@ -167,7 +167,7 @@ export const BuildLogView: React.FC<BuildLogViewProps> = ({ onNavigate }) => {
       <footer>
         <div className="wrap">
           <div className="foot-row">
-            <span>Ordinal — The Web3 AI Agent Index</span>
+            <span>Ordinal: The Web3 AI Agent Index</span>
             <span>Independent Editorial Desk</span>
             <span>ordinal.tech</span>
           </div>

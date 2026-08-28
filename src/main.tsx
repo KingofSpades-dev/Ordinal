@@ -20,14 +20,14 @@ function MainRouter() {
   }, []);
 
   useEffect(() => {
-    let title = 'ORDINAL — The Web3 AI Agent Index';
+    let title = 'ORDINAL: The Web3 AI Agent Index';
     let metaDesc = 'Independent security ratings, telemetry verification, and risk metrics for autonomous Web3 AI agents.';
 
     if (currentPath === '/apply' || currentPath === '/apply/' || currentPath === '/get-listed') {
       title = 'Get Listed & Evaluation Pipeline | ORDINAL';
       metaDesc = 'Submit autonomous Web3 AI agents for review and calculate live telemetry scores.';
     } else if (currentPath === '/qualified' || currentPath === '/qualified/') {
-      title = 'Qualified Volume — In Development | ORDINAL';
+      title = 'Qualified Volume: In Development | ORDINAL';
       metaDesc = 'Notice Page: Qualified Volume filter engine assessing Web3 AI agent liquidity and execution metrics.';
     } else if (currentPath === '/log' || currentPath === '/log/') {
       title = 'Public Build Log | ORDINAL';
@@ -108,7 +108,7 @@ function MainRouter() {
     );
   }
 
-  return <App />;
+  return <App onNavigate={navigate} />;
 }
 
 createRoot(document.getElementById('root')!).render(

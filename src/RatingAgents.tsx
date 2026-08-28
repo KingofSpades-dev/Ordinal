@@ -97,7 +97,7 @@ const CountdownScreen = ({ processAfter, onComplete }: { processAfter: string; o
           onMouseOver={(e) => e.currentTarget.style.opacity = '0.9'}
           onMouseOut={(e) => e.currentTarget.style.opacity = '1'}
         >
-          Buy $ORDINAL ↗
+          Buy $ORDINAL
         </a>
       </div>
     </div>
@@ -1275,7 +1275,7 @@ export default function RatingAgents() {
                     disabled={submitting}
                     className="btn-submit"
                   >
-                    {!userWallet ? 'Connect Wallet' : submitting ? 'Verifying...' : 'Rating Agent ↗'}
+                    {!userWallet ? 'Connect Wallet' : submitting ? 'Verifying...' : 'Rate Agent'}
                   </button>
                 </form>
               </div>
@@ -1528,7 +1528,7 @@ export default function RatingAgents() {
                             onMouseOver={(e) => (e.currentTarget.style.opacity = '0.85')}
                             onMouseOut={(e) => (e.currentTarget.style.opacity = '1')}
                           >
-                            View Live Badge ↗
+                            View Live Badge
                           </a>
                         </div>
                       </div>
@@ -1754,7 +1754,7 @@ export default function RatingAgents() {
                           rel="noreferrer"
                           className="btn-view-chain"
                         >
-                          View on Chain ↗
+                          View on Chain
                         </a>
                       </div>
                     </div>

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { OrdinalNavbar } from '../components/OrdinalNavbar';
 import { COMPLETE_AGENT_DATABASE } from '../data/agentDatabase';
+import { AgentAvatar } from '../components/AgentAvatar';
 
 export interface ReportData {
   agentName: string;
@@ -193,9 +194,12 @@ export const ReportsCatalogView: React.FC<{ onSelectReport: (slug: string) => vo
                   {rep.keyCount > 0 ? `${rep.keyCount} KEY${rep.keyCount > 1 ? 'S' : ''}` : 'UNRATED'}
                 </span>
               </div>
-              <h3 style={{ fontFamily: "'Fraunces', serif", fontSize: '1.4rem', margin: '8px 0 6px' }}>
-                {rep.agentName}
-              </h3>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', margin: '10px 0 6px' }}>
+                <AgentAvatar agent={{ name: rep.agentName, avatar: rep.agentName.slice(0, 2), website: rep.websiteUrl }} size={32} />
+                <h3 style={{ fontFamily: "'Fraunces', serif", fontSize: '1.4rem', margin: 0 }}>
+                  {rep.agentName}
+                </h3>
+              </div>
               <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.72rem', color: 'var(--ink-soft)', marginBottom: '14px' }}>
                 {rep.chains.join(', ').toUpperCase()} · {rep.category.toUpperCase()}
               </div>
@@ -214,7 +218,7 @@ export const ReportsCatalogView: React.FC<{ onSelectReport: (slug: string) => vo
       <footer>
         <div className="wrap">
           <div className="foot-row">
-            <span>Ordinal — The Web3 AI Agent Index</span>
+            <span>Ordinal: The Web3 AI Agent Index</span>
             <span>Independent Editorial Desk</span>
             <span>ordinal.tech</span>
           </div>
@@ -246,9 +250,12 @@ export const ReportDetailView: React.FC<{ report: ReportData; onBack: () => void
         </button>
 
         <div className="kicker">Dossier Evaluation #{report.dossierNumber}</div>
-        <h1 className="headline" style={{ fontSize: 'clamp(2.2rem, 5vw, 3.4rem)', margin: '14px 0 16px' }}>
-          {report.agentName}
-        </h1>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', margin: '14px 0 16px' }}>
+          <AgentAvatar agent={{ name: report.agentName, avatar: report.agentName.slice(0, 2), website: report.websiteUrl }} size={56} />
+          <h1 className="headline" style={{ fontSize: 'clamp(2.2rem, 5vw, 3.4rem)', margin: 0 }}>
+            {report.agentName}
+          </h1>
+        </div>
         <p className="dek" style={{ fontSize: '1.2rem', marginBottom: '24px' }}>
           {report.standfirst}
         </p>
@@ -334,9 +341,9 @@ export const ReportDetailView: React.FC<{ report: ReportData; onBack: () => void
           <section style={{ borderTop: '1px solid var(--rule)', paddingTop: '20px' }}>
             <div className="aside-title">Verified External Resources</div>
             <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap', fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.8rem' }}>
-              {report.resources.website && <a href={report.resources.website} target="_blank" rel="noreferrer" style={{ textDecoration: 'underline' }}>Official Website ↗</a>}
-              {report.resources.documentation && <a href={report.resources.documentation} target="_blank" rel="noreferrer" style={{ textDecoration: 'underline' }}>Documentation ↗</a>}
-              {report.resources.github && <a href={report.resources.github} target="_blank" rel="noreferrer" style={{ textDecoration: 'underline' }}>GitHub Repository ↗</a>}
+              {report.resources.website && <a href={report.resources.website} target="_blank" rel="noreferrer" style={{ textDecoration: 'underline' }}>Official Website</a>}
+              {report.resources.documentation && <a href={report.resources.documentation} target="_blank" rel="noreferrer" style={{ textDecoration: 'underline' }}>Documentation</a>}
+              {report.resources.github && <a href={report.resources.github} target="_blank" rel="noreferrer" style={{ textDecoration: 'underline' }}>GitHub Repository</a>}
             </div>
           </section>
         )}
@@ -345,7 +352,7 @@ export const ReportDetailView: React.FC<{ report: ReportData; onBack: () => void
       <footer>
         <div className="wrap">
           <div className="foot-row">
-            <span>Ordinal — The Web3 AI Agent Index</span>
+            <span>Ordinal: The Web3 AI Agent Index</span>
             <span>Independent Editorial Desk</span>
             <span>ordinal.tech</span>
           </div>
