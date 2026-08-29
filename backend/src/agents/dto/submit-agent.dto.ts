@@ -22,10 +22,10 @@ export class SubmitAgentDto {
   @IsNotEmpty()
   website: string;
 
-  @ValidateIf(o => o.docsUrl && o.docsUrl.toUpperCase() !== 'N/A' && o.docsUrl.toUpperCase() !== 'NONE')
+  @ValidateIf(o => o.docsUrl && o.docsUrl.toUpperCase() !== 'N/A' && o.docsUrl.toUpperCase() !== 'NONE' && o.docsUrl.trim() !== '')
   @IsUrl()
-  @IsNotEmpty()
-  docsUrl: string;
+  @IsOptional()
+  docsUrl?: string;
 
   @IsString()
   @IsOptional()

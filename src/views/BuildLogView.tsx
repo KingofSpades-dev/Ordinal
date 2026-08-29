@@ -15,8 +15,8 @@ export const BuildLogView: React.FC<BuildLogViewProps> = ({ onNavigate }) => {
       filterType === 'all'
         ? true
         : filterType === 'correction'
-        ? entry.type === 'correction' || entry.type === 'reversal'
-        : entry.type === filterType;
+          ? entry.type === 'correction' || entry.type === 'reversal'
+          : entry.type === filterType;
 
     const matchesSearch =
       entry.summary.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -40,13 +40,6 @@ export const BuildLogView: React.FC<BuildLogViewProps> = ({ onNavigate }) => {
       </div>
 
       <main className="wrap" style={{ maxWidth: '920px', margin: '40px auto 80px', padding: '0 24px' }}>
-        <button
-          onClick={() => onNavigate('/')}
-          className="btn"
-          style={{ padding: '8px 18px', color: 'var(--ink)', borderColor: 'var(--ink)', marginBottom: '28px' }}
-        >
-          ← Return to Index
-        </button>
 
         <div className="kicker">Public Build Log</div>
         <h1 className="headline" style={{ fontSize: 'clamp(2.2rem, 4.8vw, 3.4rem)', margin: '14px 0 16px' }}>

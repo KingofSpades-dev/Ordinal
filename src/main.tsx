@@ -3,10 +3,11 @@ import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.tsx'
 import RatingAgents from './RatingAgents.tsx'
-import { ReportDetailView, ReportsCatalogView, SAMPLE_REPORTS } from './editorial/ReportDetailView.tsx'
 import { QualifiedNoticeView } from './views/QualifiedNoticeView.tsx'
 import { BuildLogView } from './views/BuildLogView.tsx'
 import { GetListedView } from './views/GetListedView.tsx'
+import { RankingsView } from './views/RankingsView.tsx'
+import { MethodologyView } from './views/MethodologyView.tsx'
 
 function MainRouter() {
   const [currentPath, setCurrentPath] = useState(window.location.pathname);
@@ -26,15 +27,18 @@ function MainRouter() {
     if (currentPath === '/apply' || currentPath === '/apply/' || currentPath === '/get-listed') {
       title = 'Get Listed & Evaluation Pipeline | ORDINAL';
       metaDesc = 'Submit autonomous Web3 AI agents for review and calculate live telemetry scores.';
+    } else if (currentPath === '/rankings' || currentPath === '/rankings/') {
+      title = 'Leaderboard & Live Coverage Rankings | ORDINAL';
+      metaDesc = 'Real-time leaderboard ranking autonomous Web3 AI agents by verified on-chain telemetry and composite reputation scores.';
+    } else if (currentPath === '/methodology' || currentPath === '/methodology/' || currentPath === '/method') {
+      title = 'Rating Methodology & Audit Rubric | ORDINAL';
+      metaDesc = 'Four weighted audit criteria evaluating autonomous Web3 AI agents across disclosure, consistency, incident response, and independence.';
     } else if (currentPath === '/qualified' || currentPath === '/qualified/') {
       title = 'Qualified Volume: In Development | ORDINAL';
       metaDesc = 'Notice Page: Qualified Volume filter engine assessing Web3 AI agent liquidity and execution metrics.';
     } else if (currentPath === '/log' || currentPath === '/log/') {
       title = 'Public Build Log | ORDINAL';
       metaDesc = 'Append-only chronological record of system deployments, recalibrations, and structural corrections.';
-    } else if (currentPath === '/reports' || currentPath === '/reports/') {
-      title = 'Dossier Reports Catalog | ORDINAL';
-      metaDesc = 'Comprehensive evaluation dossiers and deep-dive risk reports for Web3 AI agents.';
     }
 
     document.title = title;
@@ -56,6 +60,14 @@ function MainRouter() {
     return <GetListedView onNavigate={navigate} />;
   }
 
+  if (currentPath === '/rankings' || currentPath === '/rankings/') {
+    return <RankingsView onNavigate={navigate} />;
+  }
+
+  if (currentPath === '/methodology' || currentPath === '/methodology/' || currentPath === '/method') {
+    return <MethodologyView onNavigate={navigate} />;
+  }
+
   if (currentPath === '/qualified' || currentPath === '/qualified/') {
     return <QualifiedNoticeView onNavigate={navigate} />;
   }
@@ -68,14 +80,8 @@ function MainRouter() {
     return <RatingAgents />;
   }
 
-  if (currentPath === '/reports' || currentPath === '/reports/') {
-    return <ReportsCatalogView onSelectReport={(slug) => navigate('/reports/' + slug)} />;
-  }
-
-  if (currentPath.startsWith('/reports/')) {
-    const slug = currentPath.replace('/reports/', '');
-    const reportData = SAMPLE_REPORTS[slug] || SAMPLE_REPORTS['aixbt'];
-    return <ReportDetailView report={reportData} onBack={() => navigate('/reports')} />;
+  if (currentPath.startsWith('/reports')) {
+    return <RankingsView onNavigate={navigate} />;
   }
 
   if (currentPath.startsWith('/guide')) {

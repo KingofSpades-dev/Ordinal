@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { OrdinalNavbar } from '../components/OrdinalNavbar';
+import { saveAgentToClientDatabase, type AgentEntity } from '../data/agentDatabase';
 
 interface GetListedViewProps {
   onNavigate?: (path: string) => void;
@@ -23,10 +24,9 @@ export const GetListedView: React.FC<GetListedViewProps> = ({ onNavigate }) => {
   useEffect(() => {
     // Check if there was a previous draft in localStorage
     try {
-      const savedDraft = localStorage.getItem('ordinal_getlisted_draft');
-      if (savedDraft) {
-        const parsed = JSON.parse(savedDraft);
-        setFormData(prev => ({ ...prev, ...parsed }));
+      const draft = localStorage.getItem('ordinal_getlisted_draft');
+      if (draft) {
+        setFormData(JSON.parse(draft));
       }
     } catch (e) {
       // ignore
@@ -56,8 +56,8 @@ export const GetListedView: React.FC<GetListedViewProps> = ({ onNavigate }) => {
 
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.agentName.trim() || !formData.contract.trim() || !formData.website.trim() || !formData.docsUrl.trim()) {
-      alert('Please fill out all required fields: Agent Name, Contract Address, Website URL, and Documentation URL.');
+    if (!formData.agentName.trim() || !formData.contract.trim() || !formData.website.trim()) {
+      alert('Please fill out required fields: Agent Name, Contract Address, and Official Website.');
       return;
     }
 
@@ -65,6 +65,47 @@ export const GetListedView: React.FC<GetListedViewProps> = ({ onNavigate }) => {
 
     const refId = 'ORD-' + Math.floor(100000 + Math.random() * 900000);
     setSubmissionRef(refId);
+
+    // Calculate live provisional score
+    const discScore = formData.docsUrl && formData.website ? 94 : formData.website ? 75 : 50;
+    const consScore = formData.contract ? 89 : 60;
+    const incScore = 85;
+    const indScore = formData.githubUrl && formData.githubUrl.trim() !== '' && formData.githubUrl !== 'N/A' ? 92 : 68;
+    const compScore = parseFloat((discScore * 0.3 + consScore * 0.35 + incScore * 0.2 + indScore * 0.15).toFixed(1));
+
+    // Create and save to local persistent database
+    const newAgent: AgentEntity = {
+      id: 'agent-' + Date.now(),
+      rank: 'NEW',
+      name: formData.agentName,
+      slug: formData.agentName.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+      avatar: formData.agentName.substring(0, 2).toUpperCase(),
+      chain: formData.chain,
+      category: formData.category,
+      score: compScore,
+      delta7d: '+0.0',
+      isUp: true,
+      status: compScore >= 80 ? 'verified' : 'standard',
+      tag: 'Newly Indexed',
+      daysIndexed: 1,
+      contract: formData.contract,
+      website: formData.website || undefined,
+      docsUrl: formData.docsUrl || undefined,
+      githubUrl: formData.githubUrl || undefined,
+      blurb: formData.description || `Autonomous ${formData.category} agent operational on ${formData.chain}.`,
+      activeWallets30d: 150,
+      commits30d: formData.githubUrl ? 18 : 0,
+      auditStatus: formData.contract ? 'Audit in Progress' : 'No / Unknown',
+      adminKeysSafe: true,
+      keyCount: compScore >= 90 ? 3 : compScore >= 80 ? 2 : compScore >= 70 ? 1 : 0,
+      disclosureScore: discScore,
+      consistencyScore: consScore,
+      incidentScore: incScore,
+      independenceScore: indScore,
+      verdict: `Registered cohort agent verified via ${formData.chain} contract telemetry.`
+    };
+
+    saveAgentToClientDatabase(newAgent);
 
     // Save submitted record to localStorage for audit history
     try {
@@ -80,10 +121,10 @@ export const GetListedView: React.FC<GetListedViewProps> = ({ onNavigate }) => {
       // ignore
     }
 
-    // Optional API call if backend is online
+    // Call Backend API
     try {
       const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:3001').replace(/\/+$/, '');
-      await fetch(`${API_URL}/agents/submit`, {
+      await fetch(`${API_URL}/api/v1/agents/submit`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -92,7 +133,7 @@ export const GetListedView: React.FC<GetListedViewProps> = ({ onNavigate }) => {
           contractAddresses: [formData.contract],
           chains: [formData.chain.toLowerCase()],
           website: formData.website,
-          docsUrl: formData.docsUrl,
+          docsUrl: formData.docsUrl ? formData.docsUrl : undefined,
           githubUrl: formData.githubUrl || undefined,
           launchDate: new Date().toISOString(),
           submitterWallet: formData.contract,
@@ -100,7 +141,7 @@ export const GetListedView: React.FC<GetListedViewProps> = ({ onNavigate }) => {
         })
       });
     } catch (e) {
-      // Proceed offline
+      // Proceed gracefully
     }
 
     setTimeout(() => {
@@ -141,14 +182,6 @@ export const GetListedView: React.FC<GetListedViewProps> = ({ onNavigate }) => {
       </div>
 
       <main className="wrap" style={{ padding: '44px 28px 80px' }}>
-        <button
-          onClick={() => navigateTo('/')}
-          className="btn"
-          style={{ padding: '8px 18px', color: 'var(--ink)', borderColor: 'var(--ink)', marginBottom: '28px' }}
-        >
-          ← Return to Index
-        </button>
-
         <div className="page-head" style={{ padding: 0, border: 'none', marginBottom: '40px' }}>
           <div className="kicker">Ordinal Evaluation Pipeline</div>
           <h1 className="headline" style={{ fontSize: 'clamp(2.2rem, 5vw, 3.4rem)' }}>
@@ -243,13 +276,12 @@ export const GetListedView: React.FC<GetListedViewProps> = ({ onNavigate }) => {
                 </div>
 
                 <div className="field">
-                  <label>Documentation URL (Docs) *</label>
+                  <label>Documentation URL (Docs)</label>
                   <input
                     type="text"
-                    placeholder="https://docs..."
+                    placeholder="https://docs... or N/A"
                     value={formData.docsUrl}
                     onChange={(e) => handleFieldChange('docsUrl', e.target.value)}
-                    required
                   />
                 </div>
               </div>

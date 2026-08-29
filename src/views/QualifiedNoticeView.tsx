@@ -21,14 +21,6 @@ export const QualifiedNoticeView: React.FC<QualifiedNoticeViewProps> = ({ onNavi
       </div>
 
       <main className="wrap" style={{ maxWidth: '920px', margin: '40px auto 80px', padding: '0 24px' }}>
-        <button
-          onClick={() => onNavigate('/')}
-          className="btn"
-          style={{ padding: '8px 18px', color: 'var(--ink)', borderColor: 'var(--ink)', marginBottom: '28px' }}
-        >
-          ← Return to Index
-        </button>
-
         <div className="kicker">{eyebrow || 'Telemetry Specification'}</div>
         <h1 className="headline" style={{ fontSize: 'clamp(2.2rem, 4.8vw, 3.4rem)', margin: '14px 0 16px' }}>
           {headline}

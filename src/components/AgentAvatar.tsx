@@ -23,13 +23,32 @@ const KNOWN_AGENT_LOGOS: Record<string, string> = {
   'autonolas': 'https://assets.coingecko.com/coins/images/31034/standard/olas.png',
   'autonolas (olas)': 'https://assets.coingecko.com/coins/images/31034/standard/olas.png',
   'nosana': 'https://assets.coingecko.com/coins/images/22564/standard/nosana.png',
+  'nosana (nos)': 'https://assets.coingecko.com/coins/images/22564/standard/nosana.png',
   'zerebro': 'https://assets.coingecko.com/coins/images/51015/standard/zerebro.png',
   'aixbt': 'https://assets.coingecko.com/coins/images/51761/standard/aixbt.jpg',
   'elizaos': 'https://raw.githubusercontent.com/elizaOS/eliza/main/packages/client-twitter/assets/logo.png',
+  'paal-ai': 'https://assets.coingecko.com/coins/images/30748/standard/Paal.png',
+  'paal ai': 'https://assets.coingecko.com/coins/images/30748/standard/Paal.png',
+  'chaingpt': 'https://assets.coingecko.com/coins/images/29729/standard/ChainGPT_Logo.png',
+  'chaingpt (cgpt)': 'https://assets.coingecko.com/coins/images/29729/standard/ChainGPT_Logo.png',
+  'truth-terminal': 'https://assets.coingecko.com/coins/images/50787/standard/goat.jpg',
+  'truth terminal': 'https://assets.coingecko.com/coins/images/50787/standard/goat.jpg',
+  'myshell': 'https://assets.coingecko.com/coins/images/34947/standard/myshell.png',
+  'myshell (shell)': 'https://assets.coingecko.com/coins/images/34947/standard/myshell.png',
+  'heurist': 'https://assets.coingecko.com/coins/images/38600/standard/heurist.jpg',
+  'heurist (heu)': 'https://assets.coingecko.com/coins/images/38600/standard/heurist.jpg',
+  'pippin-agent': 'https://assets.coingecko.com/coins/images/51493/standard/pippin.png',
+  'pippin': 'https://assets.coingecko.com/coins/images/51493/standard/pippin.png',
+  'griffain': 'https://assets.coingecko.com/coins/images/52077/standard/griffain.jpg',
+  'almanak': 'https://assets.coingecko.com/coins/images/35000/standard/almanak.png',
+  '0g-labs': 'https://assets.coingecko.com/coins/images/36000/standard/0g.png',
+  'clawd': 'https://avatars.githubusercontent.com/u/190847983?v=4',
+  'clawd (clawd.atg.eth)': 'https://avatars.githubusercontent.com/u/190847983?v=4',
 };
 
 // Domains known to be active and have verified web favicons
 const VERIFIED_FAVICON_DOMAINS: string[] = [
+  'clawdbotatg.eth.link',
   'cipherworks.ai',
   'aurelia.ai',
   'elizaos.ai',
@@ -41,7 +60,23 @@ const VERIFIED_FAVICON_DOMAINS: string[] = [
   'nosana.io',
   'zerebro.org',
   'aixbt.tech',
-  'olas.network'
+  'olas.network',
+  'paal.ai',
+  'chaingpt.org',
+  'myshell.ai',
+  'heurist.ai',
+  'theoriq.ai',
+  'talus.network',
+  'recall.network',
+  'sentient.foundation',
+  'bankr.bot',
+  'chaoslabs.xyz',
+  'almanak.co',
+  'wayfinder.ai',
+  'kiteai.io',
+  '0g.ai',
+  'naptha.ai',
+  'agentzero.ai'
 ];
 
 export const getFaviconUrl = (website?: string, agentName?: string, slug?: string): string | null => {

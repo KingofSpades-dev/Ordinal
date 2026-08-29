@@ -10,21 +10,8 @@ interface OrdinalNavbarProps {
 export const OrdinalNavbar: React.FC<OrdinalNavbarProps> = ({
   currentPath = '/',
   onNavigate,
-  activeTab,
-  onTabChange,
 }) => {
-  const navigateTo = (path: string, tab?: string) => {
-    // If it's an internal tab switch on home page ('home', 'rankings', 'method')
-    if (tab && onTabChange && (path === '/' || !path.startsWith('/'))) {
-      if (typeof window !== 'undefined' && window.location.pathname !== '/') {
-        window.history.pushState({}, '', '/');
-        window.dispatchEvent(new PopStateEvent('popstate'));
-      }
-      onTabChange(tab);
-      return;
-    }
-
-    // Direct page route navigation (e.g. /apply, /reports, /log, /qualified)
+  const navigateTo = (path: string) => {
     if (onNavigate) {
       onNavigate(path);
       return;
@@ -36,9 +23,15 @@ export const OrdinalNavbar: React.FC<OrdinalNavbarProps> = ({
     }
   };
 
-  const isCurrent = (path: string, tab?: string) => {
+  const isCurrent = (path: string) => {
     if (path === '/apply') {
       return currentPath === '/apply' || currentPath === '/apply/' || currentPath === '/get-listed';
+    }
+    if (path === '/rankings') {
+      return currentPath === '/rankings' || currentPath === '/rankings/';
+    }
+    if (path === '/methodology') {
+      return currentPath === '/methodology' || currentPath === '/methodology/' || currentPath === '/method';
     }
     if (path === '/reports') {
       return currentPath.startsWith('/reports');
@@ -49,11 +42,8 @@ export const OrdinalNavbar: React.FC<OrdinalNavbarProps> = ({
     if (path === '/qualified') {
       return currentPath === '/qualified' || currentPath === '/qualified/';
     }
-    if (tab && activeTab && currentPath === '/') {
-      return activeTab === tab;
-    }
-    if (path === '/' && (currentPath === '/' || !currentPath)) {
-      return !activeTab || activeTab === 'home';
+    if (path === '/') {
+      return currentPath === '/' || currentPath === '';
     }
     return currentPath === path;
   };
@@ -63,7 +53,7 @@ export const OrdinalNavbar: React.FC<OrdinalNavbarProps> = ({
       <div className="masthead-row">
         <div
           className="brand-wrapper"
-          onClick={() => navigateTo('/', 'home')}
+          onClick={() => navigateTo('/')}
           style={{ cursor: 'pointer' }}
         >
           <img src="/logo.jpeg" alt="Ordinal Logo" className="brand-logo-img" />
@@ -90,22 +80,16 @@ export const OrdinalNavbar: React.FC<OrdinalNavbarProps> = ({
 
       <nav className="masthead-tags" aria-label="Main Navigation">
         <span
-          className={`nav-link ${isCurrent('/', 'home') ? 'active' : ''}`}
-          onClick={() => navigateTo('/', 'home')}
+          className={`nav-link ${isCurrent('/') ? 'active' : ''}`}
+          onClick={() => navigateTo('/')}
         >
           The Index
         </span>
         <span
-          className={`nav-link ${isCurrent('/rankings', 'rankings') ? 'active' : ''}`}
-          onClick={() => navigateTo('/', 'rankings')}
+          className={`nav-link ${isCurrent('/rankings') ? 'active' : ''}`}
+          onClick={() => navigateTo('/rankings')}
         >
           Rankings
-        </span>
-        <span
-          className={`nav-link ${isCurrent('/reports') ? 'active' : ''}`}
-          onClick={() => navigateTo('/reports')}
-        >
-          Dossier Reports
         </span>
         <span
           className={`nav-link ${isCurrent('/log') ? 'active' : ''}`}
@@ -120,8 +104,8 @@ export const OrdinalNavbar: React.FC<OrdinalNavbarProps> = ({
           Qualified Volume
         </span>
         <span
-          className={`nav-link ${isCurrent('/method', 'method') ? 'active' : ''}`}
-          onClick={() => navigateTo('/', 'method')}
+          className={`nav-link ${isCurrent('/methodology') ? 'active' : ''}`}
+          onClick={() => navigateTo('/methodology')}
         >
           Methodology
         </span>
