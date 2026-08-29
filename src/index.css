@@ -200,10 +200,70 @@ button {
   100% { transform: translateX(-50%); }
 }
 
-/* ===== Hero ===== */
-.hero {
-  padding: 56px 0 40px;
+/* ===== Full-Bleed Hero Section ===== */
+.hero-full-bleed {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  padding: 56px 0 46px;
   border-bottom: 1px solid var(--rule);
+  background: var(--paper, #fbf8f2);
+}
+
+.hero-backdrop-dial {
+  position: absolute;
+  right: calc(-4vw + 100px);
+  top: 48%;
+  transform: translateY(-50%);
+  width: clamp(770px, 68vw, 1170px);
+  height: clamp(770px, 68vw, 1170px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.8;
+  mix-blend-mode: multiply;
+  mask-image: linear-gradient(to right, transparent 0%, rgba(0, 0, 0, 0.15) 12%, rgba(0, 0, 0, 0.75) 30%, black 55%);
+  -webkit-mask-image: linear-gradient(to right, transparent 0%, rgba(0, 0, 0, 0.15) 12%, rgba(0, 0, 0, 0.75) 30%, black 55%);
+}
+
+.hero-dial-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.hero-editorial-wrap {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.hero-editorial-content {
+  max-width: 660px;
+  margin-bottom: 30px;
+}
+
+@media (max-width: 900px) {
+  .hero-full-bleed {
+    padding: 38px 0 32px;
+  }
+  .hero-backdrop-dial {
+    position: relative;
+    right: auto;
+    top: auto;
+    transform: none;
+    width: 320px;
+    height: 320px;
+    margin: 20px auto 0;
+    opacity: 0.9;
+  }
+  .hero-editorial-content {
+    max-width: 100%;
+    margin-bottom: 20px;
+  }
 }
 
 .kicker {
@@ -229,8 +289,8 @@ button {
 .headline {
   font-family: 'Fraunces', serif;
   font-weight: 600;
-  font-size: clamp(2.4rem, 5.5vw, 4.4rem);
-  line-height: 1.03;
+  font-size: clamp(2.2rem, 5vw, 4.1rem);
+  line-height: 1.04;
   letter-spacing: -0.015em;
   max-width: 940px;
   margin: 0;

@@ -81,27 +81,44 @@ export default function App({ onNavigate }: { onNavigate?: (path: string) => voi
 
       {/* Primary Editorial Cover Story (The Index) */}
       <main id="page-home">
-        <section className="wrap hero">
-          <div className="kicker">The Web3 AI Agent Index</div>
-          <h1 className="headline">
-            Who do you trust <em>when the trader</em><br />is a machine?
-          </h1>
-          <p className="dek">
-            Thousands of autonomous agents now hold wallets, execute trades, and manage treasuries with no one watching. Ordinal built the index that grades them anyway.
-          </p>
-          <div className="byline-row">
-            <span>By the <b>Ordinal Research Desk</b></span>
-            <span>Updated continuously</span>
-            <span>Coverage: <b>{dbStats.total} agents</b> across {dbStats.uniqueChains} chains</span>
+        <section className="hero-full-bleed">
+          <div className="hero-backdrop-dial">
+            <img
+              src="/hero-image.png"
+              alt="Ordinal Autonomous Consensus Instrument"
+              className="hero-dial-img"
+            />
           </div>
 
-          <div className="masthead-tags" style={{ marginTop: '22px', borderTop: 'none', padding: 0 }}>
-            <span style={{ color: 'var(--brass)', borderBottom: '2px solid var(--brass)', paddingBottom: '4px' }}>
-              Featured: The Next 30 (Class of 2026)
-            </span>
-            <span>Rising Stars in Autonomous Finance</span>
-          </div>
+          <div className="wrap hero-editorial-wrap">
+            <div className="hero-editorial-content">
+              <div className="kicker">The Web3 AI Agent Index</div>
+              <h1 className="headline">
+                Who do you trust <br /><em>when the trader</em>
+                <br />
+                is a machine?
+              </h1>
+              <p className="dek">
+                Thousands of autonomous agents now hold wallets, execute trades, and manage treasuries with no one watching. Ordinal built the index that grades them anyway.
+              </p>
+            </div>
 
+            <div className="byline-row">
+              <span>By the <b>Ordinal Research Desk</b></span>
+              <span>Updated continuously</span>
+              <span>Coverage: <b>{dbStats.total} agents</b> across {dbStats.uniqueChains} chains</span>
+            </div>
+
+            <div className="masthead-tags" style={{ marginTop: '22px', borderTop: 'none', padding: 0 }}>
+              <span style={{ color: 'var(--brass)', borderBottom: '2px solid var(--brass)', paddingBottom: '4px' }}>
+                Featured: The Next 30 (Class of 2026)
+              </span>
+              <span>Rising Stars in Autonomous Finance</span>
+            </div>
+          </div>
+        </section>
+
+        <section className="wrap">
           <div className="ledger">
             <div className="ledger-cell">
               <div className="ledger-num">{dbStats.total}</div>
