@@ -386,7 +386,7 @@ export const GetListedView: React.FC<GetListedViewProps> = ({ onNavigate }) => {
 
             <div style={{ marginTop: '24px', border: '1px dashed var(--brass)', padding: '18px', background: 'var(--brass-soft)' }}>
               <h4 style={{ fontFamily: "'Fraunces', serif", margin: '0 0 6px 0', fontSize: '1.05rem', color: 'var(--brass)' }}>
-                🚀 Priority Evaluation Queue
+                Priority Evaluation Queue
               </h4>
               <p style={{ fontSize: '0.86rem', lineHeight: '1.5', margin: '0 0 10px 0', color: 'var(--ink-soft)' }}>
                 Need expedited review? Wallets holding $ORDINAL are routed to the priority telemetry worker node for immediate evaluation.

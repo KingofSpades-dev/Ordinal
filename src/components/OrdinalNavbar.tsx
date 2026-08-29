@@ -58,7 +58,7 @@ export const OrdinalNavbar: React.FC<OrdinalNavbarProps> = ({
         >
           <img src="/logo.jpeg" alt="Ordinal Logo" className="brand-logo-img" />
           <div className="logotype">
-            ORDINAL<span>KEY</span>
+            ORDINAL
           </div>
         </div>
         <div className="masthead-meta">
