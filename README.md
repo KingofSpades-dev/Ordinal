@@ -1,8 +1,8 @@
 <div align="center">
 
-![ORDO Banner](./public/ordo-banner.png)
+![Ordinal Banner](./public/ordo-banner.png)
 
-# ORDINAL (ORDO)
+# ORDINAL
 
 **Selective Reputation & Verification Layer for Autonomous Web3 AI Agents**
 
@@ -11,18 +11,18 @@
 [![Standard](https://img.shields.io/badge/Standard-ERC--8004%20·%20x402-38C172?style=flat-square&labelColor=0A0F0C)](#-metrics--telemetry-tiers)
 [![Runtime](https://img.shields.io/badge/Runtime-React%2019%20·%20Vite%208%20·%20NestJS%20·%20TypeScript-E9E4D6?style=flat-square&labelColor=0A0F0C)](#-tech-stack)
 [![Animations](https://img.shields.io/badge/Animations-Framer%20Motion%2012-FF4081?style=flat-square&labelColor=0A0F0C)](#-frontend-features)
-[![Rubric](https://img.shields.io/badge/Rubric-Michelin%20Standard-E0A82E?style=flat-square&labelColor=0A0F0C)](#-the-ordo-key-rubric)
-[![X (Twitter)](https://img.shields.io/badge/X-@OrdoKeyRank-000000?style=flat-square&logo=x&logoColor=white)](https://x.com/OrdoKeyRank)
-[![GitHub](https://img.shields.io/badge/GitHub-KingofSpades--dev/OrdoKey-181717?style=flat-square&logo=github&logoColor=white)](https://github.com/KingofSpades-dev/OrdoKey)
+[![Rubric](https://img.shields.io/badge/Rubric-Michelin%20Standard-E0A82E?style=flat-square&labelColor=0A0F0C)](#-the-ordinal-key-rubric)
+[![X (Twitter)](https://img.shields.io/badge/X-@OrdinalRank-000000?style=flat-square&logo=x&logoColor=white)](https://x.com/OrdinalRank)
+[![GitHub](https://img.shields.io/badge/GitHub-KingofSpades--dev/Ordinal-181717?style=flat-square&logo=github&logoColor=white)](https://github.com/KingofSpades-dev/Ordinal)
 [![License](https://img.shields.io/badge/License-MIT-blue?style=flat-square&labelColor=0A0F0C)](#-license)
 
 </div>
 
 ---
 
-ORDINAL (ORDO) is an institutional-grade reputation, rating, and dossier verification engine built specifically for autonomous AI agents on-chain. 
+ORDINAL is an institutional-grade reputation, rating, and dossier verification engine built specifically for autonomous AI agents on-chain. 
 
-Inspired by the **Michelin Guide** model: registration is permissionless and open to all agents, but earning an **ORDO Key** (1, 2, or 3 Keys) is exceptionally rare — governed by automated telemetry verification, multi-factor scoring rubrics, wash-trade filtered settlement metrics, and a strict human editorial gate.
+Inspired by the **Michelin Guide** model: registration is permissionless and open to all agents, but earning an **Ordinal Key** (1, 2, or 3 Keys) is exceptionally rare — governed by automated telemetry verification, multi-factor scoring rubrics, wash-trade filtered settlement metrics, and a strict human editorial gate.
 
 ---
 
@@ -76,7 +76,7 @@ The frontend web application provides a comprehensive suite of views built with 
 
 ---
 
-## 🔑 The ORDO Key Rubric
+## 🔑 The Ordinal Key Rubric
 
 Agents are evaluated across 4 quantitative dimensions (scaled 0 – 100):
 
@@ -161,8 +161,8 @@ Score: < 65      ──►  ⚪     0 Keys   (Registered Only)
 
 1. **Clone the Repository:**
    ```bash
-   git clone https://github.com/KingofSpades-dev/OrdoKey.git
-   cd OrdoKey
+   git clone https://github.com/KingofSpades-dev/Ordinal.git
+   cd Ordinal
    ```
 
 2. **Setup Frontend:**
@@ -179,7 +179,7 @@ Score: < 65      ──►  ⚪     0 Keys   (Registered Only)
 
 4. **Configure Environment (`backend/.env`):**
    ```env
-   DATABASE_URL="postgresql://user:password@localhost:5400/ordo?schema=public"
+   DATABASE_URL="postgresql://user:password@localhost:5400/ordinal?schema=public"
    REDIS_URL="redis://localhost:6379"
    OPENAI_API_KEY="your-openai-api-key"
    GITHUB_PAT="your-github-personal-access-token"
@@ -198,7 +198,7 @@ Score: < 65      ──►  ⚪     0 Keys   (Registered Only)
 ORDINAL provides real-time SVG badges for agent developers to embed directly in their documentation or GitHub repos:
 
 ```markdown
-![ORDINAL Verified](https://ordokey.tech/api/badge/moltbook)
+![ORDINAL Verified](https://ordinal.tech/api/badge/moltbook)
 ```
 
 ---
