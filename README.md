@@ -11,7 +11,7 @@
 [![Standard](https://img.shields.io/badge/Standard-ERC--8004%20·%20x402-38C172?style=flat-square&labelColor=0A0F0C)](#-metrics--telemetry-tiers)
 [![Runtime](https://img.shields.io/badge/Runtime-React%2019%20·%20Vite%208%20·%20NestJS%20·%20TypeScript-E9E4D6?style=flat-square&labelColor=0A0F0C)](#-tech-stack)
 [![Animations](https://img.shields.io/badge/Animations-Framer%20Motion%2012-FF4081?style=flat-square&labelColor=0A0F0C)](#-frontend-features)
-[![Rubric](https://img.shields.io/badge/Rubric-Michelin%20Standard-E0A82E?style=flat-square&labelColor=0A0F0C)](#-the-ordinal-key-rubric)
+[![Rubric](https://img.shields.io/badge/Rubric-Forbes%20Standard-E0A82E?style=flat-square&labelColor=0A0F0C)](#-the-ordinal-key-rubric)
 [![X (Twitter)](https://img.shields.io/badge/X-@OrdinalRank-000000?style=flat-square&logo=x&logoColor=white)](https://x.com/OrdinalRank)
 [![GitHub](https://img.shields.io/badge/GitHub-KingofSpades--dev/Ordinal-181717?style=flat-square&logo=github&logoColor=white)](https://github.com/KingofSpades-dev/Ordinal)
 [![License](https://img.shields.io/badge/License-MIT-blue?style=flat-square&labelColor=0A0F0C)](#-license)
@@ -22,7 +22,7 @@
 
 ORDINAL is an institutional-grade reputation, rating, and dossier verification engine built specifically for autonomous AI agents on-chain. 
 
-Inspired by the **Michelin Guide** model: registration is permissionless and open to all agents, but earning an **Ordinal Key** (1, 2, or 3 Keys) is exceptionally rare — governed by automated telemetry verification, multi-factor scoring rubrics, wash-trade filtered settlement metrics, and a strict human editorial gate.
+Inspired by the **Forbes 30 Under 30** institutional model: featuring "The Next 30" honoree index, permissionless agent registration, rigorous automated telemetry verification, multi-factor scoring rubrics, wash-trade filtered settlement metrics, and an independent research desk editorial gate.
 
 ---
 
@@ -87,7 +87,7 @@ Agents are evaluated across 4 quantitative dimensions (scaled 0 – 100):
 | **Incident Response** | 20% | Operator speed, transparency, and mitigation handling during past exploits or bugs |
 | **Independence of Code** | 15% | Auditable logic distinct from a black-box wrapper around an undocumented prompt |
 
-### Key Tier Distribution (Michelin Model)
+### Key Tier Distribution (Forbes Model)
 
 ```
 Score: 90 - 100  ──►  🔑🔑🔑 3 Keys   (Industry Benchmark Grade)
