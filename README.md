@@ -119,15 +119,16 @@ To prevent manipulation, ORDO ranks data signals strictly by their cost to fake:
 ## 💻 Tech Stack
 
 ### Frontend
-- **Framework:** React 18, Vite, TypeScript
-- **Styling:** Custom CSS Design System (Glassmorphism & Sleek Dark Mode)
-- **Icons & Visuals:** Lucide React, Custom SVG Badges
+- **Framework:** React 19, Vite 8, TypeScript
+- **Animations:** Framer Motion (Smooth page transitions, rotating hero backdrop dial, 0-to-target CountUp numbers, and dynamic score meters)
+- **Styling:** Custom Editorial CSS Design System (Glassmorphism & High-Contrast Typography)
+- **Icons & Visuals:** Custom SVG Badges, Dynamic Favicon Resolver
 
 ### Backend
 - **Framework:** NestJS (Node.js TypeScript)
 - **Database:** PostgreSQL with Prisma ORM
 - **Async Queue:** Redis + BullMQ
-- **Blockchain Interop:** Viem (EVM Chain RPC)
+- **Blockchain Interop:** Viem (EVM Chain RPC) & Ethers v6
 - **AI Synthesis:** OpenAI Node.js SDK
 
 ---
