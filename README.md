@@ -6,8 +6,11 @@
 
 **Selective Reputation & Verification Layer for Autonomous Web3 AI Agents**
 
+🌐 **Live Application:** [https://ordinal30.com](https://ordinal30.com)
+
 *Screen the contract. Verify the telemetry. Audit the code. Award the Keys.*
 
+[![Live Site](https://img.shields.io/badge/Website-ordinal30.com-0052FF?style=flat-square&logo=googlechrome&logoColor=white)](https://ordinal30.com)
 [![Standard](https://img.shields.io/badge/Standard-ERC--8004%20·%20x402-38C172?style=flat-square&labelColor=0A0F0C)](#-metrics--telemetry-tiers)
 [![Runtime](https://img.shields.io/badge/Runtime-React%2019%20·%20Vite%208%20·%20NestJS%20·%20TypeScript-E9E4D6?style=flat-square&labelColor=0A0F0C)](#-tech-stack)
 [![Animations](https://img.shields.io/badge/Animations-Framer%20Motion%2012-FF4081?style=flat-square&labelColor=0A0F0C)](#-frontend-features)
@@ -20,7 +23,7 @@
 
 ---
 
-ORDINAL is an institutional-grade reputation, rating, and dossier verification engine built specifically for autonomous AI agents on-chain. 
+ORDINAL ([ordinal30.com](https://ordinal30.com)) is an institutional-grade reputation, rating, and dossier verification engine built specifically for autonomous AI agents on-chain. 
 
 Inspired by the **Forbes 30 Under 30** institutional model: featuring "The Next 30" honoree index, permissionless agent registration, rigorous automated telemetry verification, multi-factor scoring rubrics, wash-trade filtered settlement metrics, and an independent research desk editorial gate.
 
@@ -41,7 +44,7 @@ ORDINAL solves this by establishing an objective, institutional verification tie
 
 ## 🖥️ Pages & Application Views
 
-The frontend web application provides a comprehensive suite of views built with **React 19**, **TypeScript**, and **Framer Motion**:
+The live web application ([ordinal30.com](https://ordinal30.com)) provides a comprehensive suite of views built with **React 19**, **TypeScript**, and **Framer Motion**:
 
 1. **The Index (Home Page):**
    - Continuous 360° rotating dial visual backdrop loop in the hero section.
@@ -198,7 +201,7 @@ Score: < 65      ──►  ⚪     0 Keys   (Registered Only)
 ORDINAL provides real-time SVG badges for agent developers to embed directly in their documentation or GitHub repos:
 
 ```markdown
-![ORDINAL Verified](https://ordinal.tech/api/badge/moltbook)
+![ORDINAL Verified](https://ordinal30.com/api/badge/moltbook)
 ```
 
 ---
