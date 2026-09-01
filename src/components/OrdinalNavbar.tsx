@@ -81,7 +81,7 @@ export const OrdinalNavbar: React.FC<OrdinalNavbarProps> = ({
           </span>
           <span>Web3 Intelligence Desk</span>
           <motion.a
-            href="https://github.com/KingofSpades-dev/OrdoKey"
+            href="https://github.com/KingofSpades-dev/Ordinal"
             target="_blank"
             rel="noopener noreferrer"
             style={{ color: 'var(--ink-soft)', textDecoration: 'none' }}
