@@ -1,7 +1,9 @@
 import { useState, useMemo, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { COMPLETE_AGENT_DATABASE, getFullAgentDatabase, fetchLiveAgentDatabase, type AgentEntity } from './data/agentDatabase';
 import { OrdinalNavbar } from './components/OrdinalNavbar';
 import { AgentAvatar } from './components/AgentAvatar';
+import { CountUpNumber } from './components/CountUpNumber';
 
 export default function App({ onNavigate }: { onNavigate?: (path: string) => void }) {
   const [selectedAgent, setSelectedAgent] = useState<AgentEntity | null>(null);
@@ -91,7 +93,12 @@ export default function App({ onNavigate }: { onNavigate?: (path: string) => voi
           </div>
 
           <div className="wrap hero-editorial-wrap">
-            <div className="hero-editorial-content">
+            <motion.div
+              className="hero-editorial-content"
+              initial={{ opacity: 0, y: 25 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, ease: 'easeOut' }}
+            >
               <div className="kicker">The Web3 AI Agent Index</div>
               <h1 className="headline">
                 Who do you trust <br /><em>when the trader</em>
@@ -101,13 +108,18 @@ export default function App({ onNavigate }: { onNavigate?: (path: string) => voi
               <p className="dek">
                 Thousands of autonomous agents now hold wallets, execute trades, and manage treasuries with no one watching. Ordinal built the index that grades them anyway.
               </p>
-            </div>
+            </motion.div>
 
-            <div className="byline-row">
+            <motion.div
+              className="byline-row"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.4, duration: 0.6 }}
+            >
               <span>By the <b>Ordinal Research Desk</b></span>
               <span>Updated continuously</span>
               <span>Coverage: <b>{dbStats.total} agents</b> across {dbStats.uniqueChains} chains</span>
-            </div>
+            </motion.div>
 
             <div className="masthead-tags" style={{ marginTop: '22px', borderTop: 'none', padding: 0 }}>
               <span style={{ color: 'var(--brass)', borderBottom: '2px solid var(--brass)', paddingBottom: '4px' }}>
@@ -119,20 +131,47 @@ export default function App({ onNavigate }: { onNavigate?: (path: string) => voi
         </section>
 
         <section className="wrap">
-          <div className="ledger">
-            <div className="ledger-cell">
-              <div className="ledger-num">{dbStats.total}</div>
+          <motion.div
+            className="ledger"
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true, amount: 0.3 }}
+            variants={{
+              hidden: { opacity: 0 },
+              show: {
+                opacity: 1,
+                transition: { staggerChildren: 0.15 }
+              }
+            }}
+          >
+            <motion.div
+              className="ledger-cell"
+              variants={{ hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } }}
+            >
+              <div className="ledger-num">
+                <CountUpNumber to={dbStats.total} duration={2} />
+              </div>
               <div className="ledger-label">Agents under coverage</div>
-            </div>
-            <div className="ledger-cell">
-              <div className="ledger-num">{dbStats.revokedRate}%</div>
+            </motion.div>
+            <motion.div
+              className="ledger-cell"
+              variants={{ hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } }}
+            >
+              <div className="ledger-num">
+                <CountUpNumber to={dbStats.revokedRate} suffix="%" duration={2} />
+              </div>
               <div className="ledger-label">Score revoked / Watchlisted</div>
-            </div>
-            <div className="ledger-cell">
-              <div className="ledger-num">$0</div>
+            </motion.div>
+            <motion.div
+              className="ledger-cell"
+              variants={{ hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } }}
+            >
+              <div className="ledger-num">
+                <CountUpNumber to={0} prefix="$" duration={1.5} />
+              </div>
               <div className="ledger-label">Paid placements accepted</div>
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
         </section>
 
         <section className="wrap feature">
@@ -155,11 +194,13 @@ export default function App({ onNavigate }: { onNavigate?: (path: string) => voi
             <aside className="feature-aside">
               <div className="aside-title">This week's movers</div>
               {COMPLETE_AGENT_DATABASE.slice(0, 4).map((agent) => (
-                <div
+                <motion.div
                   key={agent.id}
                   className={`aside-item ${agent.status === 'watchlist' ? 'watch' : ''}`}
                   onClick={() => setSelectedAgent(agent)}
                   style={{ cursor: 'pointer' }}
+                  whileHover={{ x: 4, backgroundColor: 'rgba(0,0,0,0.03)' }}
+                  transition={{ type: 'spring', stiffness: 400, damping: 25 }}
                 >
                   <AgentAvatar agent={agent} size={30} />
                   <div className="aside-body">
@@ -174,7 +215,7 @@ export default function App({ onNavigate }: { onNavigate?: (path: string) => voi
                       {agent.delta7d}
                     </span>
                   </div>
-                </div>
+                </motion.div>
               ))}
             </aside>
           </div>
@@ -189,13 +230,31 @@ export default function App({ onNavigate }: { onNavigate?: (path: string) => voi
             </p>
           </div>
 
-          <div className="spotlight-grid">
+          <motion.div
+            className="spotlight-grid"
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true, amount: 0.2 }}
+            variants={{
+              hidden: { opacity: 0 },
+              show: {
+                opacity: 1,
+                transition: { staggerChildren: 0.1 }
+              }
+            }}
+          >
             {COMPLETE_AGENT_DATABASE.slice(0, 6).map((agent) => (
-              <div
+              <motion.div
                 key={agent.id}
                 className="spot-card"
                 onClick={() => setSelectedAgent(agent)}
                 style={{ cursor: 'pointer' }}
+                variants={{
+                  hidden: { opacity: 0, y: 25 },
+                  show: { opacity: 1, y: 0 }
+                }}
+                whileHover={{ y: -5, boxShadow: '0 12px 24px rgba(0,0,0,0.08)' }}
+                transition={{ type: 'spring', stiffness: 300, damping: 20 }}
               >
                 <div>
                   <div className="spot-card-top">
@@ -209,15 +268,20 @@ export default function App({ onNavigate }: { onNavigate?: (path: string) => voi
                   <span className="spot-score">{agent.score.toFixed(1)}</span>
                   <span className="spot-age">{agent.daysIndexed} DAYS INDEXED</span>
                 </div>
-              </div>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
 
           <div className="spotlight-foot">
             <div className="spotlight-note">6 of {COMPLETE_AGENT_DATABASE.length} honorees shown</div>
-            <button className="btn-dark" onClick={() => navigateTo('/rankings')}>
+            <motion.button
+              className="btn-dark"
+              onClick={() => navigateTo('/rankings')}
+              whileHover={{ scale: 1.04 }}
+              whileTap={{ scale: 0.97 }}
+            >
               View the full Leaderboard
-            </button>
+            </motion.button>
           </div>
         </section>
 
@@ -226,161 +290,246 @@ export default function App({ onNavigate }: { onNavigate?: (path: string) => voi
             <h2>How the index actually works</h2>
             <div className="method-sub">Three-stage review, repeated continuously</div>
           </div>
-          <div className="dispatch-grid">
-            <div className="dispatch">
+          <motion.div
+            className="dispatch-grid"
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true, amount: 0.2 }}
+            variants={{
+              hidden: { opacity: 0 },
+              show: { opacity: 1, transition: { staggerChildren: 0.15 } }
+            }}
+          >
+            <motion.div className="dispatch" variants={{ hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } }}>
               <div className="dispatch-tag">Signal</div>
               <h3>What the agent claims</h3>
               <p>
                 Ordinal reads what an agent publishes about itself: strategy, permissions, custody model, and on-chain history, the same material a diligent investor would ask for before wiring funds.
               </p>
-            </div>
-            <div className="dispatch">
+            </motion.div>
+            <motion.div className="dispatch" variants={{ hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } }}>
               <div className="dispatch-tag">Scrutiny</div>
               <h3>What the chain shows</h3>
               <p>
                 Claims are checked against transaction history, wallet behavior, and incident reports. Gaps between what an agent says and what it does are the single largest driver of score movement.
               </p>
-            </div>
-            <div className="dispatch">
+            </motion.div>
+            <motion.div className="dispatch" variants={{ hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } }}>
               <div className="dispatch-tag">Score</div>
               <h3>What gets published</h3>
               <p>
                 A single reputation score, with the reasoning behind it made visible, not a black-box number, but a rating you could argue with, because you can see how it was reached.
               </p>
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
         </section>
 
         <section className="closing">
           <div className="wrap closing-inner">
             <h2>The index updates daily. Most agents' behavior doesn't wait that long to change.</h2>
             <div className="cta-row">
-              <button className="btn solid" onClick={() => navigateTo('/methodology')}>
+              <motion.button
+                className="btn solid"
+                onClick={() => navigateTo('/methodology')}
+                whileHover={{ scale: 1.04 }}
+                whileTap={{ scale: 0.96 }}
+              >
                 Read the methodology
-              </button>
-              <button className="btn" onClick={() => navigateTo('/apply')}>
+              </motion.button>
+              <motion.button
+                className="btn"
+                onClick={() => navigateTo('/apply')}
+                whileHover={{ scale: 1.04 }}
+                whileTap={{ scale: 0.96 }}
+              >
                 Submit an agent
-              </button>
+              </motion.button>
             </div>
           </div>
         </section>
       </main>
 
       {/* Agent Detail Modal */}
-      {selectedAgent && (
-        <div className="modal-backdrop" onClick={() => setSelectedAgent(null)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <button className="modal-close" onClick={() => setSelectedAgent(null)}>✕</button>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '14px', margin: '10px 0' }}>
-              <AgentAvatar agent={selectedAgent} size={48} />
-              <div>
-                <h2 style={{ fontFamily: "'Fraunces', serif", margin: 0, fontSize: '1.8rem' }}>
-                  {selectedAgent.name}
-                </h2>
-                <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.75rem', color: 'var(--ink-soft)' }}>
-                  {selectedAgent.chain} · {selectedAgent.category} · {selectedAgent.contract}
-                </div>
-              </div>
-            </div>
-
-            <p style={{ fontStyle: 'italic', color: 'var(--ink-soft)', margin: '16px 0', fontSize: '0.95rem', lineHeight: '1.6' }}>
-              "{selectedAgent.blurb}"
-            </p>
-
-            <div style={{ borderTop: '1px solid var(--rule)', borderBottom: '1px solid var(--rule)', padding: '16px 0', margin: '16px 0' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px', fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.75rem' }}>
+      <AnimatePresence>
+        {selectedAgent && (
+          <motion.div
+            className="modal-backdrop"
+            onClick={() => setSelectedAgent(null)}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+          >
+            <motion.div
+              className="modal-content"
+              onClick={(e) => e.stopPropagation()}
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              transition={{ type: 'spring', stiffness: 350, damping: 25 }}
+            >
+              <button className="modal-close" onClick={() => setSelectedAgent(null)}>✕</button>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '14px', margin: '10px 0' }}>
+                <AgentAvatar agent={selectedAgent} size={48} />
                 <div>
-                  <div style={{ color: 'var(--ink-soft)', textTransform: 'uppercase' }}>Composite Score</div>
-                  <div style={{ fontSize: '1.6rem', fontWeight: 700, color: 'var(--crimson)' }}>{selectedAgent.score.toFixed(1)}</div>
-                </div>
-                <div>
-                  <div style={{ color: 'var(--ink-soft)', textTransform: 'uppercase' }}>7d Movement</div>
-                  <div style={{ fontSize: '1.4rem', fontWeight: 600 }} className={selectedAgent.isUp ? 'table-up' : 'table-down'}>
-                    {selectedAgent.delta7d}
+                  <h2 style={{ fontFamily: "'Fraunces', serif", margin: 0, fontSize: '1.8rem' }}>
+                    {selectedAgent.name}
+                  </h2>
+                  <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.75rem', color: 'var(--ink-soft)' }}>
+                    {selectedAgent.chain} · {selectedAgent.category} · {selectedAgent.contract}
                   </div>
                 </div>
               </div>
-            </div>
 
-            <div style={{ margin: '18px 0' }}>
-              <div className="aside-title">Telemetry & Security Snapshot</div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.78rem' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <span>Active Wallets (30d):</span>
-                  <b>{selectedAgent.activeWallets30d.toLocaleString()}</b>
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <span>GitHub Commits (30d):</span>
-                  <b>{selectedAgent.commits30d} commits</b>
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <span>Smart Contract Audit:</span>
-                  <b style={{ color: selectedAgent.auditStatus === 'Verified Public Audit' ? 'var(--up)' : 'var(--crimson)' }}>
-                    {selectedAgent.auditStatus}
-                  </b>
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <span>Admin Keys Safety:</span>
-                  <b>{selectedAgent.adminKeysSafe ? '✓ Multisig / Safe' : '⚠ Retained / Centralized'}</b>
+              <p style={{ fontStyle: 'italic', color: 'var(--ink-soft)', margin: '16px 0', fontSize: '0.95rem', lineHeight: '1.6' }}>
+                "{selectedAgent.blurb}"
+              </p>
+
+              <div style={{ borderTop: '1px solid var(--rule)', borderBottom: '1px solid var(--rule)', padding: '16px 0', margin: '16px 0' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px', fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.75rem' }}>
+                  <div>
+                    <div style={{ color: 'var(--ink-soft)', textTransform: 'uppercase' }}>Composite Score</div>
+                    <div style={{ fontSize: '1.6rem', fontWeight: 700, color: 'var(--crimson)' }}>
+                      <CountUpNumber to={selectedAgent.score} decimals={1} duration={1.5} />
+                    </div>
+                  </div>
+                  <div>
+                    <div style={{ color: 'var(--ink-soft)', textTransform: 'uppercase' }}>7d Movement</div>
+                    <div style={{ fontSize: '1.4rem', fontWeight: 600 }} className={selectedAgent.isUp ? 'table-up' : 'table-down'}>
+                      {selectedAgent.delta7d}
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <div style={{ margin: '18px 0', borderTop: '1px solid var(--rule)', paddingTop: '16px' }}>
-              <div className="aside-title">Scoring Breakdown</div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.78rem' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <span>Disclosure Completeness (30%):</span>
-                  <b>{selectedAgent.disclosureScore}/100</b>
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <span>On-Chain Consistency (35%):</span>
-                  <b>{selectedAgent.consistencyScore}/100</b>
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <span>Incident Response (20%):</span>
-                  <b>{selectedAgent.incidentScore}/100</b>
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <span>Independence of Code (15%):</span>
-                  <b>{selectedAgent.independenceScore}/100</b>
+              <div style={{ margin: '18px 0' }}>
+                <div className="aside-title">Telemetry & Security Snapshot</div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.78rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <span>Active Wallets (30d):</span>
+                    <b><CountUpNumber to={selectedAgent.activeWallets30d} duration={1.8} /></b>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <span>GitHub Commits (30d):</span>
+                    <b><CountUpNumber to={selectedAgent.commits30d} suffix=" commits" duration={1.8} /></b>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <span>Smart Contract Audit:</span>
+                    <b style={{ color: selectedAgent.auditStatus === 'Verified Public Audit' ? 'var(--up)' : 'var(--crimson)' }}>
+                      {selectedAgent.auditStatus}
+                    </b>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <span>Admin Keys Safety:</span>
+                    <b>{selectedAgent.adminKeysSafe ? '✓ Multisig / Safe' : '⚠ Retained / Centralized'}</b>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            {selectedAgent.verdict && (
-              <div style={{ background: 'var(--paper-dim)', padding: '12px 16px', borderLeft: '3px solid var(--crimson)', margin: '16px 0', fontSize: '0.85rem' }}>
-                <b>Desk Verdict:</b> {selectedAgent.verdict}
+              <div style={{ margin: '18px 0', borderTop: '1px solid var(--rule)', paddingTop: '16px' }}>
+                <div className="aside-title">Scoring Breakdown</div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.78rem' }}>
+                  <div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+                      <span>Disclosure Completeness (30%):</span>
+                      <b>{selectedAgent.disclosureScore}/100</b>
+                    </div>
+                    <div style={{ height: '6px', background: 'rgba(0,0,0,0.08)', borderRadius: '3px', overflow: 'hidden' }}>
+                      <motion.div
+                        style={{ height: '100%', background: 'var(--crimson)', borderRadius: '3px' }}
+                        initial={{ width: 0 }}
+                        animate={{ width: `${selectedAgent.disclosureScore}%` }}
+                        transition={{ duration: 1, ease: 'easeOut' }}
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+                      <span>On-Chain Consistency (35%):</span>
+                      <b>{selectedAgent.consistencyScore}/100</b>
+                    </div>
+                    <div style={{ height: '6px', background: 'rgba(0,0,0,0.08)', borderRadius: '3px', overflow: 'hidden' }}>
+                      <motion.div
+                        style={{ height: '100%', background: 'var(--brass)', borderRadius: '3px' }}
+                        initial={{ width: 0 }}
+                        animate={{ width: `${selectedAgent.consistencyScore}%` }}
+                        transition={{ duration: 1, ease: 'easeOut', delay: 0.1 }}
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+                      <span>Incident Response (20%):</span>
+                      <b>{selectedAgent.incidentScore}/100</b>
+                    </div>
+                    <div style={{ height: '6px', background: 'rgba(0,0,0,0.08)', borderRadius: '3px', overflow: 'hidden' }}>
+                      <motion.div
+                        style={{ height: '100%', background: 'var(--up)', borderRadius: '3px' }}
+                        initial={{ width: 0 }}
+                        animate={{ width: `${selectedAgent.incidentScore}%` }}
+                        transition={{ duration: 1, ease: 'easeOut', delay: 0.2 }}
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+                      <span>Independence of Code (15%):</span>
+                      <b>{selectedAgent.independenceScore}/100</b>
+                    </div>
+                    <div style={{ height: '6px', background: 'rgba(0,0,0,0.08)', borderRadius: '3px', overflow: 'hidden' }}>
+                      <motion.div
+                        style={{ height: '100%', background: 'var(--ink-soft)', borderRadius: '3px' }}
+                        initial={{ width: 0 }}
+                        animate={{ width: `${selectedAgent.independenceScore}%` }}
+                        transition={{ duration: 1, ease: 'easeOut', delay: 0.3 }}
+                      />
+                    </div>
+                  </div>
+                </div>
               </div>
-            )}
 
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '24px', gap: '12px', flexWrap: 'wrap' }}>
-              {selectedAgent.website ? (
-                <a
-                  href={selectedAgent.website}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="btn"
-                  style={{ color: 'var(--ink)', borderColor: 'var(--ink)' }}
-                >
-                  Official Website
-                </a>
-              ) : (
-                <button
-                  className="btn"
-                  style={{ color: 'var(--ink)', borderColor: 'var(--ink)' }}
-                  onClick={() => navigateTo('/rankings')}
-                >
-                  Leaderboard
-                </button>
+              {selectedAgent.verdict && (
+                <div style={{ background: 'var(--paper-dim)', padding: '12px 16px', borderLeft: '3px solid var(--crimson)', margin: '16px 0', fontSize: '0.85rem' }}>
+                  <b>Desk Verdict:</b> {selectedAgent.verdict}
+                </div>
               )}
-              <button className="btn-dark" onClick={() => setSelectedAgent(null)}>
-                Close Dossier
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '24px', gap: '12px', flexWrap: 'wrap' }}>
+                {selectedAgent.website ? (
+                  <a
+                    href={selectedAgent.website}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn"
+                    style={{ color: 'var(--ink)', borderColor: 'var(--ink)' }}
+                  >
+                    Official Website
+                  </a>
+                ) : (
+                  <button
+                    className="btn"
+                    style={{ color: 'var(--ink)', borderColor: 'var(--ink)' }}
+                    onClick={() => navigateTo('/rankings')}
+                  >
+                    Leaderboard
+                  </button>
+                )}
+                <motion.button
+                  className="btn-dark"
+                  onClick={() => setSelectedAgent(null)}
+                  whileHover={{ scale: 1.03 }}
+                  whileTap={{ scale: 0.97 }}
+                >
+                  Close Dossier
+                </motion.button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Footer */}
       <footer>

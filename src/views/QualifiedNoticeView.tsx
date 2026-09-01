@@ -1,6 +1,8 @@
 import React from 'react';
+import { motion } from 'framer-motion';
 import { QUALIFIED_NOTICE_DATA } from '../data/buildStages';
 import { OrdinalNavbar } from '../components/OrdinalNavbar';
+import { CountUpNumber } from '../components/CountUpNumber';
 
 interface QualifiedNoticeViewProps {
   onNavigate: (path: string) => void;
@@ -22,9 +24,15 @@ export const QualifiedNoticeView: React.FC<QualifiedNoticeViewProps> = ({ onNavi
 
       <main className="wrap" style={{ maxWidth: '920px', margin: '40px auto 80px', padding: '0 24px' }}>
         <div className="kicker">{eyebrow || 'Telemetry Specification'}</div>
-        <h1 className="headline" style={{ fontSize: 'clamp(2.2rem, 4.8vw, 3.4rem)', margin: '14px 0 16px' }}>
+        <motion.h1
+          className="headline"
+          style={{ fontSize: 'clamp(2.2rem, 4.8vw, 3.4rem)', margin: '14px 0 16px' }}
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+        >
           {headline}
-        </h1>
+        </motion.h1>
         <p className="dek" style={{ fontSize: '1.2rem', maxWidth: '760px', marginBottom: '32px' }}>
           {description}
         </p>
@@ -40,7 +48,9 @@ export const QualifiedNoticeView: React.FC<QualifiedNoticeViewProps> = ({ onNavi
             <div className="ledger-label">Target General Availability</div>
           </div>
           <div className="ledger-cell">
-            <div className="ledger-num">0%</div>
+            <div className="ledger-num">
+              <CountUpNumber to={0} suffix="%" duration={1.5} />
+            </div>
             <div className="ledger-label">Wash Trading Tolerance</div>
           </div>
         </div>
@@ -54,8 +64,12 @@ export const QualifiedNoticeView: React.FC<QualifiedNoticeViewProps> = ({ onNavi
               const isPast = idx < currentStageIndex;
               const isCurrent = idx === currentStageIndex;
               return (
-                <div
+                <motion.div
                   key={stageName}
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.3, delay: idx * 0.1 }}
+                  whileHover={{ x: 4 }}
                   style={{
                     display: 'flex',
                     justifyContent: 'space-between',
@@ -80,7 +94,7 @@ export const QualifiedNoticeView: React.FC<QualifiedNoticeViewProps> = ({ onNavi
                   >
                     {isPast ? 'COMPLETE' : isCurrent ? 'IN PROGRESS' : 'QUEUED'}
                   </span>
-                </div>
+                </motion.div>
               );
             })}
           </div>

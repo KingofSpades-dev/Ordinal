@@ -1,4 +1,5 @@
 import React from 'react';
+import { motion } from 'framer-motion';
 
 interface OrdinalNavbarProps {
   currentPath?: string;
@@ -48,73 +49,65 @@ export const OrdinalNavbar: React.FC<OrdinalNavbarProps> = ({
     return currentPath === path;
   };
 
+  const navItems = [
+    { label: 'The Index', path: '/' },
+    { label: 'Rankings', path: '/rankings' },
+    { label: 'Build Log', path: '/log' },
+    { label: 'Qualified Volume', path: '/qualified' },
+    { label: 'Methodology', path: '/methodology' },
+    { label: 'Get Listed', path: '/apply' },
+  ];
+
   return (
     <header className="wrap masthead" style={{ marginBottom: 0 }}>
       <div className="masthead-row">
-        <div
+        <motion.div
           className="brand-wrapper"
           onClick={() => navigateTo('/')}
           style={{ cursor: 'pointer' }}
+          whileHover={{ scale: 1.03 }}
+          whileTap={{ scale: 0.97 }}
+          transition={{ type: 'spring', stiffness: 400, damping: 25 }}
         >
           <img src="/logo.jpeg" alt="Ordinal Logo" className="brand-logo-img" />
           <div className="logotype">
             ORDINAL
           </div>
-        </div>
+        </motion.div>
         <div className="masthead-meta">
           <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
             <span className="live-dot"></span>
             Vol. I 2026
           </span>
           <span>Web3 Intelligence Desk</span>
-          <a
+          <motion.a
             href="https://github.com/KingofSpades-dev/OrdoKey"
             target="_blank"
             rel="noopener noreferrer"
             style={{ color: 'var(--ink-soft)', textDecoration: 'none' }}
+            whileHover={{ scale: 1.05, color: '#111' }}
           >
             GitHub
-          </a>
+          </motion.a>
         </div>
       </div>
 
       <nav className="masthead-tags" aria-label="Main Navigation">
-        <span
-          className={`nav-link ${isCurrent('/') ? 'active' : ''}`}
-          onClick={() => navigateTo('/')}
-        >
-          The Index
-        </span>
-        <span
-          className={`nav-link ${isCurrent('/rankings') ? 'active' : ''}`}
-          onClick={() => navigateTo('/rankings')}
-        >
-          Rankings
-        </span>
-        <span
-          className={`nav-link ${isCurrent('/log') ? 'active' : ''}`}
-          onClick={() => navigateTo('/log')}
-        >
-          Build Log
-        </span>
-        <span
-          className={`nav-link ${isCurrent('/qualified') ? 'active' : ''}`}
-          onClick={() => navigateTo('/qualified')}
-        >
-          Qualified Volume
-        </span>
-        <span
-          className={`nav-link ${isCurrent('/methodology') ? 'active' : ''}`}
-          onClick={() => navigateTo('/methodology')}
-        >
-          Methodology
-        </span>
-        <span
-          className={`nav-link ${isCurrent('/apply') ? 'active' : ''}`}
-          onClick={() => navigateTo('/apply')}
-        >
-          Get Listed
-        </span>
+        {navItems.map((item) => {
+          const active = isCurrent(item.path);
+          return (
+            <motion.span
+              key={item.path}
+              className={`nav-link ${active ? 'active' : ''}`}
+              onClick={() => navigateTo(item.path)}
+              whileHover={{ y: -2 }}
+              whileTap={{ y: 0 }}
+              transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+            >
+              {item.label}
+            </motion.span>
+          );
+        })}
       </nav>
     </header>
   );

@@ -1,7 +1,9 @@
 import React, { useState, useMemo, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { COMPLETE_AGENT_DATABASE, getFullAgentDatabase, fetchLiveAgentDatabase, type AgentEntity } from '../data/agentDatabase';
 import { OrdinalNavbar } from '../components/OrdinalNavbar';
 import { AgentAvatar } from '../components/AgentAvatar';
+import { CountUpNumber } from '../components/CountUpNumber';
 
 interface RankingsViewProps {
   onNavigate?: (path: string) => void;
@@ -93,26 +95,37 @@ export const RankingsView: React.FC<RankingsViewProps> = ({ onNavigate }) => {
       <main id="page-rankings">
         <div className="wrap page-head">
           <div className="kicker">Rankings: Live Database Coverage</div>
-          <h1 className="headline" style={{ fontSize: 'clamp(2rem, 4.4vw, 3rem)' }}>
+          <motion.h1
+            className="headline"
+            style={{ fontSize: 'clamp(2rem, 4.4vw, 3rem)' }}
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+          >
             The Full Leaderboard
-          </h1>
+          </motion.h1>
           <p className="dek" style={{ fontSize: '1.05rem', maxWidth: '680px' }}>
             Every agent under coverage, ranked by composite reputation score. Scores move as new on-chain activity is reviewed, nothing here is static.
           </p>
 
           {/* The Under 30 Cohort Banner */}
-          <div style={{
-            marginTop: '24px',
-            padding: '18px 22px',
-            background: 'var(--paper-dim)',
-            border: '1px solid var(--ink)',
-            borderLeft: '4px solid var(--brass)',
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            flexWrap: 'wrap',
-            gap: '16px'
-          }}>
+          <motion.div
+            style={{
+              marginTop: '24px',
+              padding: '18px 22px',
+              background: 'var(--paper-dim)',
+              border: '1px solid var(--ink)',
+              borderLeft: '4px solid var(--brass)',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              flexWrap: 'wrap',
+              gap: '16px'
+            }}
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2, duration: 0.6 }}
+          >
             <div>
               <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.72rem', letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--brass)', fontWeight: 600, marginBottom: '4px' }}>
                 Featured Index: The Under 30 (Class of 2026)
@@ -121,7 +134,7 @@ export const RankingsView: React.FC<RankingsViewProps> = ({ onNavigate }) => {
                 Thirty breakout autonomous agents shaping the future of autonomous finance and decentralized execution.
               </div>
             </div>
-            <button
+            <motion.button
               className="btn"
               style={{
                 background: filterType === 'under30' ? 'var(--brass)' : 'transparent',
@@ -132,14 +145,16 @@ export const RankingsView: React.FC<RankingsViewProps> = ({ onNavigate }) => {
                 fontWeight: 600
               }}
               onClick={() => setFilterType(filterType === 'under30' ? 'all' : 'under30')}
+              whileHover={{ scale: 1.04 }}
+              whileTap={{ scale: 0.96 }}
             >
               {filterType === 'under30' ? 'Showing Top 30 Honorees' : 'Filter The Under 30'}
-            </button>
-          </div>
+            </motion.button>
+          </motion.div>
 
           <div className="controls-row">
             <div className="filter-row">
-              <button
+              <motion.button
                 className={`filter-btn ${filterType === 'under30' ? 'active' : ''}`}
                 style={{
                   borderColor: 'var(--brass)',
@@ -148,39 +163,45 @@ export const RankingsView: React.FC<RankingsViewProps> = ({ onNavigate }) => {
                   fontWeight: 600
                 }}
                 onClick={() => setFilterType('under30')}
+                whileTap={{ scale: 0.95 }}
               >
                 ★ The Under 30
-              </button>
-              <button
+              </motion.button>
+              <motion.button
                 className={`filter-btn ${filterType === 'all' ? 'active' : ''}`}
                 onClick={() => setFilterType('all')}
+                whileTap={{ scale: 0.95 }}
               >
                 All ({allAgents.length})
-              </button>
-              <button
+              </motion.button>
+              <motion.button
                 className={`filter-btn ${filterType === 'verified' ? 'active' : ''}`}
                 onClick={() => setFilterType('verified')}
+                whileTap={{ scale: 0.95 }}
               >
                 Verified
-              </button>
-              <button
+              </motion.button>
+              <motion.button
                 className={`filter-btn ${filterType === 'movers' ? 'active' : ''}`}
                 onClick={() => setFilterType('movers')}
+                whileTap={{ scale: 0.95 }}
               >
                 Top Movers
-              </button>
-              <button
+              </motion.button>
+              <motion.button
                 className={`filter-btn ${filterType === 'watchlist' ? 'active' : ''}`}
                 onClick={() => setFilterType('watchlist')}
+                whileTap={{ scale: 0.95 }}
               >
                 Watchlist
-              </button>
-              <button
+              </motion.button>
+              <motion.button
                 className={`filter-btn ${filterType === 'new' ? 'active' : ''}`}
                 onClick={() => setFilterType('new')}
+                whileTap={{ scale: 0.95 }}
               >
                 Newly Indexed
-              </button>
+              </motion.button>
             </div>
 
             <input
@@ -210,8 +231,16 @@ export const RankingsView: React.FC<RankingsViewProps> = ({ onNavigate }) => {
                 </tr>
               </thead>
               <tbody>
-                {filteredAgents.map((agent) => (
-                  <tr key={agent.id} onClick={() => setSelectedAgent(agent)}>
+                {filteredAgents.map((agent, index) => (
+                  <motion.tr
+                    key={agent.id}
+                    onClick={() => setSelectedAgent(agent)}
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.25, delay: Math.min(index * 0.02, 0.4) }}
+                    whileHover={{ backgroundColor: 'rgba(0, 0, 0, 0.035)', x: 3 }}
+                    style={{ cursor: 'pointer' }}
+                  >
                     <td className="r-num">{agent.rank}</td>
                     <td className="r-name">
                       <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -242,7 +271,7 @@ export const RankingsView: React.FC<RankingsViewProps> = ({ onNavigate }) => {
                         <span style={{ color: 'var(--ink-soft)' }}>-</span>
                       )}
                     </td>
-                  </tr>
+                  </motion.tr>
                 ))}
               </tbody>
             </table>
@@ -251,13 +280,28 @@ export const RankingsView: React.FC<RankingsViewProps> = ({ onNavigate }) => {
       </main>
 
       {/* Agent Detail Modal */}
-      {selectedAgent && (
-        <div className="modal-backdrop" onClick={() => setSelectedAgent(null)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <button className="modal-close" onClick={() => setSelectedAgent(null)}>✕</button>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '14px', margin: '10px 0' }}>
-              <AgentAvatar agent={selectedAgent} size={48} />
-              <div>
+      <AnimatePresence>
+        {selectedAgent && (
+          <motion.div
+            className="modal-backdrop"
+            onClick={() => setSelectedAgent(null)}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+          >
+            <motion.div
+              className="modal-content"
+              onClick={(e) => e.stopPropagation()}
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              transition={{ type: 'spring', stiffness: 350, damping: 25 }}
+            >
+              <button className="modal-close" onClick={() => setSelectedAgent(null)}>✕</button>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '14px', margin: '10px 0' }}>
+                <AgentAvatar agent={selectedAgent} size={48} />
+                <div>
                 <h2 style={{ fontFamily: "'Fraunces', serif", margin: 0, fontSize: '1.8rem' }}>
                   {selectedAgent.name}
                 </h2>
@@ -275,7 +319,9 @@ export const RankingsView: React.FC<RankingsViewProps> = ({ onNavigate }) => {
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px', fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.75rem' }}>
                 <div>
                   <div style={{ color: 'var(--ink-soft)', textTransform: 'uppercase' }}>Composite Score</div>
-                  <div style={{ fontSize: '1.6rem', fontWeight: 700, color: 'var(--crimson)' }}>{selectedAgent.score.toFixed(1)}</div>
+                  <div style={{ fontSize: '1.6rem', fontWeight: 700, color: 'var(--crimson)' }}>
+                    <CountUpNumber to={selectedAgent.score} decimals={1} duration={1.5} />
+                  </div>
                 </div>
                 <div>
                   <div style={{ color: 'var(--ink-soft)', textTransform: 'uppercase' }}>7d Movement</div>
@@ -291,11 +337,11 @@ export const RankingsView: React.FC<RankingsViewProps> = ({ onNavigate }) => {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.78rem' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                   <span>Active Wallets (30d):</span>
-                  <b>{selectedAgent.activeWallets30d.toLocaleString()}</b>
+                  <b><CountUpNumber to={selectedAgent.activeWallets30d} duration={1.8} /></b>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                   <span>GitHub Commits (30d):</span>
-                  <b>{selectedAgent.commits30d} commits</b>
+                  <b><CountUpNumber to={selectedAgent.commits30d} suffix=" commits" duration={1.8} /></b>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                   <span>Smart Contract Audit:</span>
@@ -312,22 +358,65 @@ export const RankingsView: React.FC<RankingsViewProps> = ({ onNavigate }) => {
 
             <div style={{ margin: '18px 0', borderTop: '1px solid var(--rule)', paddingTop: '16px' }}>
               <div className="aside-title">Scoring Breakdown</div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.78rem' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <span>Disclosure Completeness (30%):</span>
-                  <b>{selectedAgent.disclosureScore}/100</b>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.78rem' }}>
+                <div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+                    <span>Disclosure Completeness (30%):</span>
+                    <b>{selectedAgent.disclosureScore}/100</b>
+                  </div>
+                  <div style={{ height: '6px', background: 'rgba(0,0,0,0.08)', borderRadius: '3px', overflow: 'hidden' }}>
+                    <motion.div
+                      style={{ height: '100%', background: 'var(--crimson)', borderRadius: '3px' }}
+                      initial={{ width: 0 }}
+                      animate={{ width: `${selectedAgent.disclosureScore}%` }}
+                      transition={{ duration: 1, ease: 'easeOut' }}
+                    />
+                  </div>
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <span>On-Chain Consistency (35%):</span>
-                  <b>{selectedAgent.consistencyScore}/100</b>
+
+                <div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+                    <span>On-Chain Consistency (35%):</span>
+                    <b>{selectedAgent.consistencyScore}/100</b>
+                  </div>
+                  <div style={{ height: '6px', background: 'rgba(0,0,0,0.08)', borderRadius: '3px', overflow: 'hidden' }}>
+                    <motion.div
+                      style={{ height: '100%', background: 'var(--brass)', borderRadius: '3px' }}
+                      initial={{ width: 0 }}
+                      animate={{ width: `${selectedAgent.consistencyScore}%` }}
+                      transition={{ duration: 1, ease: 'easeOut', delay: 0.1 }}
+                    />
+                  </div>
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <span>Incident Response (20%):</span>
-                  <b>{selectedAgent.incidentScore}/100</b>
+
+                <div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+                    <span>Incident Response (20%):</span>
+                    <b>{selectedAgent.incidentScore}/100</b>
+                  </div>
+                  <div style={{ height: '6px', background: 'rgba(0,0,0,0.08)', borderRadius: '3px', overflow: 'hidden' }}>
+                    <motion.div
+                      style={{ height: '100%', background: 'var(--up)', borderRadius: '3px' }}
+                      initial={{ width: 0 }}
+                      animate={{ width: `${selectedAgent.incidentScore}%` }}
+                      transition={{ duration: 1, ease: 'easeOut', delay: 0.2 }}
+                    />
+                  </div>
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <span>Independence of Code (15%):</span>
-                  <b>{selectedAgent.independenceScore}/100</b>
+
+                <div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+                    <span>Independence of Code (15%):</span>
+                    <b>{selectedAgent.independenceScore}/100</b>
+                  </div>
+                  <div style={{ height: '6px', background: 'rgba(0,0,0,0.08)', borderRadius: '3px', overflow: 'hidden' }}>
+                    <motion.div
+                      style={{ height: '100%', background: 'var(--ink-soft)', borderRadius: '3px' }}
+                      initial={{ width: 0 }}
+                      animate={{ width: `${selectedAgent.independenceScore}%` }}
+                      transition={{ duration: 1, ease: 'easeOut', delay: 0.3 }}
+                    />
+                  </div>
                 </div>
               </div>
             </div>
@@ -350,13 +439,19 @@ export const RankingsView: React.FC<RankingsViewProps> = ({ onNavigate }) => {
                   Official Website
                 </a>
               ) : null}
-              <button className="btn-dark" onClick={() => setSelectedAgent(null)}>
+              <motion.button
+                className="btn-dark"
+                onClick={() => setSelectedAgent(null)}
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
+              >
                 Close
-              </button>
+              </motion.button>
             </div>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       )}
+      </AnimatePresence>
 
       <footer>
         <div className="wrap">

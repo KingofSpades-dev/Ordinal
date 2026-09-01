@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { OrdinalNavbar } from '../components/OrdinalNavbar';
 import { saveAgentToClientDatabase, type AgentEntity } from '../data/agentDatabase';
 
@@ -184,9 +185,15 @@ export const GetListedView: React.FC<GetListedViewProps> = ({ onNavigate }) => {
       <main className="wrap" style={{ padding: '44px 28px 80px' }}>
         <div className="page-head" style={{ padding: 0, border: 'none', marginBottom: '40px' }}>
           <div className="kicker">Ordinal Evaluation Pipeline</div>
-          <h1 className="headline" style={{ fontSize: 'clamp(2.2rem, 5vw, 3.4rem)' }}>
+          <motion.h1
+            className="headline"
+            style={{ fontSize: 'clamp(2.2rem, 5vw, 3.4rem)' }}
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+          >
             Get Listed
-          </h1>
+          </motion.h1>
           <p className="dek" style={{ fontSize: '1.15rem', maxWidth: '760px', marginTop: '16px' }}>
             Submit an autonomous agent for review, run instant telemetry diagnostics, and calculate provisional reputation scores across 4 weighted audit criteria.
           </p>
@@ -195,16 +202,24 @@ export const GetListedView: React.FC<GetListedViewProps> = ({ onNavigate }) => {
         <div className="apply-grid">
           <div className="apply-form-container">
             <form className="apply-form" onSubmit={handleFormSubmit}>
-              {formSubmitted && (
-                <div className="alert-success" style={{ borderLeft: '4px solid #2E7D32', padding: '18px 20px' }}>
-                  <div style={{ fontWeight: 700, marginBottom: '6px', fontSize: '0.95rem' }}>
-                    ✓ Submission & Rating Benchmark Recorded!
-                  </div>
-                  <div style={{ color: '#1B5E20', fontSize: '0.82rem', lineHeight: '1.6' }}>
-                    Reference ID: <b>{submissionRef}</b>. The Ordinal Research Desk has indexed your contract telemetry for verification and queued it for the rolling 30-day index.
-                  </div>
-                </div>
-              )}
+              <AnimatePresence>
+                {formSubmitted && (
+                  <motion.div
+                    className="alert-success"
+                    style={{ borderLeft: '4px solid #2E7D32', padding: '18px 20px' }}
+                    initial={{ opacity: 0, scale: 0.95, y: -10 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0 }}
+                  >
+                    <div style={{ fontWeight: 700, marginBottom: '6px', fontSize: '0.95rem' }}>
+                      ✓ Submission & Rating Benchmark Recorded!
+                    </div>
+                    <div style={{ color: '#1B5E20', fontSize: '0.82rem', lineHeight: '1.6' }}>
+                      Reference ID: <b>{submissionRef}</b>. The Ordinal Research Desk has indexed your contract telemetry for verification and queued it for the rolling 30-day index.
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
 
               <div className="field">
                 <label>Agent Name *</label>

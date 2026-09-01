@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { motion } from 'framer-motion';
 import { OrdinalNavbar } from '../components/OrdinalNavbar';
 import { COMPLETE_AGENT_DATABASE } from '../data/agentDatabase';
 import { AgentAvatar } from '../components/AgentAvatar';
@@ -182,11 +183,13 @@ export const ReportsCatalogView: React.FC<{ onSelectReport: (slug: string) => vo
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: '24px' }}>
           {reportsList.map((rep) => (
-            <div
+            <motion.div
               key={rep.slug}
               className="spot-card"
               style={{ cursor: 'pointer', border: '1px solid var(--rule)', borderTop: '3px solid var(--crimson)', padding: '24px' }}
               onClick={() => onSelectReport(rep.slug)}
+              whileHover={{ y: -5, boxShadow: '0 12px 24px rgba(0,0,0,0.08)' }}
+              transition={{ type: 'spring', stiffness: 300, damping: 20 }}
             >
               <div className="spot-card-top">
                 <span className="spot-rank">DOSSIER #{rep.dossierNumber}</span>
@@ -210,7 +213,7 @@ export const ReportsCatalogView: React.FC<{ onSelectReport: (slug: string) => vo
                 <span className="spot-age">Wallets: {rep.evidence.uniqueWallets.toLocaleString()}</span>
                 <span className="spot-score" style={{ color: 'var(--crimson)' }}>Read Dossier →</span>
               </div>
-            </div>
+            </motion.div>
           ))}
         </div>
       </main>

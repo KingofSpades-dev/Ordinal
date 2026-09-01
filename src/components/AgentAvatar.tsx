@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { motion } from 'framer-motion';
 
 interface AgentAvatarProps {
   agent: {
@@ -118,7 +119,9 @@ export const AgentAvatar: React.FC<AgentAvatarProps> = ({
 
   if (faviconUrl) {
     return (
-      <span
+      <motion.span
+        whileHover={{ scale: 1.15, rotate: 2 }}
+        transition={{ type: 'spring', stiffness: 400, damping: 20 }}
         className={`aside-avatar ${className}`}
         style={{
           width: dimension,
@@ -135,6 +138,7 @@ export const AgentAvatar: React.FC<AgentAvatarProps> = ({
           padding: '2px',
           boxSizing: 'border-box',
           verticalAlign: 'middle',
+          cursor: 'pointer',
           ...style
         }}
       >
@@ -151,13 +155,15 @@ export const AgentAvatar: React.FC<AgentAvatarProps> = ({
           onError={() => setImgError(true)}
           loading="lazy"
         />
-      </span>
+      </motion.span>
     );
   }
 
   // Beautiful editorial monogram badge for agents without an external logo
   return (
-    <span
+    <motion.span
+      whileHover={{ scale: 1.15 }}
+      transition={{ type: 'spring', stiffness: 400, damping: 20 }}
       className={`aside-avatar ${className}`}
       style={{
         width: dimension,
@@ -176,10 +182,11 @@ export const AgentAvatar: React.FC<AgentAvatarProps> = ({
         letterSpacing: '-0.5px',
         verticalAlign: 'middle',
         boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.15)',
+        cursor: 'pointer',
         ...style
       }}
     >
       {agent.avatar || agent.name.slice(0, 2).toUpperCase()}
-    </span>
+    </motion.span>
   );
 };

@@ -279,11 +279,7 @@ button {
 }
 
 .kicker::before {
-  content: "";
-  width: 26px;
-  height: 2px;
-  background: var(--crimson);
-  display: inline-block;
+  display: none;
 }
 
 .headline {
