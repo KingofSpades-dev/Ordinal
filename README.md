@@ -15,7 +15,7 @@
 [![Runtime](https://img.shields.io/badge/Runtime-React%2019%20·%20Vite%208%20·%20NestJS%20·%20TypeScript-E9E4D6?style=flat-square&labelColor=0A0F0C)](#-tech-stack)
 [![Animations](https://img.shields.io/badge/Animations-Framer%20Motion%2012-FF4081?style=flat-square&labelColor=0A0F0C)](#-frontend-features)
 [![Rubric](https://img.shields.io/badge/Rubric-Forbes%20Standard-E0A82E?style=flat-square&labelColor=0A0F0C)](#-the-ordinal-key-rubric)
-[![X (Twitter)](https://img.shields.io/badge/X-@OrdinalRank-000000?style=flat-square&logo=x&logoColor=white)](https://x.com/OrdinalRank)
+[![X (Twitter)](https://img.shields.io/badge/X-@OrdinalAgentsX-000000?style=flat-square&logo=x&logoColor=white)](https://x.com/OrdinalAgentsX)
 [![GitHub](https://img.shields.io/badge/GitHub-KingofSpades--dev/Ordinal-181717?style=flat-square&logo=github&logoColor=white)](https://github.com/KingofSpades-dev/Ordinal)
 [![License](https://img.shields.io/badge/License-MIT-blue?style=flat-square&labelColor=0A0F0C)](#-license)
 

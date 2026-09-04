@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { OrdoNavbar } from './components/OrdoNavbar'
+import { OrdoNavbar, XLogoIcon, GitHubLogoIcon } from './components/OrdoNavbar'
 
 interface Agent {
   id: string;
@@ -1817,15 +1817,22 @@ export default function RatingAgents() {
             <div className="foot-cols">
               <div className="foot-col">
                 <h5>Rankings</h5>
-                <a href="#">Security</a><a href="#">Infrastructure</a><a href="#">Research</a><a href="#">Trading</a>
+                <a href="/rankings">Security</a><a href="/rankings">Infrastructure</a><a href="/rankings">Research</a><a href="/rankings">Trading</a>
               </div>
               <div className="foot-col">
                 <h5>Publication</h5>
-                <a href="#">Dossiers</a><a href="#">Investigations</a><a href="#">Weekly report</a><a href="#">Interviews</a>
+                <a href="/reports">Dossiers</a><a href="/log">Build Log</a><a href="/qualified">Qualified Volume</a><a href="/apply">Get Listed</a>
               </div>
               <div className="foot-col">
-                <h5>The Guide</h5>
-                <a href="#">Methodology</a><a href="#">Editorial standards</a><a href="#">Holder benefits</a><a href="#">Submit an agent</a>
+                <h5>Community</h5>
+                <a href="https://x.com/OrdinalAgentsX" target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                  <XLogoIcon size={13} /> Official X
+                </a>
+                <a href="https://github.com/KingofSpades-dev/Ordinal" target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                  <GitHubLogoIcon size={13} /> GitHub
+                </a>
+                <a href="/methodology">Methodology</a>
+                <a href="/apply">Submit an agent</a>
               </div>
             </div>
           </div>
