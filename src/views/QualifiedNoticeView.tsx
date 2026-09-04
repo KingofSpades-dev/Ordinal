@@ -115,7 +115,7 @@ export const QualifiedNoticeView: React.FC<QualifiedNoticeViewProps> = ({ onNavi
           <div className="foot-row">
             <span>Ordinal: The Web3 AI Agent Index</span>
             <span>Independent Editorial Desk</span>
-            <span>ordinal.tech</span>
+            <span>ordinal30.com</span>
           </div>
         </div>
       </footer>

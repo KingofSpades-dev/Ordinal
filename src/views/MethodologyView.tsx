@@ -172,7 +172,7 @@ export const MethodologyView: React.FC<MethodologyViewProps> = ({ onNavigate }) 
           <div className="foot-row">
             <span>Ordinal: The Web3 AI Agent Index</span>
             <span>Independent Editorial Desk</span>
-            <span>ordinal.tech</span>
+            <span>ordinal30.com</span>
           </div>
         </div>
       </footer>

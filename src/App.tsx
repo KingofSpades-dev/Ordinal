@@ -537,7 +537,7 @@ export default function App({ onNavigate }: { onNavigate?: (path: string) => voi
           <div className="foot-row">
             <span>Ordinal: The Web3 AI Agent Index</span>
             <span>Independent Editorial Desk</span>
-            <span>ordinal.tech</span>
+            <span>ordinal30.com</span>
           </div>
           <p className="disclaimer">
             Design concept in an editorial, financial-journalism narrative voice. Rankings, scores, and figures shown are verified telemetry benchmarks from the Ordinal database.

@@ -70,7 +70,7 @@ COMPLETE_AGENT_DATABASE.forEach((agent, index) => {
     slug: agent.slug,
     category: agent.category,
     chains: [agent.chain.toLowerCase()],
-    websiteUrl: agent.website || 'https://ordinal.tech',
+    websiteUrl: agent.website || 'https://ordinal30.com',
     logoUrl: '/logo.jpeg',
     dossierNumber: agent.dossierNumber || (38 + index),
     methodologyVersion: 'v1.0-editorial',
@@ -223,7 +223,7 @@ export const ReportsCatalogView: React.FC<{ onSelectReport: (slug: string) => vo
           <div className="foot-row">
             <span>Ordinal: The Web3 AI Agent Index</span>
             <span>Independent Editorial Desk</span>
-            <span>ordinal.tech</span>
+            <span>ordinal30.com</span>
           </div>
         </div>
       </footer>
@@ -357,7 +357,7 @@ export const ReportDetailView: React.FC<{ report: ReportData; onBack: () => void
           <div className="foot-row">
             <span>Ordinal: The Web3 AI Agent Index</span>
             <span>Independent Editorial Desk</span>
-            <span>ordinal.tech</span>
+            <span>ordinal30.com</span>
           </div>
         </div>
       </footer>
